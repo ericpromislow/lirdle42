@@ -94,7 +94,7 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     assert_nil session[:forwarding_url]
     get root_path
     log_in_as(@user)
-    assert_redirected_to @user
+    assert_redirected_to root_url
   end
 
   test "non-admin user can't make themselves admin" do

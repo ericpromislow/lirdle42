@@ -7,11 +7,18 @@ class SessionsController < ApplicationController
     user = (User.find_by(email: emailField.downcase) ||
       User.find_by(username: emailField) ||
       User.find_by("LOWER(username)= ? ", emailField.downcase))
-    if user&.authenticate(params[:session][:password])
-      log_in user
-      params[:session][:remember_me] == '1' ? remember(user) : forget(user)
-      redirect_back_or(user)
-      # Log the user in and redirect to the user's show page.
+    if user && user.authenticate(params[:session][:password])
+      if user.activated? || user.inactive_logins > 1
+        user.update_attribute(:inactive_logins, user.inactive_logins - 1) if !user.activated?
+        log_in user
+        params[:session][:remember_me] == '1' ? remember(user) : forget(user)
+      else
+        # Shouldn't go below 0
+        flash[:info] = "You need to activate your account to continue logging in. Please check your email at #{ user.email }"
+        log_in user
+        UserMailer.account_activation(user).deliver_now
+      end
+      redirect_back_or(root_url)
     else
       flash.now[:danger] = 'Invalid email/password combination'
       render 'new'

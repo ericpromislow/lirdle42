@@ -31,7 +31,7 @@ class UsersSignupTest < ActionDispatch::IntegrationTest
       }
     end
     follow_redirect!
-    assert_template 'users/show'
+    assert_template 'static_pages/home'
     assert is_logged_in?
     # puts "QQQ: #{ response.body }"
     assert_select 'div.alert-success', 'Welcome, charlie1'

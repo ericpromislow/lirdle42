@@ -2,7 +2,7 @@ require "test_helper"
 
 class StaticPagesControllerTest < ActionDispatch::IntegrationTest
   def setup
-    @base_title = 'Gameapp'
+    @base_title = APPNAME.capitalize
   end
   test "should get home via root" do
     get '/'

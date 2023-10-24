@@ -10,9 +10,12 @@ class User < ApplicationRecord
   has_secure_password
   validates :password, length: { minimum: 4 }, allow_nil: true
 
-  def authenticated?(a_remember_token)
+  def authenticated?(attribute, token)
+    return false if token.nil?
+    digest = self.send("#{attribute}_digest")
+    return false if digest.nil?
     # Does encrypting a_remember_token match the current remember_digest?
-    a_remember_token && BCrypt::Password.new(remember_digest).is_password?(a_remember_token)
+    BCrypt::Password.new(digest).is_password?(token)
   end
 
   def forget
@@ -45,6 +48,7 @@ class User < ApplicationRecord
   def do_create_activation_digest
     self.activation_token = User.new_token
     self.activation_digest = User.digest(self.activation_token)
+    self.inactive_logins = ApplicationHelper::NUM_FREE_LOGINS - 1
   end
 
 end

@@ -44,7 +44,13 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
       post users_url, params: { user: { email: email, password: password, password_confirmation: password, profile_id: @user.profile_id, username: username } }
     end
 
-    assert_redirected_to user_url(User.last)
+    assert_redirected_to root_url
+    newUser = User.last
+    assert_equal username, newUser.username
+    assert_equal email, newUser.email
+    assert_equal false, newUser.admin
+    assert_equal false, newUser.activated
+    assert_equal ApplicationHelper::NUM_FREE_LOGINS - 1, newUser.inactive_logins
   end
 
   test "should show user" do

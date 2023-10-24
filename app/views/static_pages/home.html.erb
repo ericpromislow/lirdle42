@@ -3,5 +3,7 @@
   <h2>
     This be the home page for GameApp
   </h2>
+  <% if !logged_in? %>
   <%= link_to "Sign up", signup_path, class: "btn btn-lg btn-primary" %>
-</div>
+  <% end %>
+    </div>

@@ -18,7 +18,7 @@ class UserMailerTest < ActionMailer::TestCase
     mail = UserMailer.password_reset(user)
     assert_equal "#{ ApplicationHelper::APPNAME.capitalize } password reset", mail.subject
     assert_equal [user.email], mail.to
-    assert_equal ["noreply@gameapp.com"], mail.from
+    assert_equal ["noreply@#{ ApplicationHelper::APPNAME }.com"], mail.from
     assert_match "Hello,", mail.body.encoded
   end
 
