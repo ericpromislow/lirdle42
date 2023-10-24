@@ -1,0 +1,30 @@
+<% provide(:title, @user.username) %>
+
+<p id="notice"><%= notice %></p>
+
+<div class="row">
+  <aside class="col-md-4">
+    <section class="user_info">
+      <h1>
+        <%= gravatar_for @user, size: 40 %>
+        <strong>Username:</strong> <%= @user.username %>
+      </h1>
+      <h2>Email:  <%= @user.email %></h2>
+    </section>
+  </aside>
+</div>
+
+<!--
+<p>
+  <strong>Is temporary:</strong>
+  <%= @user.is_temporary %>
+</p>
+
+<p>
+  <strong>Profile:</strong>
+  <%= @user.profile_id %>
+</p>
+-->
+
+<%= link_to 'Edit', edit_user_path(@user) %> |
+<%= link_to 'Back', users_path %>

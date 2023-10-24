@@ -1,0 +1,14 @@
+<h1><%= ApplicationHelper::APPNAME.capitalize %> Account Activation</h1>
+
+<p>
+Hello, <%= @user.username %>,
+</p>
+<p>
+You're welcome to explore the <%= ApplicationHelper::APPNAME.capitalize %> site,
+but you'll need to activate your account in order to create games and invite
+non-members to a match.
+</p>
+Please click on the following link below to activate your account, or copy and
+paste it into a browser bar:
+</p>
+<%= link_to "Activate", edit_account_activation_url(@user.activation_token, email: @user.email) %>

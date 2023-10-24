@@ -1,0 +1,2 @@
+Consider using the 'profanity_filter' gem and flagging anything if
+finds for moderator review.

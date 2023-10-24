@@ -1,0 +1,91 @@
+
+11. Setting up the server to run rails
+
+$ sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev
+ERROR:
+> Package python-software-properties is not available, but is referred to by another package.
+$ sudo apt-get install software-properties-common
+> software-properties-common is already the newest version (0.99.22.7).
+  0 upgraded, 0 newly installed, 0 to remove and 56 not upgraded.
+>
+$ !?git-core?:pull out python-software-properties
+> Newer kernel available
+   
+    The currently running kernel version is 5.15.0-78-generic which is not the
+    expected kernel version 5.15.0-86-generic.
+   
+    Restarting the system to load the new kernel will not be handled automatically,
+    so you should consider rebooting.
+    
+$ sudo reboot
+$ cd
+  git clone git://github.com/rbenv/rbenv.git .rbenv
+  echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bash_profile
+  echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
+  
+  git clone git://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+  echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bash_profile
+  source ~/.bash_profile
+  
+In 2015 these were at github.com/sstephenson but are now at github.com/rbenv
+
+$ rbenv install -v 2.7.1
+
+Lots of C compiler output...
+
+$ rbenv global 2.7.1
+$ ruby -
+2.7.1p83 alright !!!!
+$ gem install bundler
+$ echo "gem: --no-document" >> ~/.gemrc
+$ cat ~/.gemrc
+  install: --no-rdoc --no-ri
+  update: --no-rdoc --no-ri
+  gem: --no-document
+$ gem install rails
+> ERROR:  Error installing rails:
+  	The last version of net-imap (>= 0) to support your Ruby & RubyGems was 0.3.7.
+> Try installing it with `gem install net-imap -v 0.3.7` and then running the current command again
+
+$ gem install net-imap -v 0.3.7
+$ gem install rails
+SUccess
+
+$ rbenv rehash
+  Then go uninstall all the rails stuff, because it's version 7, and run
+$ gem install rails -v 6.1.7
+
+$ sudo add-apt-repository ppa:chris-lea/node.js
+> didn't work
+
+$ sudo apt-get upgrade nodejs
+$ node -v
+
+12. install mysql
+
+$ sudo apt-get install mysql-server mysql-client libmysqlclient-dev
+Service restarts being deferred:
+ /etc/needrestart/restart.d/dbus.service
+ systemctl restart networkd-dispatcher.service
+ systemctl restart systemd-logind.service
+ systemctl restart unattended-upgrades.service
+ systemctl restart user@1000.service
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+
+*****
+
+To stop mysql:
+$ sudo service stop mysql
+
+13. Next: installing postgresql following https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-ruby-on-rails-application-on-ubuntu-14-04
+
+$ sudo apt-get install postgresql postgresql-contrib libpq-dev
+... set up the postgres database
+
+
+
