@@ -11,4 +11,4 @@ non-members to a match.
 Please click on the following link below to activate your account, or copy and
 paste it into a browser bar:
 </p>
-<%= link_to "Activate", edit_account_activation_url(@user.activation_token, email: @user.email) %>
+<%= link_to "Activate", edit_account_activation_url(@user.id, token: @user.activation_token, email: @user.email) %>

@@ -11,6 +11,10 @@ module SessionsHelper
     current_user && !current_user.activated && current_user.inactive_logins <= 0
   end
 
+  def inactivated_logged_in?
+    current_user && !current_user.activated
+  end
+
   def log_out
     forget(current_user)
     session.delete(:user_id)

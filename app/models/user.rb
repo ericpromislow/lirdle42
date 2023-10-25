@@ -46,8 +46,6 @@ class User < ApplicationRecord
   end
 
   def do_create_activation_digest
-    self.activation_token = User.new_token
-    self.activation_digest = User.digest(self.activation_token)
     self.inactive_logins = ApplicationHelper::NUM_FREE_LOGINS - 1
   end
 
