@@ -10,6 +10,10 @@ class User < ApplicationRecord
   has_secure_password
   validates :password, length: { minimum: 4 }, allow_nil: true
 
+  def activate
+    update_columns(activated: true, activated_at: Time.zone.now)
+  end
+
   def authenticated?(attribute, token)
     return false if token.nil?
     digest = self.send("#{attribute}_digest")
@@ -25,6 +29,10 @@ class User < ApplicationRecord
   def remember
     self.remember_token = User.new_token
     update_attribute(:remember_digest, User.digest(self.remember_token))
+  end
+
+  def send_activation_email
+    UserMailer.account_activation(self).deliver_now
   end
 
   def User.digest(raw_password)

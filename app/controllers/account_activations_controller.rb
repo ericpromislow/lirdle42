@@ -15,7 +15,7 @@ class AccountActivationsController < ApplicationController
       if !user.save
         flash[:error] = "user #{ user.username } can't be updated"
       else
-        UserMailer.account_activation(user).deliver_now
+        user.send_activation_email
         flash[:info] = "Please check your email (for #{ user.email }) to activate your account."
       end
     end
@@ -34,8 +34,7 @@ class AccountActivationsController < ApplicationController
       msg = "Invalid activation link #{  params[:token] } for user #{ user.username }. Where'd you get this from?"
       flash[:danger] = msg
     else
-      user.update_attribute(:activated, true)
-      user.update_attribute(:activated_at, Time.zone.now)
+      user.activate
       log_in user
       flash[:success] = "Account activated"
     end

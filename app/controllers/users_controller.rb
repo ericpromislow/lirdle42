@@ -7,6 +7,7 @@ class UsersController < ApplicationController
 
   # GET /users or /users.json
   def index
+    # TODO: List only activated users eventually who are also logged in
     @users = User.order('LOWER(username)').paginate(:page => params[:page], :per_page => 10)
   end
 
