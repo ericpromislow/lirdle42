@@ -18,7 +18,7 @@ class UserMailer < ApplicationMailer
   #
   def password_reset(user=nil)
     @greeting = "Password reset time!"
-    @user = user || User.first
+    @user = user
     mail to: @user.email, subject: "#{ ApplicationHelper::APPNAME.capitalize } password reset"
   end
 end

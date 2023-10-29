@@ -31,7 +31,7 @@ class AccountActivationsController < ApplicationController
       msg = "User #{ user.username } is already activated"
       flash[:danger] = msg
     elsif !user.authenticated?(:activation, params[:token])
-      msg = "Invalid activation link #{  params[:token] } for user #{ user.username }. Where'd you get this from?"
+      msg = "Invalid activation link for user #{ user.username }. Where'd you get this from?"
       flash[:danger] = msg
     else
       user.activate

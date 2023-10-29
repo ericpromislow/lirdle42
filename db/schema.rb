@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_24_043025) do
+ActiveRecord::Schema.define(version: 2023_10_29_071942) do
 
   create_table "profiles", force: :cascade do |t|
     t.integer "theme"
@@ -33,6 +33,8 @@ ActiveRecord::Schema.define(version: 2023_10_24_043025) do
     t.boolean "activated", default: false
     t.datetime "activated_at"
     t.integer "inactive_logins", default: 0
+    t.string "reset_digest"
+    t.datetime "reset_sent_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["username"], name: "index_users_on_username", unique: true
   end
