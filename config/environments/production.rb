@@ -85,17 +85,16 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  # config.action_mailer.smtp_settings = { ?????
-  ActionMailer::Base.smtp_settings = {
+  config.action_mailer.smtp_settings = {
     :address => 'smtp.gmail.com',
     :port => 587,
-    domain: 'lirdle42.com',
-    :user_name => ENV['GMAIL_APP_USER'],
+    domain: 'lirdle.com',
+    :user_name => "#{ENV['GMAIL_APP_USER']}@gmail.com",
     :password => ENV['GMAIL_APP_PASSWORD'],
     :authentication => :plain,
-    :enable_starttls_auto => true
+    :enable_starttls_auto => true,
+    openssl_verify_mode: 'none',
   }
-  config.action_mailer.smtp_settings = ActionMailer::Base.smtp_settings
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
@@ -112,7 +111,7 @@ Rails.application.configure do
   #
   # From https://stackoverflow.com/questions/22288951/actionviewtemplateerror-missing-host-to-link-to-please-provide-the-host-p
   config.action_mailer.delivery_method = :smtp
-  config.action_mailer.default_url_options = { :host => 'lirdle42.com' } #????
+  config.action_mailer.default_url_options = { :host => 'lirdle.com' } #????
 
 
   # Inserts middleware to perform automatic connection switching.

@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: "noreply@#{ ApplicationHelper::APPNAME }.com"
+  default from: "#{ENV['GMAIL_APP_USER']}@gmail.com"
   layout 'mailer'
 end
