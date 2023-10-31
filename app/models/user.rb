@@ -9,6 +9,11 @@ class User < ApplicationRecord
     format: { with: /.+@.+\.\w/ }, uniqueness: { case_sensitive: false }
   has_secure_password
   validates :password, length: { minimum: 4 }, allow_nil: true
+  has_one_attached :image
+  validates :image, content_type: { in: %w[image/jpeg image/gif image/png],
+    message: "must be a valid image format" },
+    size:    { less_than: 5.megabytes,  message:   "must be less than 5MB" }
+
 
   def activate
     update_columns(activated: true, activated_at: Time.zone.now)
@@ -25,6 +30,10 @@ class User < ApplicationRecord
   def create_reset_digest
     self.reset_token = User.new_token
     update_columns(reset_digest: User.digest(reset_token), reset_sent_at: Time.zone.now)
+  end
+
+  def display_image
+    self.image.variant(resize_to_limit: [100, 100])
   end
 
   def forget

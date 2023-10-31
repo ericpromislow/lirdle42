@@ -53,7 +53,16 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1 or /users/1.json
   def update
     if @user.update(updatable_params)
-      flash[:success] = "User #{@user.username}  was successfully updated."
+      image_field = params[:user][:image]
+      if image_field
+        begin
+          @user.image.attach(image_field)
+          flash[:success] = "User #{@user.username}  was successfully updated."
+        rescue # SQLite3::BusyException => ex
+          puts "Error trying to attach image: #{ $! }"
+          flash[:error] = "Error accessing image database. Please try later."
+        end
+      end
       redirect_to user_url(@user)
     else
       flash[:error] = "User #{@user.username} not updated: #{ @user.errors.full_messages }"
@@ -97,11 +106,11 @@ class UsersController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def  user_params
-    params.require(:user).permit(:username, :email, :password, :password_confirmation, :admin)
+    params.require(:user).permit(:username, :email, :password, :password_confirmation, :admin, :image)
   end
 
   def updatable_params
-    params.require(:user).permit(:username, :password, :password_confirmation)
+    params.require(:user).permit(:username, :password, :password_confirmation, :image)
   end
 
   def correct_user

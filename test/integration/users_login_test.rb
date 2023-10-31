@@ -32,7 +32,6 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
     follow_redirect!
     assert_template "static_pages/home"
-    # puts "QQQ: #{ response.body }"
     assert_select "a[href=?]", login_path
     assert_select "a[href=?]", logout_path, count: 0
     assert_select "a[href=?]", user_path(@user), count: 0
