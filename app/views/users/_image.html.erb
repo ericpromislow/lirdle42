@@ -1,0 +1,6 @@
+<%# debugger %>
+<% if @user.image.attached? %>
+  <%= image_tag @user.display_image %>
+<% else %>
+  <%= gravatar_for user, size: 40 %>
+<% end %>
