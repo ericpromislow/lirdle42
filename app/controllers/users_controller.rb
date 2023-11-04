@@ -1,9 +1,9 @@
 class UsersController < ApplicationController
   # Does these before_actions in order of appearance here:
-  before_action :set_user, only: %i[ show edit update destroy ]
-  before_action :logged_in_user, only: %i[ index edit update destroy ]
+  before_action :set_user, only: %i[ show edit update destroy start_waiting end_waiting]
+  before_action :logged_in_user, only: %i[ index edit update destroy start_waiting end_waiting]
   before_action :allow_admins_only, only: %i[ destroy  ]
-  before_action :correct_user, only: %i[ edit update  ]
+  before_action :correct_user, only: %i[ edit update start_waiting  end_waiting ]
 
   # GET /users or /users.json
   def index
@@ -52,6 +52,9 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1 or /users/1.json
   def update
+    if params.has_key?(:waiting_for_game)
+      return update_waiting_for_game
+    end
     if @user.update(updatable_params)
       image_field = params[:user][:image]
       if image_field
@@ -77,6 +80,13 @@ class UsersController < ApplicationController
     #     format.json { render json: @user.errors, status: :unprocessable_entity }
     #   end
     # end
+  end
+
+  def update_waiting_for_game
+    if !@user.update(waiting_for_game: params[:waiting_for_game])
+      flash[:error] = "User #{@user.username} not updated: #{ @user.errors.full_messages }"
+    end
+    redirect_to root_url
   end
 
   # DELETE /users/1 or /users/1.json

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_30_003128) do
+ActiveRecord::Schema.define(version: 2023_11_04_041828) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -63,7 +63,9 @@ ActiveRecord::Schema.define(version: 2023_10_30_003128) do
     t.integer "inactive_logins", default: 0
     t.string "reset_digest"
     t.datetime "reset_sent_at"
+    t.boolean "waiting_for_game", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["waiting_for_game"], name: "index_users_on_waiting_for_game"
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 

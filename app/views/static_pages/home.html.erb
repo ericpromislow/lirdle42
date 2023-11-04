@@ -1,9 +1,37 @@
 <div class="center jumbotron">
-  <h1>GameApp</h1><br>
+  <h1><%= ApplicationHelper::APPNAME.capitalize  %></h1><br>
   <h2>
-    This be the home page for GameApp
+    This be the home page for <%= ApplicationHelper::APPNAME.capitalize  %>
   </h2>
   <% if !logged_in? %>
-  <%= link_to "Sign up", signup_path, class: "btn btn-lg btn-primary" %>
-  <% end %>
+    <%= link_to "Sign up", signup_path, class: "btn btn-lg btn-primary" %>
+    <% if @waiting_users.size > 0 %>
+      <p>Currently <%= pluralize(@waiting_users.size, "player") %> <%= @waiting_users.size == 1 ? 'is' : 'are' %> waiting to play</p>
+    <% end %>
+  <% else
+    user = current_user
+    label = user.waiting_for_game ? "Remove me from" : "Put me on" %>
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <%= form_with(model: user, local: true) do |f| %>
+          <%= hidden_field_tag :waiting_for_game, ! user.waiting_for_game %>
+          <%= f.submit "#{ label } the waiting list", class: "btn btn-primary" %>
+        <% end %>
+      </div>
     </div>
+    <div>
+      <% if @waiting_users.size == 0 %>
+        <p>Someone has to be the first to put their name on the waiting list.</p>
+      <% else %>
+        <h3>Current users waiting to start a game. Invite one of them, or add your name</h3>
+        <div class="list-group">
+          <ul>
+            <% @waiting_users.each do |user| %>
+            <li><%= user.username %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

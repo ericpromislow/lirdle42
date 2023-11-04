@@ -10,7 +10,7 @@ User.create!(username: "joe",
 
 require 'faker'
 # Generate a bunch of additional users.
-99.times do |n|
+9.times do |n|
   first_name = Faker::Name.first_name
   last_name = Faker::Name.last_name
   domain_name = Faker::Internet.domain_name.sub('.example','.org').sub('.test', '.com')
