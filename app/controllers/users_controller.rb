@@ -52,20 +52,27 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1 or /users/1.json
   def update
-    if params.has_key?(:waiting_for_game)
-      return update_waiting_for_game
+    # From users/_edit, the form has a :user param
+    # But from the erb, it doesn't
+    waiting_params = params.permit(:waiting_for_game)
+    if waiting_params.has_key?(:waiting_for_game)
+      return update_waiting_for_game(waiting_params)
+    end
+    waiting_params = params.require(:user).permit(:waiting_for_game)
+    if waiting_params.has_key?(:waiting_for_game)
+      return update_waiting_for_game(waiting_params)
     end
     if @user.update(updatable_params)
       image_field = params[:user][:image]
       if image_field
         begin
           @user.image.attach(image_field)
-          flash[:success] = "User #{@user.username}  was successfully updated."
         rescue # SQLite3::BusyException => ex
           puts "Error trying to attach image: #{ $! }"
           flash[:error] = "Error accessing image database. Please try later."
         end
       end
+      flash[:success] = "User #{@user.username} was successfully updated."
       redirect_to user_url(@user)
     else
       flash[:error] = "User #{@user.username} not updated: #{ @user.errors.full_messages }"
@@ -82,8 +89,8 @@ class UsersController < ApplicationController
     # end
   end
 
-  def update_waiting_for_game
-    if !@user.update(waiting_for_game: params[:waiting_for_game])
+  def update_waiting_for_game(waiting_params)
+    if !@user.update(waiting_params)
       flash[:error] = "User #{@user.username} not updated: #{ @user.errors.full_messages }"
     end
     redirect_to root_url
@@ -124,7 +131,11 @@ class UsersController < ApplicationController
   end
 
   def correct_user
-    redirect_to(root_url) unless current_user?(User.find(params[:id]))
+    u = User.find(params[:id])
+    if !current_user?(u) && !current_user.admin
+      flash[:danger] = "You can't update user #{ u.username }"
+      redirect_to root_url
+    end
   end
 
   def current_user?(user)

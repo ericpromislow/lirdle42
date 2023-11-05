@@ -1,4 +1,4 @@
-<div class="center jumbotron">
+<div>
   <h1><%= ApplicationHelper::APPNAME.capitalize  %></h1><br>
   <h2>
     This be the home page for <%= ApplicationHelper::APPNAME.capitalize  %>
@@ -12,7 +12,7 @@
     user = current_user
     label = user.waiting_for_game ? "Remove me from" : "Put me on" %>
     <div class="row">
-      <div class="col-md-6 col-md-offset-3">
+      <div class="col-md-4">
         <%= form_with(model: user, local: true) do |f| %>
           <%= hidden_field_tag :waiting_for_game, ! user.waiting_for_game %>
           <%= f.submit "#{ label } the waiting list", class: "btn btn-primary" %>
@@ -21,13 +21,17 @@
     </div>
     <div>
       <% if @waiting_users.size == 0 %>
-        <p>Someone has to be the first to put their name on the waiting list.</p>
+        <div class="row">
+          <p>Someone has to be the first to put their name on the waiting list.</p>
+        </div>
       <% else %>
-        <h3>Current users waiting to start a game. Invite one of them, or add your name</h3>
-        <div class="list-group">
-          <ul>
+        <div class="row">
+          <p class="col-md-4">Current users waiting to start a game. Invite one of them, or add your name</p>
+        </div>
+        <div class="row">
+          <ul class="list-group col-md-4">
             <% @waiting_users.each do |user| %>
-            <li><%= user.username %></li>
+              <li class="list-group-item li-small-image"><% if user.image.attached? %><%= image_tag user.display_image %><% end %><%= user.username %></li>
             <% end %>
           </ul>
         </div>

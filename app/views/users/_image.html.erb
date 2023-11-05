@@ -1,5 +1,8 @@
 <%# debugger %>
-<% if @user.image.attached? %>
+<% if !@user %>
+  <% puts "QQQ: no user for image" %>
+  <span>&nbsp;</span>
+<% elsif @user.image&.attached? %>
   <%= image_tag @user.display_image %>
 <% else %>
   <%= gravatar_for @user, size: 40 %>

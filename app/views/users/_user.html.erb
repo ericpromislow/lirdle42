@@ -1,7 +1,10 @@
 <li>
   <%# debugger %>
-  @user = user
-  <% render 'users/image' %>
+  <% if user.image&.attached? %>
+  <%= image_tag user.display_image %>
+  <% else %>
+  <span>&nbsp;</span>
+  <% end %>
   <%= link_to user.username, user %> | email: <%= user.email %>
   <% if current_user.admin? && current_user != user %>
   | <%= link_to "delete", user, method: :delete, data: { confirm: "You sure about that?"} %>

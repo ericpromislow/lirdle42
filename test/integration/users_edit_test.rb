@@ -84,9 +84,10 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     username = "chuck"
     patch user_path(@user), params: { user: { username: username } }
 
-    assert_not flash.empty?
     assert_redirected_to @user
     follow_redirect!
+    # puts "QQQ: #{ response.body }"
+    assert_not flash.empty?
     @user.reload
     assert_equal username, @user.username
 
@@ -104,6 +105,7 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     patch user_path(@other_user), params: { user: {admin: true }}
     assert_redirected_to @other_user
     follow_redirect!
+    # puts "QQQ: #{ response.body }"
     assert_not flash.empty?
     @other_user.reload
     assert_equal false, @other_user.admin
