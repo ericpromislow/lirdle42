@@ -77,7 +77,42 @@ class UsersWaitingTest < ActionDispatch::IntegrationTest
     assert_select 'li', { text: @user.username, count: 0 }
     @user.reload
     assert !@user.waiting_for_game
+  end
 
+  test "when the other guy leaves his name isn't on the board" do
+    log_in_as(@user)
+    patch user_path(@user), params: {
+      user: {
+        waiting_for_game: true,
+      }
+    }
+    assert_redirected_to root_url
+    follow_redirect!
+    assert_template "static_pages/home"
+    # puts "QQQ: #{ response.body }"
+    assert_select 'li', @user.username
+
+    user2 = users(:user2)
+    log_in_as(user2)
+    patch user_path(user2), params: {
+      user: {
+        waiting_for_game: true,
+      }
+    }
+    assert_redirected_to root_url
+    follow_redirect!
+    assert_template "static_pages/home"
+    assert flash.empty?
+    assert_select 'ul.list-group li', @user.username
+    assert_select 'ul.list-group li', user2.username
+
+    log_in_as(@user)
+    delete logout_path
+    assert_not is_logged_in?
+    assert_redirected_to root_url
+    follow_redirect!
+    assert_template "static_pages/home"
+    assert_select 'p', 'Currently 1 person is waiting to play'
   end
 
 end

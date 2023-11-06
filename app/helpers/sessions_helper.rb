@@ -7,6 +7,10 @@ module SessionsHelper
     !current_user.nil?
   end
 
+  def is_admin?
+    current_user&.admin
+  end
+
   def limited_logged_in?
     current_user && !current_user.activated && current_user.inactive_logins <= 0
   end

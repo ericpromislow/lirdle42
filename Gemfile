@@ -5,6 +5,7 @@ ruby '2.7.1'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem 'rails', '~> 6.1.7', '>= 6.1.7.6'
+gem 'rake', '13.1.0'
 gem 'bootstrap-sass', '3.4.1'
 # Use Puma as the app server
 gem 'puma', '~> 5.0'

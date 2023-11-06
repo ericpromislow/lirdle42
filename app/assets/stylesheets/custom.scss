@@ -212,11 +212,16 @@ aside {
 }
 
 /* homepage */
-ul.list-group li.li-small-image {
-  img {
-    height: 40px;
-    width: 40px;
-    margin-right: 3px;
+ul.list-group {
+  max-height: 30rem;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  li.li-small-image {
+    img {
+      height: 40px;
+      width: 40px;
+      margin-right: 3px;
+    }
   }
 }
 

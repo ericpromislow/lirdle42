@@ -73,4 +73,23 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
     log_in_as(@user, remember_me: '0')
     assert_nil cookies['remember_token']
   end
+
+  test "admins see the users menu item" do
+    assert @user.admin
+    get login_path
+    post login_path, params: { session: { email: @user.email, password: "secret" }}
+    get root_path
+    assert_template 'static_pages/home'
+    assert_select "a[href=?]", users_path, count: 1
+  end
+
+  test "non-admins do not see the users menu item" do
+    user = users(:user2)
+    assert !user.admin
+    get login_path
+    post login_path, params: { session: { email: user.email, password: "secret" }}
+    get root_path
+    assert_template 'static_pages/home'
+    assert_select "a[href=?]", users_path, count: 0
+  end
 end
