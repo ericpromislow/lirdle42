@@ -74,7 +74,7 @@ class UsersWaitingTest < ActionDispatch::IntegrationTest
     assert_template "static_pages/home"
     # puts "QQQ: #{ response.body }"
     # ### TODO: Verify @user.username isn't on the waiting list
-    assert_select 'li', @user.username, count: 0
+    assert_select 'li', { text: @user.username, count: 0 }
     @user.reload
     assert !@user.waiting_for_game
 
