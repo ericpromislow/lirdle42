@@ -50,7 +50,7 @@ class UsersEditTest < ActionDispatch::IntegrationTest
         email: @user.email,
       }
     }
-    assert_redirected_to @user
+    assert_redirected_to root_url
     follow_redirect!
     assert_not flash.empty?
     @user.reload
@@ -82,9 +82,10 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     assert_redirected_to edit_user_path(@user)
     follow_redirect!
     username = "chuck"
+    get edit_user_path(@user)
     patch user_path(@user), params: { user: { username: username } }
 
-    assert_redirected_to @user
+    assert_redirected_to root_url
     follow_redirect!
     # puts "QQQ: #{ response.body }"
     assert_not flash.empty?
@@ -103,7 +104,7 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     assert_equal false, @other_user.admin
     log_in_as(@other_user)
     patch user_path(@other_user), params: { user: {admin: true }}
-    assert_redirected_to @other_user
+    assert_redirected_to root_url
     follow_redirect!
     # puts "QQQ: #{ response.body }"
     assert_not flash.empty?

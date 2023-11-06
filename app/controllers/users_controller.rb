@@ -2,7 +2,7 @@ class UsersController < ApplicationController
   # Does these before_actions in order of appearance here:
   before_action :set_user, only: %i[ show edit update destroy start_waiting end_waiting]
   before_action :logged_in_user, only: %i[ index edit update destroy start_waiting end_waiting]
-  before_action :allow_admins_only, only: %i[ destroy  ]
+  before_action :allow_admins_only, only: %i[ destroy index ]
   before_action :correct_user, only: %i[ edit update start_waiting  end_waiting ]
 
   # GET /users or /users.json
@@ -73,7 +73,7 @@ class UsersController < ApplicationController
         end
       end
       flash[:success] = "User #{@user.username} was successfully updated."
-      redirect_to user_url(@user)
+      redirect_to root_url
     else
       flash[:error] = "User #{@user.username} not updated: #{ @user.errors.full_messages }"
       render 'edit'
@@ -104,7 +104,7 @@ class UsersController < ApplicationController
       @user.destroy
       flash[:success] = "User #{ @user.username } is swimming with the fishes"
     end
-    redirect_to users_url
+    redirect_to root_url
   end
 
   private
@@ -143,6 +143,9 @@ class UsersController < ApplicationController
   end
 
   def allow_admins_only
-    redirect_to(root_url) if !current_user&.admin
+    if !current_user&.admin
+      flash[:danger] = 'not for you'
+      redirect_to(root_url)
+    end
   end
 end

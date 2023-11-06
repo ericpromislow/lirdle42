@@ -67,7 +67,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   test "should update user" do
     log_in_as(@user)
     patch user_url(@user), params: { user: { email: @user.email, is_temporary: @user.is_temporary, password: 'secret', password_confirmation: 'secret', profile_id: @user.profile_id, username: @user.username } }
-    assert_redirected_to user_url(@user)
+    assert_redirected_to root_url
   end
 
   test "should require login to destroy a user" do
@@ -82,7 +82,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_difference('User.count', -1) do
       delete user_url(@other_user)
     end
-    assert_redirected_to users_url
+    assert_redirected_to root_url
   end
 
   test "should not destroy self" do
@@ -90,7 +90,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_difference('User.count', 0) do
       delete user_url(@user)
     end
-    assert_redirected_to users_url
+    assert_redirected_to root_url
   end
 
   test "should not allow non-admin to destroy a user self" do

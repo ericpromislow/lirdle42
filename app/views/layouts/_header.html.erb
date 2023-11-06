@@ -29,8 +29,7 @@
               <% if !current_user.activated %>
                 <%= link_to "Activate my account", account_activations_path(user: { id: current_user}), method: :post %>
               <% end %>
-              <li><%= link_to "Profile", current_user %></li>
-              <li><%= link_to "Settings", edit_user_path(current_user) %></li>
+              <li><%= link_to "Profile", edit_user_path(current_user) %></li>
               <li class="divider">
                 <li><%= link_to "Log out", logout_path, method: "delete" %></li>
               </li>

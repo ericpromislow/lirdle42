@@ -1,2 +1,13 @@
 Consider using the 'profanity_filter' gem and flagging anything if
 finds for moderator review.
+
+Next:
+
+- When a user is added to the list of waiters, scroll to show them
+
+- Bring in active-channel (not coffeescript), to maintain the list of users in the home page
+
+- Turn the list of names to links => create_invitation(from:ID, to:ID)
+
+Done:
+- Stop redirecting to the user's page -- it's not important

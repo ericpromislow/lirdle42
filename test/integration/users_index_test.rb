@@ -6,6 +6,14 @@ class UsersIndexTest < ActionDispatch::IntegrationTest
     @non_admin = users(:archer)
   end
 
+  test "non-admin can't get the index" do
+    log_in_as(@non_admin)
+    get users_path
+    assert_redirected_to  root_url
+    follow_redirect!
+    assert_select 'div .alert-danger', 'not for you'
+  end
+
   test "index including pagination and deleting" do
     log_in_as(@user)
     get users_path
@@ -29,9 +37,10 @@ class UsersIndexTest < ActionDispatch::IntegrationTest
   test "index as non-admin" do
     log_in_as(@non_admin)
     get users_path
-    assert_template 'users/index'
-    assert_select 'div.pagination'
-    assert_select 'a', text:'delete', count: 0
+    assert_redirected_to  root_url
+    follow_redirect!
+    assert_not flash.empty?
+    assert_select 'div.alert-danger', "not for you"
   end
 
 end
