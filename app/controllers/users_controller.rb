@@ -124,14 +124,6 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
   end
 
-  def logged_in_user
-    unless logged_in?
-      store_location
-      flash[:danger] = "Please log in"
-      redirect_to login_url
-    end
-  end
-
   # Only allow a list of trusted parameters through.
   def  user_params
     params.require(:user).permit(:username, :email, :password, :password_confirmation, :admin, :image)

@@ -1,5 +1,7 @@
 import consumer from "./consumer"
 
+let myID = null;
+let waitingForReplyTimeout = 0;
 consumer.subscriptions.create("MainChannel", {
   async connected() {
     console.log(`QQQ: connected!`);
@@ -99,5 +101,47 @@ function repopulateWaitingList(users, userID) {
   } catch(e) {
     console.log(`QQQ: error: ${ e }`);
     console.error(e);
+  }
+}
+
+function processInvitation(message) {
+  if (message.from == myID) {
+    return processInvitationForSender(message);
+  } else if (message.to == myID) {
+    console.log(`QQQ: Looking at my invitation from ${message.from}`);
+    return processInvitationForRecipient(message);
+  } else {
+    console.log(`QQQ: Ignore the invitation`, message);
+  }
+}
+
+function processInvitationForRecipient(message) {
+  console.log(`QQQ: Looking at my invitation from ${ message.from }`);
+}
+
+function processInvitationForSender(message) {
+  console.log(`QQQ: Looking at my invitation to ${ message.to }`);
+  try {
+    const modal = $('#waiting-for-reply');
+    if (!modal) {
+      console.log(`Awp: Can't find modal #waiting-for-repl`);
+      return;
+    }
+    document.querySelector('#waiting-for-reply #waiting-for-reply-target').textContent = message.toUsername;
+    modal.modal();
+    console.log(`QQQ: should see the modal now`);
+    waitingForReplyTimeout = setTimeout(() => {
+      fetch(`/invitations/${ message.id }&flash=timed%20out`, { mode: 'cors', cache: 'no-cache',
+          credentials: "same-origin", // include, *same-origin, omit
+          method: 'DELETE' });
+      modal.modal('toggle');
+      const timeoutModal = $('#waiting-for-reply-timeout');
+      if (timeoutModal) {
+        timeoutModal.modal();
+        setTimeout(() => timeoutModal.modal('toggle'), 2_000);
+      }
+    }, 10 * 1000);
+  } catch(e) {
+    console.error(`Failed to show the modal: ${ e }`);
   }
 }

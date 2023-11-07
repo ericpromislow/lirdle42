@@ -39,7 +39,7 @@
                     <%= u.username %><span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu">
-                    <li><a href="#">Start a Game</a></li>
+                    <li><%= link_to "Start a Game", invitations_path(from: user.id, to: u.id), method: :post, :remote => true %></li>
                   </ul>
                 </div>
               <% end %>

@@ -17,6 +17,7 @@ class User < ApplicationRecord
   # ActionCable fields
   has_many :messages
   has_one :chatroom
+  has_many :invitations
 
 
   def activate
