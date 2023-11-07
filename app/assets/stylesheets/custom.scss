@@ -212,7 +212,11 @@ aside {
 }
 
 /* homepage */
-ul.list-group {
+ul.waitlist {
+  .hidden {
+    display: none;
+    visibility: collapse;
+  }
   max-height: 30rem;
   overflow-x: scroll;
   overflow-y: scroll;

@@ -11,6 +11,25 @@ class UsersController < ApplicationController
     @users = User.order('LOWER(username)').paginate(:page => params[:page], :per_page => 10)
   end
 
+  def waiting_users
+    users = User.where(waiting_for_game: true).select(:id, :username, :email).order('LOWER(username)')
+    # users = users.map do |user|
+    #   u = { id: user.id, username: user.username}
+    #   if user.image&.attached?
+    #     # debugger
+    #     u[:image_url] = nil
+    #   else
+    #     gravatar_id  = Digest::MD5::hexdigest(user.email)
+    #     gravatar_url = "https://secure.gravatar.com/avatar/#{gravatar_id}?s=40"
+    #     u[:image_url] = gravatar_url
+    #   end
+    #   u
+    # end
+    # # debugger
+    ActionCable.server.broadcast 'main', chatroom: 'main', type: 'waitingUsers', message: users.to_a
+    head :ok
+  end
+
   # GET /users/1 or /users/1.json
   def show
   end

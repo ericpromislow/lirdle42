@@ -15,8 +15,15 @@ Rails.application.routes.draw do
   delete '/logout', to: 'sessions#destroy'
 
   resources :users
+  get '/waiting_users', to: 'users#waiting_users'
 
   resources :account_activations, only: [:create, :edit]
   resources :password_resets, only: [:new, :create, :edit, :update]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+
+  resources :chatrooms, param: :slug
+  resources :messages
+
+  # Serve websocket cable requests in-process
+  mount ActionCable.server => '/cable'
 end

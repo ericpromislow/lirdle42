@@ -14,6 +14,10 @@ class User < ApplicationRecord
     message: "must be a valid image format" },
     size:    { less_than: 5.megabytes,  message:   "must be less than 5MB" }
 
+  # ActionCable fields
+  has_many :messages
+  has_one :chatroom
+
 
   def activate
     update_columns(activated: true, activated_at: Time.zone.now)
