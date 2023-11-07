@@ -73,12 +73,24 @@ function repopulateWaitingList(users, userID) {
         span.textContent = ' ';
         li.appendChild(span);
       }
-      const span = document.createElement('span');
-      span.textContent = user.username;
-      li.appendChild(span);
-
       if (user.id == userID) {
         foundMe = true;
+        const span = document.createElement('span');
+        span.textContent = user.username;
+        li.appendChild(span);
+      } else {
+        const div = document.createElement('div');
+        div.classList.add("btn-group");
+        div.innerHTML = `
+          <button type="button btn btn-secondary" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+            ${user.username}<span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="#">Start a Game</a></li>
+          </ul>
+        `;
+        li.appendChild(div);
       }
 
       waitingList.appendChild(li);

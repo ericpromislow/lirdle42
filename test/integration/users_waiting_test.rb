@@ -103,8 +103,9 @@ class UsersWaitingTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_template "static_pages/home"
     assert flash.empty?
-    assert_select 'ul.list-group li', @user.username
-    assert_select 'ul.list-group li', user2.username
+    assert_select 'ul.list-group li div.btn-group button', @user.username
+    assert_select 'ul.list-group li div.btn-group ul.dropdown-menu li a', 'Start a Game'
+    assert_select 'ul.list-group li[2]', user2.username
 
     log_in_as(@user)
     delete logout_path
