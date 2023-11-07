@@ -30,7 +30,7 @@
           <p class="col-md-4">Current users waiting to start a game. Invite one of them, or add your name</p>
         </div>
         <div class="row">
-          <ul class="waitlist" class="list-group col-md-4 border border-primary">
+          <ul class="waitlist list-group col-md-4 border border-primary">
             <% @waiting_users.each do |user| %>
               <li class="list-group-item li-small-image"><% if user.image.attached? %><%= image_tag user.display_image %><% end %><%= user.username %></li>
             <% end %>
