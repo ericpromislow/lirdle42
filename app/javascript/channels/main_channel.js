@@ -61,7 +61,22 @@ function repopulateWaitingList(users, userID) {
       li.classList.add('list-group-item', 'li-small-image');
       li.setAttribute("id", user.id);
       li.setAttribute("email", user.email);
-      li.textContent = user.username;
+      let imgURL = user.image_url;
+      if (imgURL) {
+        const img = document.createElement('img');
+        img.src = imgURL;
+        img.alt = imgURL;
+        img.height = img.width = 100;
+        li.appendChild(img);
+      } else {
+        const span = document.createElement('span');
+        span.textContent = ' ';
+        li.appendChild(span);
+      }
+      const span = document.createElement('span');
+      span.textContent = user.username;
+      li.appendChild(span);
+
       if (user.id == userID) {
         foundMe = true;
       }
