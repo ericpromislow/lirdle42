@@ -1,8 +1,8 @@
 class UsersController < ApplicationController
   include ApplicationHelper
   # Does these before_actions in order of appearance here:
-  before_action :set_user, only: %i[ show edit update destroy start_waiting end_waiting]
-  before_action :logged_in_user, only: %i[ index edit update destroy start_waiting end_waiting]
+  before_action :set_user, only: %i[ show edit update destroy start_waiting end_waiting ]
+  before_action :logged_in_user, only: %i[ index edit update destroy start_waiting end_waiting ]
   before_action :allow_admins_only, only: %i[ destroy index ]
   before_action :correct_user, only: %i[ edit update start_waiting  end_waiting ]
 
@@ -13,7 +13,9 @@ class UsersController < ApplicationController
   end
 
   def waiting_users
-    update_waiting_users
+    if logged_in?
+      update_waiting_users(current_user)
+    end
     head :ok
   end
 
@@ -97,7 +99,7 @@ class UsersController < ApplicationController
 
   def update_waiting_for_game(waiting_params)
     if @user.update(waiting_params)
-      update_waiting_users
+      update_waiting_users(@user)
     else
       flash[:error] = "User #{@user.username} not updated: #{ @user.errors.full_messages }"
     end

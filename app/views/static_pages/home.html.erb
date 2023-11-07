@@ -11,7 +11,7 @@
   <% else
     user = current_user
     label = user.waiting_for_game ? "Remove me from" : "Put me on" %>
-    <div class="row">
+    <div class="row" id="add-remove-waitlist">
       <div class="col-md-4">
         <%= form_with(model: user, local: true) do |f| %>
           <%= hidden_field_tag :waiting_for_game, ! user.waiting_for_game %>

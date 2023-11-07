@@ -13,9 +13,9 @@ module ApplicationHelper
     end
   end
 
-  def update_waiting_users
+  def update_waiting_users(user=nil)
     users = User.where(waiting_for_game: true).select(:id, :username, :email).order('LOWER(username)')
-    ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'waitingUsers', message: users.to_a }
+    ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'waitingUsers', message: users.to_a, userID: user&.id }
   end
 
 end

@@ -1,10 +1,7 @@
 import consumer from "./consumer"
 
-// this.App = {};
-// App.cable = ActionCable.createConsumer();
-
 consumer.subscriptions.create("MainChannel", {
-  connected() {
+  async connected() {
     console.log(`QQQ: connected!`);
     fetch('/waiting_users');
     console.log(`QQQ: fetch done`);
@@ -19,7 +16,7 @@ consumer.subscriptions.create("MainChannel", {
   received(data) {
     // Called when there's incoming data on the websocket for this channel
     if (data.chatroom === 'main' && data.type === 'waitingUsers' && data.message) {
-      repopulateWaitingList(data.message);
+      repopulateWaitingList(data.message, data.userID);
     } else {
       console.log(`QQQ: received message ${ JSON.stringify(data) }`);
       console.table(data);
@@ -27,8 +24,18 @@ consumer.subscriptions.create("MainChannel", {
   }
 });
 
-function repopulateWaitingList(users) {
+function updateMyAddRemoveLabel(status) {
+  const button = document.querySelector('div#add-remove-waitlist.row input[type="submit"]');
+  if (!button) {
+    console.log(`QQQ: couldn't find the submit button`);
+    return;
+  }
+  button.value = (status ? "Remove me from" : "Add me to") + " the waiting list.";
+}
+
+function repopulateWaitingList(users, userID) {
   try {
+    let foundMe = false;
     const elts = document.getElementsByClassName('waitlist');
     if (elts.length === 0) {
       console.log(`QQQ: No waiting list here (#1), return`);
@@ -42,6 +49,7 @@ function repopulateWaitingList(users) {
     }
     if (users.length === 0) {
       waitingList.classList.add("hidden");
+      console.log(`QQQ: no users???`)
       return;
     }
     waitingList.classList.remove("hidden");
@@ -54,9 +62,13 @@ function repopulateWaitingList(users) {
       li.setAttribute("id", user.id);
       li.setAttribute("email", user.email);
       li.textContent = user.username;
+      if (user.id == userID) {
+        foundMe = true;
+      }
 
       waitingList.appendChild(li);
     }
+    updateMyAddRemoveLabel(foundMe);
   } catch(e) {
     console.log(`QQQ: error: ${ e }`);
     console.error(e);
