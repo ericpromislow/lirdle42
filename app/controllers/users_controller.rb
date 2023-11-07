@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  include ApplicationHelper
   # Does these before_actions in order of appearance here:
   before_action :set_user, only: %i[ show edit update destroy start_waiting end_waiting]
   before_action :logged_in_user, only: %i[ index edit update destroy start_waiting end_waiting]
@@ -12,8 +13,7 @@ class UsersController < ApplicationController
   end
 
   def waiting_users
-    users = User.where(waiting_for_game: true).select(:id, :username, :email).order('LOWER(username)')
-    ActionCable.server.broadcast 'main', chatroom: 'main', type: 'waitingUsers', message: users.to_a
+    update_waiting_users
     head :ok
   end
 
@@ -96,7 +96,9 @@ class UsersController < ApplicationController
   end
 
   def update_waiting_for_game(waiting_params)
-    if !@user.update(waiting_params)
+    if @user.update(waiting_params)
+      update_waiting_users
+    else
       flash[:error] = "User #{@user.username} not updated: #{ @user.errors.full_messages }"
     end
     redirect_to root_url
@@ -114,6 +116,7 @@ class UsersController < ApplicationController
   end
 
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_user
     @user = User.find(params[:id])

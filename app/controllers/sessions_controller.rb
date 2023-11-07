@@ -1,4 +1,5 @@
 class SessionsController < ApplicationController
+  include ApplicationHelper
   def new
   end
 
@@ -29,6 +30,7 @@ class SessionsController < ApplicationController
     if current_user
       # False if the same user was active in two windows and then tried to log out from both -- just end the session
       current_user.update_columns(waiting_for_game: false)
+      update_waiting_users
     end
     log_out if logged_in?
     redirect_to root_url
