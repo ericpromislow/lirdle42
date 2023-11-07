@@ -52,27 +52,6 @@ function repopulateWaitingList(users) {
       li.classList.add('list-group-item', 'li-small-image');
       li.setAttribute("id", user.id);
       li.setAttribute("email", user.email);
-      /*
-      let imgURL = user.image_url;
-      console.log(`QQQ: user: ${ user.username }, url: ${ imgURL }`);
-      if (!imgURL) {
-        imgURL = idURLs[user.id];
-      }
-      if (imgURL) {
-        const img = document.createElement('img');
-        img.src = imgURL;
-        img.alt = imgURL;
-        img.height = img.width = 100;
-        li.appendChild(img);
-      } else {
-        const span = document.createElement('span');
-        span.textContent = '&nbsp;';
-        li.appendChild(span);
-      }
-      const span = document.createElement('span');
-      span.textContent = user.username;
-      li.appendChild(span);
-      */
       li.textContent = user.username;
 
       waitingList.appendChild(li);

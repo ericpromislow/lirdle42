@@ -3,17 +3,6 @@
   <h2>
     This be the home page for <%= ApplicationHelper::APPNAME.capitalize  %>
   </h2>
-  <script type="javascript">
-    /*
-    function setURLS() {
-        console.log("QQQ: setting up idURLs...")
-        window.idURLs = {};
-        <% User.all.each do |user| %>
-        window.idURLs["<%=  user.id %>"] = <%= user.image&.attached? ? %Q/"#{ image_tag user.display_image }"/ : "null" %>;
-        <% end %>
-    }
-    */
-  </script>
   <% if !logged_in? %>
     <%= link_to "Sign up", signup_path, class: "btn btn-lg btn-primary" %>
     <% if @waiting_users.size > 0 %>
