@@ -18,10 +18,11 @@ consumer.subscriptions.create("MainChannel", {
 
   received(data) {
     // Called when there's incoming data on the websocket for this channel
-    console.log(`QQQ: received message ${ JSON.stringify(data) }`);
-    console.table(data);
     if (data.chatroom === 'main' && data.type === 'waitingUsers' && data.message) {
       repopulateWaitingList(data.message);
+    } else {
+      console.log(`QQQ: received message ${ JSON.stringify(data) }`);
+      console.table(data);
     }
   }
 });

@@ -1,7 +1,13 @@
 <header class="navbar navbar-fixed-top navbar-inverse">
   <div class="container">
-    <%= link_to "what would this link do?", '#', id: "logo" %>
     <nav>
+      <ul class="nav navbar-nav navbar-left">
+        <li>
+          <% if logged_in? %>
+            <span class="text-light" id="logo">Logged in as <%= current_user.username %></span>
+          <% end %>
+        </li>
+      </ul>
       <div class="navbar-header">
         <button type="button"
                 class="navbar-toggle collapsed"
