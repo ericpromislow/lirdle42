@@ -1,0 +1,9 @@
+one:
+  is_lobby: true
+  topic: abc
+  slug: abc
+
+two:
+  is_lobby: false
+  topic: 1
+  slug: 1

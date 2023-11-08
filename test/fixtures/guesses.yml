@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  word: MyString
+  score: MyString
+  liePosition: 1
+  lieDirection: 1
+  marks: MyString
+  isCorrect: false
+  guessNumber: 1
+  game: 1
+
+two:
+  word: MyString
+  score: MyString
+  liePosition: 1
+  lieDirection: 1
+  marks: MyString
+  isCorrect: false
+  guessNumber: 1
+  game: 2
