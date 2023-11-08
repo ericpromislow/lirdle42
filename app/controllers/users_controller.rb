@@ -19,6 +19,14 @@ class UsersController < ApplicationController
     head :ok
   end
 
+  def who_am_i
+    if logged_in?
+      render json: { id: current_user.id }
+    else
+      head :forbidden
+    end
+  end
+
   # GET /users/1 or /users/1.json
   def show
   end

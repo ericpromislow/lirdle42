@@ -16,10 +16,11 @@ Rails.application.routes.draw do
 
   resources :users
   get '/waiting_users', to: 'users#waiting_users'
+  get '/who_am_i', to: 'users#who_am_i'
 
   resources :account_activations, only: [:create, :edit]
   resources :password_resets, only: [:new, :create, :edit, :update]
-  resources :invitations, only: [:create, :destroy]
+  resources :invitations, only: [:create, :destroy, :update]
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
   resources :chatrooms, param: :slug

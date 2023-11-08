@@ -142,4 +142,16 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
   end
 
+  test 'who_am_i should work with logged in user' do
+    log_in_as(@other_user)
+    get who_am_i_path
+    assert_response :success
+    assert_equal @other_user.id, JSON.parse(@response.body)['id']
+  end
+
+  test 'who_am_i should fail when not logged in' do
+    get who_am_i_path
+    assert_response :forbidden
+  end
+
 end

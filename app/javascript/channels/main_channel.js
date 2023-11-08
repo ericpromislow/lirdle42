@@ -2,6 +2,7 @@ import consumer from "./consumer"
 
 let myID = null;
 let waitingForReplyTimeout = 0;
+let globalMessage = null;
 consumer.subscriptions.create("MainChannel", {
   async connected() {
     console.log(`QQQ: connected!`);
@@ -17,14 +18,40 @@ consumer.subscriptions.create("MainChannel", {
 
   received(data) {
     // Called when there's incoming data on the websocket for this channel
-    if (data.chatroom === 'main' && data.type === 'waitingUsers' && data.message) {
-      repopulateWaitingList(data.message, data.userID);
+    globalMessage = data.message;
+    if (data.chatroom === 'main' && data.type === 'waitingUsers' && globalMessage) {
+      // repopulateWaitingList(globalMessage);
+    } else if (data.type === 'invitation') {
+      console.log(`QQQ: got an invitation, my ID is ${ myID }`);
+      console.log(`QQQ: received message ${ JSON.stringify(data) }`);
+      processInvitation(globalMessage);
+    } else if (data.type === 'invitationCancelled') {
+      console.log(`QQQ: got an invitation-cancelled, my ID is ${ myID }`);
+      console.log(`QQQ: received message ${ JSON.stringify(data) }`);
+      if (myID == globalMessage.to) {
+        processInvitationCancellation(globalMessage);
+      } else {
+        console.log(`QQQ: I'm ${ myID }, ignoring a message for ${ globalMessage.to }`)
+      }
+    } else if (data.type === 'invitationEnding') {
+      console.log(`QQQ: got an invitation-ending, my ID is ${ myID }`);
+      console.log(`QQQ: received message ${ JSON.stringify(data) }`);
+      processInvitationEnding(globalMessage);
     } else {
       console.log(`QQQ: received message ${ JSON.stringify(data) }`);
       console.table(data);
     }
   }
 });
+
+function processInvitationEnding(message) {
+  if (message.from != myID) {
+    return;
+  }
+  clearTimeout(waitingForReplyTimeout);
+  const modal = $('#waiting-for-reply');
+  modal.modal('toggle');
+}
 
 function updateMyAddRemoveLabel(status) {
   const button = document.querySelector('div#add-remove-waitlist.row input[type="submit"]');
@@ -35,7 +62,11 @@ function updateMyAddRemoveLabel(status) {
   button.value = (status ? "Remove me from" : "Add me to") + " the waiting list.";
 }
 
-function repopulateWaitingList(users, userID) {
+function repopulateWaitingList(users) {
+  if (!myID) {
+    console.log(`Can't repopulate: don't know my ID`)
+    return;
+  }
   try {
     let foundMe = false;
     const elts = document.getElementsByClassName('waitlist');
@@ -75,7 +106,7 @@ function repopulateWaitingList(users, userID) {
         span.textContent = ' ';
         li.appendChild(span);
       }
-      if (user.id == userID) {
+      if (user.id == myID) {
         foundMe = true;
         const span = document.createElement('span');
         span.textContent = user.username;
@@ -117,6 +148,18 @@ function processInvitation(message) {
 
 function processInvitationForRecipient(message) {
   console.log(`QQQ: Looking at my invitation from ${ message.from }`);
+  try {
+    const modal = $('#got-an-invitation');
+    if (!modal) {
+      console.log(`Awp: Can't find modal #got-an-invitation`);
+      return;
+    }
+    document.querySelector('#got-an-invitation #got-an-invitation-sender').textContent = message.fromUsername;
+    modal.modal();
+    console.log(`QQQ: should see the modal now`);
+  } catch(e) {
+    console.error(`Failed to show the modal: ${ e }`);
+  }
 }
 
 function processInvitationForSender(message) {
@@ -131,7 +174,7 @@ function processInvitationForSender(message) {
     modal.modal();
     console.log(`QQQ: should see the modal now`);
     waitingForReplyTimeout = setTimeout(() => {
-      fetch(`/invitations/${ message.id }&flash=timed%20out`, { mode: 'cors', cache: 'no-cache',
+      fetch(`/invitations/${ message.id }?from=${ myID }&flash=timed%20out`, { mode: 'cors', cache: 'no-cache',
           credentials: "same-origin", // include, *same-origin, omit
           method: 'DELETE' });
       modal.modal('toggle');
@@ -145,3 +188,44 @@ function processInvitationForSender(message) {
     console.error(`Failed to show the modal: ${ e }`);
   }
 }
+
+function processInvitationCancellation(message) {
+  $('#got-an-invitation').toggle();
+  setImmediate(() => {
+  alert(`${ message.fromUsername } is no longer waiting: ${ message.message }`);
+  });
+  // document.querySelector('#got-an-invitation #got-an-invitation-sender').textContent = `${ message.fromUsername } is no longer waiting: ${ message.message }`;
+}
+
+$(document).ready(async () => {
+  try {
+    const myIDBody = await fetch('/who_am_i');
+    const rawText = await myIDBody.text();
+    console.log(`QQQ: /users/who_am_i => ${rawText}`);
+    myID = JSON.parse(rawText).id;
+  } catch(e) {
+    console.log(`Failed to get my userID: ${ e }`);
+  }
+  $("#waiting-for-reply-cancel").click(async () => {
+    console.log(`QQQ: Sender clicked cancel`);
+    fetch(`/invitations/${ globalMessage.id }?from=${ myID }&flash=cancelled`, { mode: 'cors', cache: 'no-cache',
+      credentials: "same-origin", // include, *same-origin, omit
+      method: 'DELETE' });
+    clearTimeout(waitingForReplyTimeout);
+    waitingForReplyTimeout = 0;
+  });
+
+  $("#got-an-invitation-ok").click(async () => {
+    console.log(`QQQ: Recipient clicked OK!`);
+    fetch(`/invitations/${ globalMessage.id }?originator=${ myID }&reason=accepted`, { mode: 'cors', cache: 'no-cache',
+      credentials: "same-origin", // include, *same-origin, omit
+      method: 'PATCH' });
+  });
+
+  $("#got-an-invitation-cancel").click(async () => {
+    console.log(`QQQ: Recipient clicked Cancel!`);
+    fetch(`/invitations/${ globalMessage.id }?originator=${ myID }&reason=declined`, { mode: 'cors', cache: 'no-cache',
+      credentials: "same-origin", // include, *same-origin, omit
+      method: 'PATCH' });
+  });
+});
