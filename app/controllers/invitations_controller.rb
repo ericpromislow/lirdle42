@@ -15,17 +15,23 @@ class InvitationsController < ApplicationController
     elsif from_user != current_user
       flash[:danger] = "Third-party invitation not supported"
     else
-      invitation = Invitation.new(i_params)
-      if invitation.save
-        ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitation',
-                                               message: { id: invitation.id, from: from_id, to: to_id,
-                                                          toUsername: to_user.username,
-                                                          fromUsername: from_user.username,
-                                               } }
-        head :ok
-        return
+      other_invitations = Invitation.where(to: from_id)
+      oicount = other_invitations.count
+      if oicount > 0
+        flash[:danger] = "There #{ "is".pluralize(oicount) } currently #{ oicount } #{ "invitation".pluralize(oicount) } to #{ from_user.username }"
       else
-        flash[:danger] = "Failed to save the invitation: #{ invitation.errors.full_messages }"
+        invitation = Invitation.new(i_params)
+        if invitation.save
+          ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitation',
+                                                 message: { id: invitation.id, from: from_id, to: to_id,
+                                                            toUsername: to_user.username,
+                                                            fromUsername: from_user.username,
+                                                 } }
+          head :ok
+          return
+        else
+          flash[:danger] = "Failed to save the invitation: #{ invitation.errors.full_messages }"
+        end
       end
     end
     redirect_to request.referrer || root_url
