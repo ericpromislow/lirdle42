@@ -1,16 +1,16 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  stateA: 1
-  stateB: 1
+  stateA: 0
+  stateB: 0
   playerA: 1
-  playerB: 1
-  candidateWordsForA: MyString
-  candidateWordsForB: MyString
-  finalWordForA: MyString
-  finalWordForB: MyString
-  wordIndexForA: 1
-  wordIndexForB: 1
+  playerB: 2
+  candidateWordsForA: "abcde:fghij:klmno"
+  candidateWordsForB: "pqrst:uvwxy:zaaaa"
+  finalWordForA: abcde
+  finalWordForB: pqrst
+  wordIndexForA: 0
+  wordIndexForB: 0
 
 two:
   stateA: 1
