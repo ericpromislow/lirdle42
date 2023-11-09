@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_08_213956) do
+ActiveRecord::Schema.define(version: 2023_11_09_175821) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -77,10 +77,10 @@ ActiveRecord::Schema.define(version: 2023_11_08_213956) do
     t.string "marks"
     t.boolean "isCorrect"
     t.integer "guessNumber"
-    t.integer "game_id", null: false
+    t.integer "game_state_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["game_id"], name: "index_guesses_on_game_id"
+    t.index ["game_state_id"], name: "index_guesses_on_game_state_id"
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -133,7 +133,7 @@ ActiveRecord::Schema.define(version: 2023_11_08_213956) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "game_states", "games"
   add_foreign_key "games", "chatrooms"
-  add_foreign_key "guesses", "games"
+  add_foreign_key "guesses", "game_states"
   add_foreign_key "messages", "chatrooms"
   add_foreign_key "messages", "users"
 end

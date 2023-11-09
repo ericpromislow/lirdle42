@@ -1,5 +1,4 @@
 class Game < ApplicationRecord
-  has_many :guesses, dependent: :destroy
   has_many :game_states, dependent: :destroy
   has_one :chatroom
 

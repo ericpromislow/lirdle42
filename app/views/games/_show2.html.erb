@@ -1,9 +1,80 @@
 <%
-  other_player ||= @other_player
+  # other_player ||= @other_player
   game_state ||= @game_state
-  user ||= @user
-  words = game_state.candidateWords.split(':')
-  wordIndex = game_state.wordIndex
-  currentWord = words[wordIndex]
+  # user ||= @user
+  guesses = game_state.guesses
+  num_rows = [guesses.size + 1, 6].max
+  case num_rows
+  when 0...6
+    letterBoxSizeClassName = nil
+  when 6...13
+    letterBoxSizeClassName = "small1"
+  when 13...19
+    letterBoxSizeClassName = "small2"
+  when 19...25
+    letterBoxSizeClassName = "small3"
+  else
+    letterBoxSizeClassName = "small4"
+  end
 %>
-I am _show2
+<h1>Lirdle42: One Handcrafted Lie Per Line</h1>
+
+<div id="game-board">
+  <% num_rows.times do |row_num| %>
+    <div class="letter-row-container">
+      <div class="letter-row">
+        <%
+          letterBoxClassListArray = ['letter-box']
+          letterBoxClassListArray << letterBoxSizeClassName if letterBoxSizeClassName
+          letterBoxClassListArray << 'filled-box' if row_num < guesses.size
+          letterBoxClassList = letterBoxClassListArray.join(" ")
+        %>
+        <% 5.times do |col_num| %>
+          <div class="<%= letterBoxClassList %>">
+            <% if row_num < guesses.size %>
+              <%= guesses[row_num][col_num].downcase %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+<div id="keyboard-cont">
+  <div id="dupWord" class="wordProblemPrompt hidden"><span>You already tried "</span><span id="dupWordContents"></span><span>"</span></div>
+  <div id="fiveGreenFakeOut" class="wordProblemPrompt hidden"><span>Congratulations on getting a Fake Out! You're close but that's not the right word.</span><br /></div>
+  <div class="first-row">
+    <button class="keyboard-button" type="button">q</button>
+    <button class="keyboard-button" type="button">w</button>
+    <button class="keyboard-button" type="button">e</button>
+    <button class="keyboard-button" type="button">r</button>
+    <button class="keyboard-button" type="button">t</button>
+    <button class="keyboard-button" type="button">y</button>
+    <button class="keyboard-button" type="button">u</button>
+    <button class="keyboard-button" type="button">i</button>
+    <button class="keyboard-button" type="button">o</button>
+    <button class="keyboard-button" type="button">p</button>
+  </div>
+  <div class="second-row">
+    <button class="keyboard-button" type="button">a</button>
+    <button class="keyboard-button" type="button">s</button>
+    <button class="keyboard-button" type="button">d</button>
+    <button class="keyboard-button" type="button">f</button>
+    <button class="keyboard-button" type="button">g</button>
+    <button class="keyboard-button" type="button">h</button>
+    <button class="keyboard-button" type="button">j</button>
+    <button class="keyboard-button" type="button">k</button>
+    <button class="keyboard-button" type="button">l</button>
+  </div>
+  <div class="third-row">
+    <button class="keyboard-button" type="button">Del</button>
+    <button class="keyboard-button" type="button">z</button>
+    <button class="keyboard-button" type="button">x</button>
+    <button class="keyboard-button" type="button">c</button>
+    <button class="keyboard-button" type="button">v</button>
+    <button class="keyboard-button" type="button">b</button>
+    <button class="keyboard-button" type="button">n</button>
+    <button class="keyboard-button" type="button">m</button>
+    <button class="keyboard-button" type="button">Enter</button>
+  </div>
+</div>
