@@ -58,4 +58,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     assert_select "h2 strong", "psalm"
     assert_select "p", "Waiting for #{ @user2.username } to pick your word"
   end
+  # TODO: Write a test where @user1 has moved to state1 and now @user2 is moving from state0 to 1.
+  # @user2 should assert_template 'games/_show2'
+  # and @user1 needs to get a message telling them to regrab game_path(@game)
 end

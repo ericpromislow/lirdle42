@@ -27,6 +27,7 @@ class GameStatesController < ApplicationController
       redirect_to request.referrer || root_url
       return
     end
+    set_game_variables(@game)
     gp = update_params
     splitWords = @game_state.candidateWords.split(':')
     if @game_state.state == 0
@@ -36,10 +37,13 @@ class GameStatesController < ApplicationController
         gp[:finalWord] = splitWords[-1]
         gp[:state] = 1
       end
+      if gp[:state] == 1 && @otherState.state == 1
+        gp[:state] = 2
+        # TODO: Send a message to @otherUser to regrab the game
+      end
     end
     respond_to do |format|
       if @game_state.update(gp)
-        set_game_variables(@game)
         format.html { render 'games/show' }
         format.json { render :show, status: :ok, location: @game }
       else

@@ -24,9 +24,11 @@ private # should be protected?
     gameStateB = GameState.find(game.gameStateB)
     if game.playerA == @user
       @gameState = gameStateA
+      @otherState = gameStateB
       @otherPlayer = User.find(gameStateB.playerID)
     else
       @gameState = gameStateB
+      @otherState = gameStateA
       @otherPlayer = User.find(gameStateA.playerID)
     end
   end
