@@ -6,8 +6,7 @@ class GuessesController < ApplicationController
   def initialize
     # TODO: Replace this with the full list or a database lookup
     super
-    t1 = Time.now 
-    @words ||= %w/knell molar psalm fetus baton frown rapid dying timid count dowel weedy/.sort
+    @words ||= (IO.read('db/words/words.txt').split("\n") + IO.read('db/words/other-words.txt').split("\n")).sort
   end
   def create
     if !params[:game_state_id]
@@ -84,8 +83,7 @@ class GuessesController < ApplicationController
   end
 
   def is_already_guessed(word)
-    guesses = @game_state.guesses
-    guesses.any?{|guess| guess.word == word}
+    @game_state.guesses.any?{|guess| guess.word == word}
   end
 
   def set_game_state
