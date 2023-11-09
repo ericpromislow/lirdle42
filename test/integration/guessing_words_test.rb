@@ -47,7 +47,6 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
     follow_redirect!
     assert_select 'div.alert-danger', "Invalid request: unexpected user"
-    # puts "QQQ: #{ response.body }"
   end
 
   test "guess with no word fails" do
@@ -64,12 +63,6 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     flash[:danger] = "Not a valid word: splibish"
   end
 
-  test "guess with acceptable word moves to next template" do
-    log_in_as(@user1)
-    post guesses_path, params: {game_state_id: @gs1.id, word:"weedy" }
-    assert_template 'games/_show3'
-  end
-
   test "guess with duplicate word fails" do
     log_in_as(@user1)
     post guesses_path, params: {game_state_id: @gs1.id, word:"weedy" }
@@ -79,5 +72,13 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     post guesses_path, params: {game_state_id: @gs1.id, word:"weedy" }
     assert_template 'games/_show2'
     flash[:danger] = %Q/You already tried "splibish"/
+  end
+
+  test "guess with acceptable word moves to next template" do
+    log_in_as(@user1)
+    post guesses_path, params: {game_state_id: @gs1.id, word:"weedy" }
+    assert_template 'games/_show3'
+    # puts "QQQ: #{ response.body }"
+    assert_select "p", "Waiting for #{ @user2.username } to finish guessing a word."
   end
 end

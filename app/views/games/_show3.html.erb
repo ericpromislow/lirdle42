@@ -1,1 +1,7 @@
-splib
+<%
+  other_player ||= @other_player
+  gameState ||= @game_state
+%>
+<p>
+Waiting for <%= other_player.username %> to finish guessing a word.
+</p>

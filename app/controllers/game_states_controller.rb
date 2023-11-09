@@ -9,9 +9,11 @@ class GameStatesController < ApplicationController
   # 0: start picking a word
   # 1: one player has picked a word, waiting for the other
   # 2: guess the word
-  # 3: choose a lie
-  # 4: I won, game over
-  # 5: I lost, game over
+  # 3: guessed a valid word, waiting for other to guess
+  # 4: pick a lie
+  # 5: wait for other to pick a lie
+  # 6: I won, game over
+  # 7: I lost, game over
 
   # PATCH/PUT /games/1 or /games/1.json
   def update
