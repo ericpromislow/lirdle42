@@ -12,14 +12,50 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     newGame = Game.last
     get game_path(newGame)
     assert_template 'games/_show0'
-    puts "QQQ: #{ response.body }"
+    # puts "QQQ: #{ response.body }"
     assert_select "a[href=?]",  root_path
     assert_select "a[href=?]",  help_path
     assert_select "a[href=?]",  about_path
     assert_select "a[href=?]",  contact_path
     assert_select "span", "Logged in as #{ @user1.username }"
-    assert_select "p", "Do you want to go with \"knell\"? There are two words left to choose from."
-    assert_select "button", "Yes"
-    assert_select "button", "No"
+    assert_select "p", /You can choose/
+    assert_select "p strong", "knell"
+    assert_select "p", /Or you can take a chance on the next 2 words/
+    assert_select "input[type=submit]" do |btn|
+      assert_match /"knell" sounds good/, btn.attribute('value').value
+    end
+    assert_select "input[type=submit][value=?]", 'Try the next word'
+    # Simulate clicking on the next word
+    gameStateA = GameState.find(newGame.gameStateA)
+    patch game_state_path(gameStateA, { wordIndex: gameStateA.wordIndex + 1 })
+    assert_template 'games/_show0'
+    assert_select "p", /You can choose/
+    assert_select "p strong", "molar"
+    assert_select "p", /Or you can go with the last word in the list/
+    assert_select "input[type=submit]" do |btn|
+      assert_equal 'Settle for "molar"', btn.attribute('value').value
+    end
+    assert_select "input[type=submit][value=?]", "Let's take a chance on door #3"
+
+
+    # Simulate clicking on door #3
+    gameStateA = GameState.find(newGame.gameStateA)
+    patch game_state_path(gameStateA, { wordIndex: gameStateA.wordIndex + 1 })
+    assert_template 'games/_show0'
+    assert_select "h2", /Your opponent's word is/
+    assert_select "h2 strong", "psalm"
+    assert_select "p", /Press the 'OK' button to continue/
+    assert_select "p", { text: %r{you can go with the last word in the list}, count: 0 }
+
+    assert_select "input[type=submit]" do |btn|
+      assert_equal 'OK', btn.attribute('value').value
+    end
+
+    # Click the OK button
+    patch game_state_path(gameStateA, { finalWord: "psalm" })
+    assert_template 'games/_show1'
+    assert_select "h2", /#{ @user2.username }'s word is/
+    assert_select "h2 strong", "psalm"
+    assert_select "p", "Waiting for #{ @user2.username } to pick your word"
   end
 end

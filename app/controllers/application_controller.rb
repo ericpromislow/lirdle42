@@ -19,6 +19,18 @@ private # should be protected?
     end
   end
 
+  def set_game_variables(game)
+    gameStateA = GameState.find(game.gameStateA)
+    gameStateB = GameState.find(game.gameStateB)
+    if game.playerA == @user
+      @gameState = gameStateA
+      @otherPlayer = User.find(gameStateB.playerID)
+    else
+      @gameState = gameStateB
+      @otherPlayer = User.find(gameStateA.playerID)
+    end
+  end
+
   def set_logged_in_user
     @user = current_user
   end

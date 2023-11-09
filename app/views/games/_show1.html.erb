@@ -1,0 +1,10 @@
+<%
+  otherPlayer ||= @otherPlayer
+  gameState ||= @gameState
+%>
+
+<h2><%= otherPlayer.username %>'s word is <strong><%= gameState.finalWord %></strong></h2>
+<p>
+  Waiting for <%= otherPlayer.username %> to pick your word
+</p>
+This is the point where we need a chatroom channel to know when to move to state 3

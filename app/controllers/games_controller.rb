@@ -13,15 +13,7 @@ class GamesController < ApplicationController
 
   # GET /games/1 or /games/1.json
   def show
-    gameStateA = GameState.find(@game.gameStateA)
-    gameStateB = GameState.find(@game.gameStateB)
-    if @game.playerA == @user
-      @gameState = gameStateA
-      @otherPlayer = User.find(gameStateB.playerID)
-    else
-      @gameState = gameStateB
-      @otherPlayer = User.find(gameStateA.playerID)
-    end
+    set_game_variables(@game)
     #render partial: "games/show#{@gameState.state}", locals: { otherPlayer: @otherPlayer, gameState: @gameState, user: @user }
   end
 
@@ -76,6 +68,7 @@ class GamesController < ApplicationController
   end
 
   private
+
   # Use callbacks to share common setup or constraints between actions.
   def set_game
     @game = Game.find(params[:id])

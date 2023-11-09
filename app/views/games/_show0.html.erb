@@ -2,6 +2,50 @@
   otherPlayer ||= @otherPlayer
   gameState ||= @gameState
   user ||= @user
+  words = gameState.candidateWords.split(':')
+  wordIndex = gameState.wordIndex
+  currentWord = words[wordIndex]
 %>
-<h2>Choose a Word for <%= otherPlayer.username %> to guess</h2>
+<% if wordIndex < words.size - 1 %>
+  <h2>Choose a Word for <%= otherPlayer.username %> to guess</h2>
+  <p>You can choose <strong><%= currentWord %></strong>.
+  <% if wordIndex < words.size - 2
+       thisWordLabel = %Q["#{ currentWord }" sounds good!]
+       nextWordLabel = "Try the next word"
+  %>
+  Or you can take a chance on the next <%= pluralize(words.size - wordIndex - 1, "word") %>
+  <% else
+       thisWordLabel = %Q[Settle for "#{ currentWord }"]
+       nextWordLabel = "Let's take a chance on door #3"
+  %>
+  Or you can go with the last word in the list %>
+  <% end %>
+  </p>
 
+  <div class="row">
+    <div class="col-md-4 col-md-offset-2">
+      <%= form_with(model: gameState, remote: true) do |f| %>
+        <%= hidden_field_tag :finalWord, currentWord %>
+        <%= f.submit thisWordLabel, class: "btn btn-primary" %>
+      <% end %>
+    </div>
+    <div class="col-md-4 col-md-offset-2">
+      <%= form_with(model: gameState, remote: true) do |f| %>
+        <%= hidden_field_tag :wordIndex, wordIndex + 1 %>
+        <%= f.submit nextWordLabel, class: "btn btn-primary" %>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+<h2>Your opponent's word is <strong><%= currentWord %></strong></h2>
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3">
+      <%= form_with(model: gameState, remote: true) do |f| %>
+        <%= hidden_field_tag :finalWord, currentWord %>
+        <%= f.submit "OK", class: "btn btn-primary" %>
+        <br>
+        <p>Press the 'OK' button to continue.</p>
+      <% end %>
+    </div>
+  </div>
+<% end %>
