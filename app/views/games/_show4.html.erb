@@ -4,6 +4,10 @@
   game_state ||= @game_state
   # user ||= @user
   guesses = @other_state.guesses
+  lastGuess = guesses[-1]
+  lastGuessWord = lastGuess.word
+  scores = guesses[-1].score.split('').map(&:to_i)
+  colors = %w[grey yellow green]
 %>
 <div class="row">
   <div class="col-md-12">
@@ -11,13 +15,29 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row targetWord">
   <div class="col-md-12">
     <p>Target Word: <%= other_state.finalWord %></p>
   </div>
 </div>
+<div class="row currentGuess">
+  <div class="col-md-12">
+    <p>Their Current Guess: <%= lastGuessWord %></p>
+  </div>
+</div>
+
 <div class="row">
   <div class="col-md-12">
-    <p>Their Current Guess: <%= guesses[-1].word %></p>
+    <div class="letter-row-container">
+      <div class="letter-row">
+        <% 5.times do |col_num| %>
+          <% letterColor = colors[scores[col_num]]
+            bgColor = "background-#{ letterColor }" %>
+          <div class="letter-box filled-box <%= bgColor %>">
+            <span><%= lastGuessWord[col_num].downcase %></span>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>

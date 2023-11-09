@@ -84,7 +84,7 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
 
   test "when both players have made a guess move to state 4" do
     log_in_as(@user1)
-    post guesses_path, params: {game_state_id: @gs1.id, word:"scrum" }
+    post guesses_path, params: {game_state_id: @gs1.id, word:"amend" }
     assert_template 'games/_show3'
     log_in_as(@user2)
     post guesses_path, params: {game_state_id: @gs2.id, word:"lemon" }
@@ -98,6 +98,14 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     get game_path(@game)
     assert_template 'games/_show4'
     assert_select 'p', %Q/Target Word: knell/
-    assert_select 'p', %Q/Their Current Guess: scrum/
+    assert_select 'p', %Q/Their Current Guess: amend/
+    expected = [%w/a grey/, %w/m grey/, %w/e green/, %w/n yellow/, %w/d grey/]
+    i = 0
+    assert_select 'div.letter-box.filled-box' do |elements|
+      elt = elements[i]
+      assert_includes elt.classes, "background-#{ expected[i][1] }"
+      assert_includes elt.text, expected[i][0]
+      i += 1
+    end
   end
 end
