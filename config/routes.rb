@@ -29,6 +29,7 @@ Rails.application.routes.draw do
   resources :games do
     resources :guesses
   end
+  resources :game_states, only: [:update]
 
 
   # Serve websocket cable requests in-process

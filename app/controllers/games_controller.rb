@@ -1,17 +1,28 @@
 class GamesController < ApplicationController
-  before_action :set_game, only: %i[ show edit update destroy ]
-  before_action :logged_in_user, only: %i[ index create edit show update destroy ]
-  before_action :set_logged_in_user, only: %i[ index create edit show update destroy ]
+  before_action :set_game, only: %i[ show edit destroy ]
+  before_action :logged_in_user, only: %i[ index create edit show destroy ]
+  before_action :set_logged_in_user, only: %i[ index create edit show destroy ]
   before_action :must_be_admin, only: %i[index]
-  before_action :admin_or_in_game, only: %i[ edit show update destroy ]
+  before_action :admin_or_in_game, only: %i[ edit show destroy ]
 
   # GET /games or /games.json
   def index
+    # $stderr.puts "QQQ in index-game"
     @games = Game.all.paginate(:page => params[:page], :per_page => 10)
   end
 
   # GET /games/1 or /games/1.json
   def show
+    gameStateA = GameState.find(@game.gameStateA)
+    gameStateB = GameState.find(@game.gameStateB)
+    if @game.playerA == @user
+      @gameState = gameStateA
+      @otherPlayer = User.find(gameStateB.playerID)
+    else
+      @gameState = gameStateB
+      @otherPlayer = User.find(gameStateA.playerID)
+    end
+    #render partial: "games/show#{@gameState.state}", locals: { otherPlayer: @otherPlayer, gameState: @gameState, user: @user }
   end
 
   # # GET /games/new
@@ -25,44 +36,30 @@ class GamesController < ApplicationController
 
   # POST /games or /games.json
   def create
-    gp = game_params
+    gp = create_params
     if ![gp[:playerA], gp[:playerB]].include?(@user.id.to_s) && !@user.admin
       flash[:danger] = "Can't create a game for others"
       redirect_to request.referrer || root_url
       return
     end
-    @game = Game.new(game_params)
-    @game.candidateWordsForA = "abcde:fghij:klmno"
-    @game.candidateWordsForB = "pqrst:uvwxy:zaaaa"
-    @game.wordIndexForA = 0
-    @game.wordIndexForB = 0
-
-    respond_to do |format|
-      if @game.save
-        format.html { redirect_to game_url(@game), notice: "Game was successfully created." }
-        format.json { render :show, status: :created, location: @game }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @game.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /games/1 or /games/1.json
-  def update
-    gp = update_params
-    if ((gp[:playerA] && gp[:playerA] != @game.playerA.to_s) ||
-      (gp[:playerB] && gp[:playerB] != @game.playerB.to_s))
-      flash[:danger] = "Can't change players of a created game"
-      redirect_to request.referrer || game_url(@game)
+    @game = Game.create()
+    if !@game.save
+      format.html { render :new, status: :unprocessable_entity }
+      format.json { render json: @game.errors, status: :unprocessable_entity }
       return
     end
+    gameStateA = GameState.create(game: @game, state: 0, playerID: gp[:playerA], candidateWords: "knell:molar:psalm", wordIndex: 0)
+    gameStateB = GameState.create(game: @game, state: 0, playerID: gp[:playerB], candidateWords: "fetus:baton:frown", wordIndex: 0)
+    gameStateA.save!
+    gameStateB.save!
     respond_to do |format|
-      if @game.update(gp)
-        format.html { redirect_to game_url(@game), notice: "Game was successfully updated." }
-        format.json { render :show, status: :ok, location: @game }
+      if @game.update_columns(gameStateA: gameStateA.id, gameStateB: gameStateB.id)
+        format.html {
+          redirect_to game_url(@game), notice: "Game was successfully created." }
+        format.json {
+          render :show, status: :created, location: @game }
       else
-        format.html { render :edit, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @game.errors, status: :unprocessable_entity }
       end
     end
@@ -84,10 +81,6 @@ class GamesController < ApplicationController
     @game = Game.find(params[:id])
   end
 
-  def set_logged_in_user
-    @user = current_user
-  end
-
   def must_be_admin
     if !@user.admin
       flash[:danger] = "Admin only"
@@ -95,18 +88,8 @@ class GamesController < ApplicationController
     end
   end
 
-  def admin_or_in_game
-    return if @user.admin?
-    return if @game.playerA == @user || @user == @game.playerB
-    flash[:danger] = "You're not playing this game"
-    redirect_to request.referrer || root_url
-  end
-
   # Only allow a list of trusted parameters through.
-  def game_params
-    params.require(:game).permit(:playerA, :playerB)
-  end
-  def update_params
-    params.require(:game).permit(:stateA, :stateB, :playerA, :playerB, :candidateWordsForA, :candidateWordsForB, :wordIndexForA, :wordIndexForB, :finalWordForA, :finalWordForB)
+  def create_params
+    params.permit(:playerA, :playerB)
   end
 end

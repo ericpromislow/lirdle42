@@ -1,1 +1,6 @@
-Find me at app/views/games/show.html.erb
+
+user: <%= @user.username %>
+game: <%= @game.id %>
+@otherPlayer: <%= @otherPlayer.id %>
+
+<%= render "games/show#{@gameState.state}" %>

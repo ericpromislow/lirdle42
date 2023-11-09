@@ -1,0 +1,15 @@
+# Read api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+gs1:
+  state: 0
+  playerID: 1
+  candidateWords: "windy:tress:spent"
+  finalWord:
+  wordIndex: 0  
+
+gs2:
+  state: 0
+  playerID: 2
+  candidateWords: "bough:edict:eater"
+  finalWord:
+  wordIndex: 0
