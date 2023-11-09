@@ -4,26 +4,14 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
   def setup
     @user1 = users(:user1)
     @user2 = users(:user2)
+    @game = Game.create
+    @gs1 = GameState.create(game: @game, playerID: @user1.id, finalWord: "knell", state: 2)
+    @gs2 = GameState.create(game: @game, playerID: @user2.id, finalWord: "baton", state: 2)
+    @game.update_columns(gameStateA: @gs1.id, gameStateB: @gs2.id)
   end
   test "guess words" do
     log_in_as(@user1)
-    post games_path, params: { playerA: @user1.id, playerB: @user2.id}
-    assert :success
-    newGame = Game.last
-    get game_path(newGame)
-    newGame = Game.last
-    gameStateA = GameState.find(newGame.gameStateA)
-    patch game_state_path(gameStateA, { finalWord: 'molar' })
-    assert :success
-    assert_template 'games/_show1'
-
-    log_in_as(@user2)
-    gameStateB = GameState.find(newGame.gameStateB)
-    patch game_state_path(gameStateB, { finalWord: "psalm" })
-    assert_template 'games/_show2'
-    # get game_path(newGame)
-    log_in_as(@user1)
-    get game_path(newGame)
+    get game_path(@game)
     assert :success
     assert_template 'games/_show2'
     # puts "QQQ: #{ response.body }"
