@@ -33,13 +33,19 @@ class GameStatesController < ApplicationController
     if @game_state.state == 0
       if gp[:finalWord]
         gp[:state] = 1
-      elsif @game_state.wordIndex >= splitWords.size - 1
-        gp[:finalWord] = splitWords[-1]
-        gp[:state] = 1
+      else
+        wordIndex = gp[:wordIndex].to_i || @game_state.wordIndex + 1
+        if wordIndex >= splitWords.size
+          gp[:finalWord] = splitWords[-1]
+          gp[:state] = 1
+        elsif gp[:wordIndex].nil?
+          gp[:wordIndex] = wordIndex
+        end
       end
       if gp[:state] == 1 && @otherState.state == 1
         gp[:state] = 2
-        # TODO: Send a message to @otherUser to regrab the game
+        @otherState.update_attribute(:state, 2)
+        # TODO: Send a message to @other_user to regrab the game
       end
     end
     respond_to do |format|

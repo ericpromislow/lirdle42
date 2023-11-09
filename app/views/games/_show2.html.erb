@@ -1,0 +1,9 @@
+<%
+  other_player ||= @other_player
+  game_state ||= @game_state
+  user ||= @user
+  words = game_state.candidateWords.split(':')
+  wordIndex = game_state.wordIndex
+  currentWord = words[wordIndex]
+%>
+I am _show2

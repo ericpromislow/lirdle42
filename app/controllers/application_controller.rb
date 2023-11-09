@@ -23,13 +23,13 @@ private # should be protected?
     gameStateA = GameState.find(game.gameStateA)
     gameStateB = GameState.find(game.gameStateB)
     if game.playerA == @user
-      @gameState = gameStateA
+      @game_state = gameStateA
       @otherState = gameStateB
-      @otherPlayer = User.find(gameStateB.playerID)
+      @other_player = User.find(gameStateB.playerID)
     else
-      @gameState = gameStateB
+      @game_state = gameStateB
       @otherState = gameStateA
-      @otherPlayer = User.find(gameStateA.playerID)
+      @other_player = User.find(gameStateA.playerID)
     end
   end
 

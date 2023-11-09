@@ -33,11 +33,11 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
 
   test "logged-in-user can change other fields in an existing game" do
     log_in_as(@user)
-    patch game_state_url(@gs1), params: { state: 3, wordIndex: 4, finalWord: "coupe" }
-    assert_redirected_to game_url(@gs1.game)
+    patch game_state_url(@gs1), params: { finalWord: "coupe" }
+    assert_response :success
+    assert_template 'games/show'
     @gs1.reload
-    assert_equal 3, @gs1.state
-    assert_equal 4, @gs1.wordIndex
+    assert_equal 1, @gs1.state
     assert_equal "coupe", @gs1.finalWord
   end
 

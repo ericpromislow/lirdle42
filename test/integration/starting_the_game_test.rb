@@ -39,7 +39,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
 
 
     # Simulate clicking on door #3
-    gameStateA = GameState.find(newGame.gameStateA)
+    gameStateA.reload
     patch game_state_path(gameStateA, { wordIndex: gameStateA.wordIndex + 1 })
     assert_template 'games/_show0'
     assert_select "h2", /Your opponent's word is/
@@ -58,7 +58,64 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     assert_select "h2 strong", "psalm"
     assert_select "p", "Waiting for #{ @user2.username } to pick your word"
   end
-  # TODO: Write a test where @user1 has moved to state1 and now @user2 is moving from state0 to 1.
-  # @user2 should assert_template 'games/_show2'
-  # and @user1 needs to get a message telling them to regrab game_path(@game)
+
+  test "move to state 2 when both players are ready" do
+    log_in_as(@user1)
+    post games_path, params: { playerA: @user1.id, playerB: @user2.id}
+    newGame = Game.last
+    gameStateA = GameState.find(newGame.gameStateA)
+    patch game_state_path(gameStateA, { finalWord: 'molar' })
+    assert :success
+    assert_template 'games/_show1'
+
+    log_in_as(@user2)
+    get game_path(newGame)
+    # puts "QQQ: #{ response.body }"
+    # # fetus:baton:frown
+    assert_select "span", "Logged in as #{ @user2.username }"
+    assert_select "p", /You can choose/
+    assert_select "p strong", "fetus"
+    assert_select "p", /Or you can take a chance on the next 2 words/
+    assert_select "input[type=submit]" do |btn|
+      assert_match /"fetus" sounds good/, btn.attribute('value').value
+    end
+    assert_select "input[type=submit][value=?]", 'Try the next word'
+    # Simulate clicking on the next word
+    gameStateB = GameState.find(newGame.gameStateB)
+    patch game_state_path(gameStateB, { wordIndex: gameStateB.wordIndex + 1 })
+    assert_template 'games/_show0'
+    assert_select "p", /You can choose/
+    assert_select "p strong", "baton"
+    assert_select "p", /Or you can go with the last word in the list/
+    assert_select "input[type=submit]" do |btn|
+      assert_equal 'Settle for "baton"', btn.attribute('value').value
+    end
+    assert_select "input[type=submit][value=?]", "Let's take a chance on door #3"
+
+    # Simulate clicking on door #3
+    gameStateB = GameState.find(newGame.gameStateB)
+    patch game_state_path(gameStateB, { wordIndex: gameStateB.wordIndex + 1 })
+    assert_template 'games/_show0'
+    assert_select "h2", /Your opponent's word is/
+    assert_select "h2 strong", "frown"
+    assert_select "p", /Press the 'OK' button to continue/
+    assert_select "p", { text: %r{you can go with the last word in the list}, count: 0 }
+
+    assert_select "input[type=submit]" do |btn|
+      assert_equal 'OK', btn.attribute('value').value
+    end
+
+    # Click the OK button
+    patch game_state_path(gameStateB, { finalWord: "psalm" })
+    assert_template 'games/_show2'
+    # assert_select "h2", /#{ @user1.username }'s word is/
+    # assert_select "h2 strong", "psalm"
+    # assert_select "p", "Waiting for #{ @user1.username } to pick your word"
+
+    # Simulate player 1 regetting the game
+    log_in_as(@user1)
+    get game_path(newGame)
+    assert :success
+    assert_template 'games/_show2'
+  end
 end

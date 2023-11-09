@@ -14,7 +14,7 @@ class GamesController < ApplicationController
   # GET /games/1 or /games/1.json
   def show
     set_game_variables(@game)
-    #render partial: "games/show#{@gameState.state}", locals: { otherPlayer: @otherPlayer, gameState: @gameState, user: @user }
+    #render partial: "games/show#{@game_state.state}", locals: { other_player: @other_player, gameState: @game_state, user: @user }
   end
 
   # # GET /games/new
