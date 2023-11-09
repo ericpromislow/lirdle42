@@ -81,4 +81,23 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     # puts "QQQ: #{ response.body }"
     assert_select "p", "Waiting for #{ @user2.username } to finish guessing a word."
   end
+
+  test "when both players have made a guess move to state 4" do
+    log_in_as(@user1)
+    post guesses_path, params: {game_state_id: @gs1.id, word:"scrum" }
+    assert_template 'games/_show3'
+    log_in_as(@user2)
+    post guesses_path, params: {game_state_id: @gs2.id, word:"lemon" }
+    assert_template 'games/_show4'
+    log_in_as(@user1)
+    get game_path(@game)
+    assert_template 'games/_show4'
+    assert_select 'p', %Q/Target Word: baton/
+    assert_select 'p', %Q/Their Current Guess: lemon/
+    log_in_as(@user2)
+    get game_path(@game)
+    assert_template 'games/_show4'
+    assert_select 'p', %Q/Target Word: knell/
+    assert_select 'p', %Q/Their Current Guess: scrum/
+  end
 end

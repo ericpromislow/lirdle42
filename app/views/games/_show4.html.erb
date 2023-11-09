@@ -1,0 +1,23 @@
+<%
+  other_player ||= @other_player
+  other_state ||= @other_state
+  game_state ||= @game_state
+  # user ||= @user
+  guesses = @other_state.guesses
+%>
+<div class="row">
+  <div class="col-md-12">
+<h2>Time to Pick A Lie</h2>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <p>Target Word: <%= other_state.finalWord %></p>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <p>Their Current Guess: <%= guesses[-1].word %></p>
+  </div>
+</div>

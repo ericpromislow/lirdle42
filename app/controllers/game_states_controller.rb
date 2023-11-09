@@ -44,9 +44,9 @@ class GameStatesController < ApplicationController
           gp[:wordIndex] = wordIndex
         end
       end
-      if gp[:state] == 1 && @otherState.state == 1
+      if gp[:state] == 1 && @other_state.state == 1
         gp[:state] = 2
-        @otherState.update_attribute(:state, 2)
+        @other_state.update_attribute(:state, 2)
         # TODO: Send a message to @other_user to regrab the game
       end
     end
