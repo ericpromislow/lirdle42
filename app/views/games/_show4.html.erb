@@ -6,7 +6,7 @@
   guesses = @other_state.guesses
   lastGuess = guesses[-1]
   lastGuessWord = lastGuess.word
-  scores = guesses[-1].score.split('').map(&:to_i)
+  scores = guesses[-1].score.split(':').map(&:to_i)
   colors = %w[grey yellow green]
 %>
 <div class="row">
@@ -17,7 +17,7 @@
 
 <div class="row targetWord">
   <div class="col-md-12">
-    <p>Target Word: <%= other_state.finalWord %></p>
+    <p>Target Word: <%= game_state.finalWord %></p>
   </div>
 </div>
 <div class="row currentGuess">
@@ -29,7 +29,7 @@
 <div class="row">
   <div class="col-md-12">
     <div class="letter-row-container">
-      <div class="letter-row">
+      <div class="letter-row col-md-2">
         <% 5.times do |col_num| %>
           <% letterColor = colors[scores[col_num]]
             bgColor = "background-#{ letterColor }" %>
@@ -41,3 +41,28 @@
     </div>
   </div>
 </div>
+
+<%= form_with(model: game_state, remote: true) do |f| %>
+<%= %w/grey yellow green/.each_with_index do |other_color, row_num| %>
+<div class="row">
+  <div class="col-md-12">
+    <div class="letter-row-container">
+        <% 5.times do |col_num| %>
+          <div class="letter-row col-md-2">
+            <% letter_color = colors[scores[col_num]]
+            if letter_color != other_color %>
+              <div class="letter-box filled-box background-<%= other_color %>">
+                <span>&nbsp;</span>
+              </div>
+              <%= f.radio_button(:lie, "#{row_num}:#{col_num}:#{letter_color}:#{other_color}") %>
+            <% else %>
+              <span>&nbsp;</span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<% end %>
+<% end %>

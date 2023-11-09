@@ -53,7 +53,7 @@ class GuessesController < ApplicationController
       render 'games/show'
       return
     end
-    guess = build_guess_object(word, gs)
+    guess = build_guess_object(word, gs, @other_state)
     gs.guesses << guess
     if @other_state.state == 3
       @other_state.update_attribute(:state, 4)
@@ -78,12 +78,10 @@ class GuessesController < ApplicationController
     redirect_to request.referrer || root_url
   end
 
-  def build_guess_object(word, gs)
-    playerID = gs.playerID
-    otherPlayerState = gs.game.get_other_player_state(playerID)
+  def build_guess_object(word, gs, otherPlayerState)
     targetWord = otherPlayerState.finalWord
     score = calculate_score(word, targetWord)
-    gs = Guess.create(word: word, score: score, liePosition: -1, marks: "", isCorrect: is_correct_score(score),
+    gs = Guess.create(word: word, score: score.join(":"), liePosition: -1, marks: "", isCorrect: is_correct_score(score),
                       guessNumber: gs.guesses.size)
     return gs
   end
