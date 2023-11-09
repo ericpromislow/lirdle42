@@ -17,8 +17,14 @@
     letterBoxSizeClassName = "small4"
   end
 %>
-<h1>Lirdle42: One Handcrafted Lie Per Line</h1>
+<div class="row">
+  <div class="col-md-12">
+<h2>Lirdle42: One Handcrafted Lie Per Line</h2>
+  </div>
+</div>
 
+<div class="row">
+  <div class="col-md-12">
 <div id="game-board">
   <% num_rows.times do |row_num| %>
     <div class="letter-row-container">
@@ -32,7 +38,7 @@
         <% 5.times do |col_num| %>
           <div class="<%= letterBoxClassList %>">
             <% if row_num < guesses.size %>
-              <%= guesses[row_num][col_num].downcase %>
+              <%= guesses[row_num].word[col_num].downcase %>
             <% end %>
           </div>
         <% end %>
@@ -40,6 +46,18 @@
     </div>
   <% end %>
 </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-4 col-md-offset-4">
+    <%= form_with(url: guesses_path, scope: :game_state, local: true) do |f| %>
+      <%= hidden_field_tag :word, "splibitch" %>
+      <%= hidden_field_tag :game_state_id, game_state.id %>
+      <%= f.submit "Submit Guess", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
+
 <div id="keyboard-cont">
   <div id="dupWord" class="wordProblemPrompt hidden"><span>You already tried "</span><span id="dupWordContents"></span><span>"</span></div>
   <div id="fiveGreenFakeOut" class="wordProblemPrompt hidden"><span>Congratulations on getting a Fake Out! You're close but that's not the right word.</span><br /></div>

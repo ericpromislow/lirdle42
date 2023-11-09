@@ -11,4 +11,10 @@ class Game < ApplicationRecord
     id = (GameState.find(self.gameStateB))&.playerID
     id && User.find(id)
   end
+
+  def get_other_player_state(playerID)
+    gsA = GameState.find(self.gameStateA)
+    gsB = GameState.find(self.gameStateB)
+    gsA.playerID == playerID ? gsB : gsA
+  end
 end

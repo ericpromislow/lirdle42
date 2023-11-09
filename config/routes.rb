@@ -26,10 +26,9 @@ Rails.application.routes.draw do
   resources :chatrooms, param: :slug
   resources :messages
 
-  resources :games do
-    resources :guesses
-  end
+  resources :games
   resources :game_states, only: [:update]
+  resources :guesses, only: [:create]
 
 
   # Serve websocket cable requests in-process
