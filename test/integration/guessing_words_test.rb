@@ -164,6 +164,11 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
       assert_includes elt.classes, "background-#{ expected[i][1] }"
       i += 1
     end
+    assert_select 'div#keyboard-cont' do
+      assert_select 'div.first-row button.keyboard-button', count: 10
+      assert_select 'div.second-row button.keyboard-button', count: 9
+      assert_select 'div.third-row button.keyboard-button', count: 9
+    end
 
     log_in_as(@user2)
     get game_path(@game)
@@ -178,6 +183,11 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
       assert_equal elt.text.strip, expected[i][0]
       assert_includes elt.classes, "background-#{ expected[i][1] }"
       i += 1
+    end
+    assert_select 'div#keyboard-cont' do
+      assert_select 'div.first-row button.keyboard-button', count: 10
+      assert_select 'div.second-row button.keyboard-button', count: 9
+      assert_select 'div.third-row button.keyboard-button', count: 9
     end
   end
 end

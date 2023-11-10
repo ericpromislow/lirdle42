@@ -6,9 +6,7 @@
   colors = %w[grey yellow green]
   num_rows = [guesses.size + 1, 6].max
   case num_rows
-  when 0...6
-    letterBoxSizeClassName = nil
-  when 6...13
+  when 0...13
     letterBoxSizeClassName = "small1"
   when 13...19
     letterBoxSizeClassName = "small2"
@@ -17,8 +15,7 @@
   else
     letterBoxSizeClassName = "small4"
   end
-  letterBoxClassListArrayBase = ['letter-box', 'filled-box']
-  letterBoxClassListArrayBase << letterBoxSizeClassName if letterBoxSizeClassName
+  letterBoxClassListArrayBase = ['letter-box', 'filled-box', letterBoxSizeClassName]
 %>
 <div class="row">
   <div class="col-md-12">
@@ -32,7 +29,7 @@
       <% (0...guesses.size).to_a.each do |row_num| %>
         <%
           guess = guesses[row_num]
-          scores = guess.score.split(':').map(&:to_i)
+          scores = guess.score.split('').map(&:to_i)
           liePosition = guess.liePosition
           lieColor = guess.lieColor
         %>
@@ -55,7 +52,7 @@
         <div class="letter-row-container">
           <div class="letter-row">
             <% 5.times do  %>
-              <div class="letter-box"></div>
+              <div class="letter-box <%= letterBoxSizeClassName %>"></div>
             <% end %>
           </div>
         </div>
