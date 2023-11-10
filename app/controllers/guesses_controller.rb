@@ -6,7 +6,7 @@ class GuessesController < ApplicationController
   def initialize
     # TODO: Replace this with the full list or a database lookup
     super
-    @words ||= (IO.read('db/words/words.txt').split("\n") + IO.read('db/words/other-words.txt').split("\n")).sort
+    @words = getAllWords
   end
   def create
     if !params[:game_state_id]

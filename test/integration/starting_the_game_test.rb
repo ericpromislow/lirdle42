@@ -10,6 +10,10 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     post games_path, params: { playerA: @user1.id, playerB: @user2.id}
     assert :success
     newGame = Game.last
+    gs1 = GameState.find(newGame.gameStateA)
+    gs2 = GameState.find(newGame.gameStateB)
+    gs1.update_attribute(:candidateWords, "knell:molar:psalm")
+    gs2.update_attribute(:candidateWords, "fetus:baton:frown")
     get game_path(newGame)
     assert_template 'games/_show0'
     # puts "QQQ: #{ response.body }"
@@ -26,8 +30,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     end
     assert_select "input[type=submit][value=?]", 'Try the next word'
     # Simulate clicking on the next word
-    gameStateA = GameState.find(newGame.gameStateA)
-    patch game_state_path(gameStateA, { wordIndex: gameStateA.wordIndex + 1 })
+    gs1.reload
+    patch game_state_path(gs1, { wordIndex: gs1.wordIndex + 1 })
     assert_template 'games/_show0'
     assert_select "p", /You can choose/
     assert_select "p strong", "molar"
@@ -39,8 +43,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
 
 
     # Simulate clicking on door #3
-    gameStateA.reload
-    patch game_state_path(gameStateA, { wordIndex: gameStateA.wordIndex + 1 })
+    gs1.reload
+    patch game_state_path(gs1, { wordIndex: gs1.wordIndex + 1 })
     assert_template 'games/_show0'
     assert_select "h2", /Your opponent's word is/
     assert_select "h2 strong", "psalm"
@@ -52,7 +56,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     end
 
     # Click the OK button
-    patch game_state_path(gameStateA, { finalWord: "psalm" })
+    patch game_state_path(gs1, { finalWord: "psalm" })
     assert_template 'games/_show1'
     assert_select "h2", /#{ @user2.username }'s word is/
     assert_select "h2 strong", "psalm"
@@ -63,8 +67,11 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     log_in_as(@user1)
     post games_path, params: { playerA: @user1.id, playerB: @user2.id}
     newGame = Game.last
-    gameStateA = GameState.find(newGame.gameStateA)
-    patch game_state_path(gameStateA, { finalWord: 'molar' })
+    gs1 = GameState.find(newGame.gameStateA)
+    gs2 = GameState.find(newGame.gameStateB)
+    gs1.update_attribute(:candidateWords, "knell:molar:psalm")
+    gs2.update_attribute(:candidateWords, "fetus:baton:frown")
+    patch game_state_path(gs1, { finalWord: 'molar' })
     assert :success
     assert_template 'games/_show1'
 
@@ -81,8 +88,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     end
     assert_select "input[type=submit][value=?]", 'Try the next word'
     # Simulate clicking on the next word
-    gameStateB = GameState.find(newGame.gameStateB)
-    patch game_state_path(gameStateB, { wordIndex: gameStateB.wordIndex + 1 })
+    gs2.reload
+    patch game_state_path(gs2, { wordIndex: gs2.wordIndex + 1 })
     assert_template 'games/_show0'
     assert_select "p", /You can choose/
     assert_select "p strong", "baton"
@@ -93,8 +100,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     assert_select "input[type=submit][value=?]", "Let's take a chance on door #3"
 
     # Simulate clicking on door #3
-    gameStateB = GameState.find(newGame.gameStateB)
-    patch game_state_path(gameStateB, { wordIndex: gameStateB.wordIndex + 1 })
+    gs2.reload
+    patch game_state_path(gs2, { wordIndex: gs2.wordIndex + 1 })
     assert_template 'games/_show0'
     assert_select "h2", /Your opponent's word is/
     assert_select "h2 strong", "frown"
@@ -106,7 +113,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     end
 
     # Click the OK button
-    patch game_state_path(gameStateB, { finalWord: "psalm" })
+    patch game_state_path(gs2, { finalWord: "psalm" })
     assert_template 'games/_show2'
     # assert_select "h2", /#{ @user1.username }'s word is/
     # assert_select "h2 strong", "psalm"

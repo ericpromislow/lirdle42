@@ -23,4 +23,13 @@ module GuessesHelper
   def is_correct_score(score)
     score.all? {|x| x == 2}
   end
+
+  def getAllWords
+    if !@allWords
+      # $stderr.puts "QQQ: Need to read words..."
+      @allWords = (IO.read('db/words/words.txt').split("\n") + IO.read('db/words/other-words.txt').split("\n")).sort
+    end
+    @allWords
+  end
+
 end

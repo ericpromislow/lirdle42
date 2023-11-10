@@ -1,4 +1,5 @@
 class GamesController < ApplicationController
+  include GamesHelper
   before_action :set_game, only: %i[ show edit destroy ]
   before_action :logged_in_user, only: %i[ index create edit show destroy ]
   before_action :set_logged_in_user, only: %i[ index create edit show destroy ]
@@ -40,8 +41,12 @@ class GamesController < ApplicationController
       format.json { render json: @game.errors, status: :unprocessable_entity }
       return
     end
-    gameStateA = GameState.create(game: @game, state: 0, playerID: gp[:playerA], candidateWords: "knell:molar:psalm", wordIndex: 0)
-    gameStateB = GameState.create(game: @game, state: 0, playerID: gp[:playerB], candidateWords: "fetus:baton:frown", wordIndex: 0)
+    targetWords = getTargetWords
+    tw1 = targetWords.sample(6)
+    tw_for_a = tw1[0..2].join(':')
+    tw_for_b = tw1[3..5].join(':')
+    gameStateA = GameState.create(game: @game, state: 0, playerID: gp[:playerA], candidateWords: tw_for_a, wordIndex: 0)
+    gameStateB = GameState.create(game: @game, state: 0, playerID: gp[:playerB], candidateWords: tw_for_b, wordIndex: 0)
     gameStateA.save!
     gameStateB.save!
     respond_to do |format|
