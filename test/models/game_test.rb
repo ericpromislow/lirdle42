@@ -12,9 +12,9 @@ class GameTest < ActiveSupport::TestCase
     game.update_columns(gameStateA: gs1, gameStateB: gs2)
     assert_equal 0, gs1.guesses.size
     assert_equal 0, gs2.guesses.size
-    gs1.guesses << Guess.create(word: "fanta", score: "00100", liePosition: 0, lieDirection: -1, marks:"BBBTL", guessNumber: 0)
-    gs1.guesses << Guess.create(word: "vouch", score: "00000", liePosition: 0, lieDirection: -1, marks:"BBBTL", guessNumber: 1)
-    gs2.guesses << Guess.create(word: "aging", score: "10010", liePosition: 0, lieDirection: -1, marks:"BBBTL", guessNumber: 0)
+    gs1.guesses << Guess.create(word: "fanta", score: "00100", liePosition: 0, lieColor: 2, marks:"BBBTL", guessNumber: 0)
+    gs1.guesses << Guess.create(word: "vouch", score: "00000", liePosition: 0, lieColor: 2, marks:"BBBTL", guessNumber: 1)
+    gs2.guesses << Guess.create(word: "aging", score: "10010", liePosition: 0, lieColor: 0, marks:"BBBTL", guessNumber: 0)
     gs1.reload
     gs2.reload
     assert_equal 2, gs1.guesses.size

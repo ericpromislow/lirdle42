@@ -4,7 +4,7 @@ one:
   word: MyString
   score: MyString
   liePosition: 1
-  lieDirection: 1
+  lieColor: 1
   marks: MyString
   isCorrect: false
   guessNumber: 0
@@ -14,7 +14,7 @@ two:
   word: MyString
   score: MyString
   liePosition: 1
-  lieDirection: 1
+  lieColor: 1
   marks: MyString
   isCorrect: false
   guessNumber: 0

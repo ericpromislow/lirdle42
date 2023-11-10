@@ -73,7 +73,7 @@ ActiveRecord::Schema.define(version: 2023_11_09_175821) do
     t.string "word"
     t.string "score"
     t.integer "liePosition"
-    t.integer "lieDirection"
+    t.integer "lieColor"
     t.string "marks"
     t.boolean "isCorrect"
     t.integer "guessNumber"

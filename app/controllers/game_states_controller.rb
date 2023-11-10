@@ -49,7 +49,13 @@ class GameStatesController < ApplicationController
       end
       lastGuess = @game_state.guesses[-1]
       scores = lastGuess.score.split(':').map(&:to_i)
-      applyLie(scores, theLie, lastGuess)
+      begin
+        applyLie(scores, theLie, lastGuess)
+      rescue
+        flash[:error] = $!
+        render 'games/show'
+        return
+      end
       if @game_state.state == 5
         gp[:state] = 2
         @game_state.update_attribute(:state, 2)
@@ -119,10 +125,13 @@ private
     buttonParts = radioButtonLieValue.split(':')
     position = buttonParts[0].to_i
     currentColor = buttonParts[1].to_i
+    if scores[position] != currentColor
+      $stderr.puts "QQQ: Invalid lie #{ radioButtonLieValue }"
+      raise "Invalid lie #{ radioButtonLieValue }"
+    end
     desiredColor = buttonParts[2].to_i
-    delta = (desiredColor + 3 - currentColor) % 3
     scores[position] = desiredColor
-    guess.update_columns(liePosition: position, lieDirection: delta, score: scores.join(':'))
+    guess.update_columns(liePosition: position, lieColor: desiredColor, score: scores.join(':'))
   end
 
   def set_game_state

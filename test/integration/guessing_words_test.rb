@@ -93,6 +93,15 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     assert_template 'games/_show4'
     assert_select 'p', %Q/Target Word: knell/
     assert_select 'p', %Q/Their Current Guess: lemon/
+    expected = [%w/l yellow/, %w/e yellow/, %w/m grey/, %w/o grey/, %w/n yellow/]
+    i = 0
+    assert_select 'div.letter-box.filled-box' do |elements|
+      elt = elements[i]
+      assert_includes elt.classes, "background-#{ expected[i][1] }"
+      assert_includes elt.text, expected[i][0]
+      i += 1
+    end
+
     log_in_as(@user2)
     get game_path(@game)
     assert_template 'games/_show4'
@@ -102,8 +111,8 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     i = 0
     assert_select 'div.letter-box.filled-box' do |elements|
       elt = elements[i]
+      assert_equal elt.text.strip, expected[i][0]
       assert_includes elt.classes, "background-#{ expected[i][1] }"
-      assert_includes elt.text, expected[i][0]
       i += 1
     end
   end
@@ -120,7 +129,7 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     get game_path(@game)
     assert_template 'games/_show4'
     @gs2.reload
-    patch game_state_path(@gs2, params: { lie: "1:2:1:yellow" })
+    patch game_state_path(@gs2, params: { lie: "1:1:2:green" })
     assert_template 'games/_show5'
     assert_select "p", "Waiting for #{ @user2.username } to finish picking a lie."
 
@@ -130,10 +139,41 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     @gs1.reload
     patch game_state_path(@gs1, params: { lie: "0:0:2:green" })
     assert_template 'games/_show2'
+    expected = [%w/l yellow/, %w/e yellow/, %w/m grey/, %w/o grey/, %w/n yellow/]
+    i = 0
+    assert_select 'div#game-board div.letter-row-container[1] div.letter-row div.letter-box.filled-box' do |elements|
+      elt = elements[i]
+      assert_equal elt.text.strip, expected[i][0]
+      assert_includes elt.classes, "background-#{ expected[i][1] }"
+      i += 1
+    end
+
+    # puts "QQQ: #{ response.body }"
 
     log_in_as(@user1)
     get game_path(@game)
     assert_template 'games/_show2'
-    # puts "QQQ: #{ response.body }"
+    # Target baton, guessed paint, lie: 0:0:2 ('p') should be green
+    expected = [%w/p green/, %w/a green/, %w/i grey/, %w/n yellow/, %w/t yellow/]
+    i = 0
+    assert_select 'div.letter-box.filled-box' do |elements|
+      elt = elements[i]
+      assert_equal elt.text.strip, expected[i][0]
+      assert_includes elt.classes, "background-#{ expected[i][1] }"
+      i += 1
+    end
+
+    log_in_as(@user2)
+    get game_path(@game)
+    assert_template 'games/_show2'
+    # Target knell, guessed lemon, lie: 1:1:2 ('e') should be green
+    expected = [%w/l yellow/, %w/e green/, %w/m grey/, %w/o grey/, %w/n yellow/]
+    i = 0
+    assert_select 'div.letter-box.filled-box' do |elements|
+      elt = elements[i]
+      assert_equal elt.text.strip, expected[i][0]
+      assert_includes elt.classes, "background-#{ expected[i][1] }"
+      i += 1
+    end
   end
 end

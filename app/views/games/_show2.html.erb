@@ -3,6 +3,7 @@
   game_state ||= @game_state
   # user ||= @user
   guesses = game_state.guesses
+  colors = %w[grey yellow green]
   num_rows = [guesses.size + 1, 6].max
   case num_rows
   when 0...6
@@ -16,36 +17,50 @@
   else
     letterBoxSizeClassName = "small4"
   end
+  letterBoxClassListArrayBase = ['letter-box', 'filled-box']
+  letterBoxClassListArrayBase << letterBoxSizeClassName if letterBoxSizeClassName
 %>
 <div class="row">
   <div class="col-md-12">
-<h2>Lirdle42: One Handcrafted Lie Per Line</h2>
+    <h2>Lirdle42: One Handcrafted Lie Per Line</h2>
   </div>
 </div>
 
 <div class="row">
   <div class="col-md-12">
-<div id="game-board">
-  <% num_rows.times do |row_num| %>
-    <div class="letter-row-container">
-      <div class="letter-row">
+    <div id="game-board">
+      <% (0...guesses.size).to_a.each do |row_num| %>
         <%
-          letterBoxClassListArray = ['letter-box']
-          letterBoxClassListArray << letterBoxSizeClassName if letterBoxSizeClassName
-          letterBoxClassListArray << 'filled-box' if row_num < guesses.size
-          letterBoxClassList = letterBoxClassListArray.join(" ")
+          guess = guesses[row_num]
+          scores = guess.score.split(':').map(&:to_i)
+          liePosition = guess.liePosition
+          lieColor = guess.lieColor
         %>
-        <% 5.times do |col_num| %>
-          <div class="<%= letterBoxClassList %>">
-            <% if row_num < guesses.size %>
-              <%= guesses[row_num].word[col_num].downcase %>
+        <div class="letter-row-container">
+          <div class="letter-row">
+            <% 5.times do |col_num| %>
+              <%
+                letterIndex = liePosition == col_num ? lieColor : scores[col_num]
+                letterColor = colors[letterIndex]
+                bgColor = "background-#{ letterColor }"
+                letterBoxClassListArray = letterBoxClassListArrayBase + [bgColor]
+                letterBoxClassList = letterBoxClassListArray.join(" ")
+              %>
+              <div class="<%= letterBoxClassList %>"><%= guesses[row_num].word[col_num].downcase %></div>
             <% end %>
           </div>
-        <% end %>
-      </div>
+        </div>
+      <% end %>
+      <% (guesses.size...num_rows).to_a.each do |row_num| %>
+        <div class="letter-row-container">
+          <div class="letter-row">
+            <% 5.times do  %>
+              <div class="letter-box"></div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
-  <% end %>
-</div>
   </div>
 </div>
 <div class="row">
