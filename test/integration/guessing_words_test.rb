@@ -156,6 +156,8 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     # Target baton, guessed paint, lie: 0:0:2 ('p') should be green
     expected = [%w/p green/, %w/a green/, %w/i grey/, %w/n yellow/, %w/t yellow/]
     i = 0
+    assert_select 'div.letter-box.filled-box', count: 5
+    assert_select 'div.letter-box', count: 30
     assert_select 'div.letter-box.filled-box' do |elements|
       elt = elements[i]
       assert_equal elt.text.strip, expected[i][0]
@@ -168,6 +170,8 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     assert_template 'games/_show2'
     # Target knell, guessed lemon, lie: 1:1:2 ('e') should be green
     expected = [%w/l yellow/, %w/e green/, %w/m grey/, %w/o grey/, %w/n yellow/]
+    assert_select 'div.letter-box.filled-box', count: 5
+    assert_select 'div.letter-box', count: 30
     i = 0
     assert_select 'div.letter-box.filled-box' do |elements|
       elt = elements[i]
