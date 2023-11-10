@@ -110,7 +110,7 @@ private
       return if [gsA.playerID, gsB.playerID].include?(@user.id)
     end
 
-    $stderr.puts("QQQ: This isn't your part of the game!!")
+    # $stderr.puts("QQQ: game_states_controller: admin_or_own_state: This isn't your part of the game!!")
     flash[:danger] = "Ummm that's cheating"
     redirect_to request.referrer || root_url
   end
