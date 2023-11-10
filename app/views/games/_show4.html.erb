@@ -54,7 +54,7 @@
               <div class="letter-box filled-box background-<%= other_color %>">
                 <span>&nbsp;</span>
               </div>
-              <%= f.radio_button(:lie, "#{row_num}:#{col_num}:#{letter_color}:#{other_color}") %>
+              <%= f.radio_button(:lie, "#{col_num}:#{scores[col_num]}:#{row_num}:#{other_color}") %>
             <% else %>
               <span>&nbsp;</span>
             <% end %>

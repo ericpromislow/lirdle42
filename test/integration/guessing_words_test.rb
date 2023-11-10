@@ -5,8 +5,8 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     @user1 = users(:user1)
     @user2 = users(:user2)
     @game = Game.create
-    @gs1 = GameState.create(game: @game, playerID: @user1.id, finalWord: "knell", state: 2)
-    @gs2 = GameState.create(game: @game, playerID: @user2.id, finalWord: "baton", state: 2)
+    @gs1 = GameState.create(game: @game, playerID: @user1.id, finalWord: "knell", candidateWords: "knell:molar:psalm", state: 2)
+    @gs2 = GameState.create(game: @game, playerID: @user2.id, finalWord: "baton", candidateWords: "fetus:baton:frown", state: 2)
     @game.update_columns(gameStateA: @gs1.id, gameStateB: @gs2.id)
   end
   test "see the guess-words markup" do
@@ -106,6 +106,34 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
       assert_includes elt.text, expected[i][0]
       i += 1
     end
-    puts "QQQ: #{ response.body }"
+  end
+
+  test "when both players have picked a lie in state 4, they end up back in state 2" do
+    log_in_as(@user1)
+    post guesses_path, params: {game_state_id: @gs1.id, word:"paint" }
+    assert_template 'games/_show3'
+    log_in_as(@user2)
+    post guesses_path, params: {game_state_id: @gs2.id, word:"lemon" }
+    assert_template 'games/_show4'
+
+    log_in_as(@user1)
+    get game_path(@game)
+    assert_template 'games/_show4'
+    @gs2.reload
+    patch game_state_path(@gs2, params: { lie: "1:2:1:yellow" })
+    assert_template 'games/_show5'
+    assert_select "p", "Waiting for #{ @user2.username } to finish picking a lie."
+
+    log_in_as(@user2)
+    get game_path(@game)
+    assert_template 'games/_show4'
+    @gs1.reload
+    patch game_state_path(@gs1, params: { lie: "0:0:2:green" })
+    assert_template 'games/_show2'
+
+    log_in_as(@user1)
+    get game_path(@game)
+    assert_template 'games/_show2'
+    # puts "QQQ: #{ response.body }"
   end
 end

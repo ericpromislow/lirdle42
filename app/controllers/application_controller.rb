@@ -22,15 +22,24 @@ private # should be protected?
   def set_game_variables(game)
     gameStateA = GameState.find(game.gameStateA)
     gameStateB = GameState.find(game.gameStateB)
+
     if game.playerA == @user
-      @game_state = gameStateA
-      @other_state = gameStateB
       @other_player = User.find(gameStateB.playerID)
     else
-      @game_state = gameStateB
-      @other_state = gameStateA
       @other_player = User.find(gameStateA.playerID)
     end
+    if !@game_state
+      if game.playerA == @user
+        @game_state = gameStateA
+        @other_state = gameStateB
+      else
+        @game_state = gameStateB
+        @other_state = gameStateA
+      end
+    else
+      @other_state = @game_state == gameStateA ? gameStateB : gameStateA
+    end
+    # Game states are more complicated because lies work on the other player's game-state
   end
 
   def set_logged_in_user

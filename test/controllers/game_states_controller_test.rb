@@ -41,13 +41,23 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "coupe", @gs1.finalWord
   end
 
-  test "logged-in-user can't change other player's fields" do
+  test "admin user can change other player's fields" do
     log_in_as(@user)
     patch game_state_url(@gs2), params: { state: 99, wordIndex: 99, finalWord: "99" }
-    assert_redirected_to root_url
+    assert_response :success
+    assert_template 'games/show'
     @gs2.reload
-    assert_not_equal 99, @gs2.state
-    assert_not_equal 99, @gs2.wordIndex
-    assert_not_equal "99", @gs2.finalWord
+    assert_equal 1, @gs2.state
+    assert_equal "99", @gs2.finalWord
+  end
+
+  test "logged-in-user can't change other player's fields" do
+    log_in_as(@user2)
+    patch game_state_url(@gs1), params: { state: 99, wordIndex: 99, finalWord: "99" }
+    assert_redirected_to root_url
+    @gs1.reload
+    assert_not_equal 99, @gs1.state
+    assert_not_equal 99, @gs1.wordIndex
+    assert_not_equal "99", @gs1.finalWord
   end
 end

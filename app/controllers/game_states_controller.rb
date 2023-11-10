@@ -24,30 +24,68 @@ class GameStatesController < ApplicationController
       redirect_to request.referrer || root_url
       return
     end
-    if @game_state.playerID != @user.id
-      flash[:danger] = "You can't change someone else's game state"
-      redirect_to request.referrer || root_url
-      return
-    end
     set_game_variables(@game)
-    gp = update_params
-    splitWords = @game_state.candidateWords.split(':')
-    if @game_state.state == 0
-      if gp[:finalWord]
-        gp[:state] = 1
+    if !@user.admin && @game_state.playerID != @user.id
+      if params[:lie] && @other_state.playerID == @user.id
+        # Do nothing
       else
-        wordIndex = gp[:wordIndex].to_i || @game_state.wordIndex + 1
-        if wordIndex >= splitWords.size
-          gp[:finalWord] = splitWords[-1]
-          gp[:state] = 1
-        elsif gp[:wordIndex].nil?
-          gp[:wordIndex] = wordIndex
-        end
+        flash[:danger] = "You can't change someone else's game state"
+        redirect_to request.referrer || root_url
+        return
       end
-      if gp[:state] == 1 && @other_state.state == 1
+    end
+    gp = update_params
+    theLie = params[:lie]
+    splitWords = @game_state.candidateWords.split(':')
+    if theLie
+      # Remember here that @game_state is actually the other player's state
+      # @user is the player who applied a lie to the other player's guess -> state
+      # @other_state refers to this player's state
+      # Remember here that `@other_state belongs to the current player
+      if @other_state.state != 4
+        flash[:error] = "Lying with an unexpected game state of #{@other_state.state}"
+        render 'games/show'
+        return
+      end
+      lastGuess = @game_state.guesses[-1]
+      scores = lastGuess.score.split(':').map(&:to_i)
+      applyLie(scores, theLie, lastGuess)
+      if @game_state.state == 5
         gp[:state] = 2
-        @other_state.update_attribute(:state, 2)
-        # TODO: Send a message to @other_user to regrab the game
+        @game_state.update_attribute(:state, 2)
+        # TODO: Send a message to @other_user to refresh the state view
+      else
+        gp[:state] = 5
+      end
+      if @other_state.update(gp)
+        @game_state, @other_state = @other_state, @game_state
+      else
+        flash[:error] = "Failed to update the game state"
+      end
+      render 'games/show'
+      return
+    else
+      if @game_state.state == 0
+        if gp[:finalWord]
+          gp[:state] = 1
+        else
+          wordIndex = gp[:wordIndex].to_i || @game_state.wordIndex + 1
+          if wordIndex >= splitWords.size
+            gp[:finalWord] = splitWords[-1]
+            gp[:state] = 1
+          elsif gp[:wordIndex].nil?
+            gp[:wordIndex] = wordIndex
+          end
+        end
+        if gp[:state] == 1 && @other_state.state == 1
+          gp[:state] = 2
+          @other_state.update_attribute(:state, 2)
+          # TODO: Send a message to @other_user to regrab the game
+        end
+      elsif @game_state.state == 4
+        flash[:error] = "You need to pick a lie"
+        render 'games/show'
+        return
       end
     end
     respond_to do |format|
@@ -65,10 +103,26 @@ private
   def admin_or_own_state
     return if @user.admin?
     return if @game_state.playerID == @user.id
+    if params[:lie]
+      game = @game_state.game
+      gsA = GameState.find(game.gameStateA)
+      gsB = GameState.find(game.gameStateB)
+      return if [gsA.playerID, gsB.playerID].include?(@user.id)
+    end
 
     $stderr.puts("QQQ: This isn't your part of the game!!")
     flash[:danger] = "Ummm that's cheating"
     redirect_to request.referrer || root_url
+  end
+
+  def applyLie(scores, radioButtonLieValue, guess)
+    buttonParts = radioButtonLieValue.split(':')
+    position = buttonParts[0].to_i
+    currentColor = buttonParts[1].to_i
+    desiredColor = buttonParts[2].to_i
+    delta = (desiredColor + 3 - currentColor) % 3
+    scores[position] = desiredColor
+    guess.update_columns(liePosition: position, lieDirection: delta, score: scores.join(':'))
   end
 
   def set_game_state
