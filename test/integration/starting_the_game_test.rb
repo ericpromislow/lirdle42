@@ -32,6 +32,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     # Simulate clicking on the next word
     gs1.reload
     patch game_state_path(gs1, { wordIndex: gs1.wordIndex + 1 })
+    assert_redirected_to game_path(newGame)
+    follow_redirect!
     assert_template 'games/_show0'
     assert_select "p", /You can choose/
     assert_select "p strong", "molar"
@@ -45,6 +47,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     # Simulate clicking on door #3
     gs1.reload
     patch game_state_path(gs1, { wordIndex: gs1.wordIndex + 1 })
+    assert_redirected_to game_path(newGame)
+    follow_redirect!
     assert_template 'games/_show0'
     assert_select "h2", /Your opponent's word is/
     assert_select "h2 strong", "psalm"
@@ -57,6 +61,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
 
     # Click the OK button
     patch game_state_path(gs1, { finalWord: "psalm" })
+    assert_redirected_to game_path(newGame)
+    follow_redirect!
     assert_template 'games/_show1'
     assert_select "h2", /#{ @user2.username }'s word is/
     assert_select "h2 strong", "psalm"
@@ -72,7 +78,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     gs1.update_attribute(:candidateWords, "knell:molar:psalm")
     gs2.update_attribute(:candidateWords, "fetus:baton:frown")
     patch game_state_path(gs1, { finalWord: 'molar' })
-    assert :success
+    assert_redirected_to game_path(newGame)
+    follow_redirect!
     assert_template 'games/_show1'
 
     log_in_as(@user2)
@@ -90,6 +97,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     # Simulate clicking on the next word
     gs2.reload
     patch game_state_path(gs2, { wordIndex: gs2.wordIndex + 1 })
+    assert_redirected_to game_path(newGame)
+    follow_redirect!
     assert_template 'games/_show0'
     assert_select "p", /You can choose/
     assert_select "p strong", "baton"
@@ -102,6 +111,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     # Simulate clicking on door #3
     gs2.reload
     patch game_state_path(gs2, { wordIndex: gs2.wordIndex + 1 })
+    assert_redirected_to game_path(newGame)
+    follow_redirect!
     assert_template 'games/_show0'
     assert_select "h2", /Your opponent's word is/
     assert_select "h2 strong", "frown"
@@ -114,6 +125,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
 
     # Click the OK button
     patch game_state_path(gs2, { finalWord: "psalm" })
+    assert_redirected_to game_path(newGame)
+    follow_redirect!
     assert_template 'games/_show2'
     # assert_select "h2", /#{ @user1.username }'s word is/
     # assert_select "h2 strong", "psalm"

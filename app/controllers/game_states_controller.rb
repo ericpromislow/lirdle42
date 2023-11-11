@@ -43,7 +43,7 @@ class GameStatesController < ApplicationController
       # Remember here that `@other_state belongs to the current player
       if @other_state.state != 4
         flash[:error] = "Lying with an unexpected game state of #{@other_state.state}"
-        render 'games/show'
+        redirect_to game_path(@game)
         return
       end
       lastGuess = @game_state.guesses[-1]
@@ -52,7 +52,7 @@ class GameStatesController < ApplicationController
         applyLie(scores, theLie, lastGuess)
       rescue
         flash[:error] = $!
-        render 'games/show'
+        redirect_to game_path(@game)
         return
       end
       if @game_state.state == 5
@@ -67,7 +67,7 @@ class GameStatesController < ApplicationController
       else
         flash[:error] = "Failed to update the game state"
       end
-      render 'games/show'
+      redirect_to game_path(@game)
       return
     else
       if @game_state.state == 0
@@ -89,14 +89,14 @@ class GameStatesController < ApplicationController
         end
       elsif @game_state.state == 4
         flash[:error] = "You need to pick a lie"
-        render 'games/show'
+        redirect_to game_path(@game)
         return
       end
     end
     respond_to do |format|
       if @game_state.update(gp)
         format.html {
-          render 'games/show' }
+          redirect_to game_path(@game) }
         format.json {
           render :show, status: :ok, location: @game }
       else

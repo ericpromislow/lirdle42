@@ -34,8 +34,7 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
   test "logged-in-user can change other fields in an existing game" do
     log_in_as(@user)
     patch game_state_url(@gs1), params: { finalWord: "coupe" }
-    assert_response :success
-    assert_template 'games/show'
+    assert_redirected_to game_path(@game)
     @gs1.reload
     assert_equal 1, @gs1.state
     assert_equal "coupe", @gs1.finalWord
@@ -44,8 +43,7 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
   test "admin user can change other player's fields" do
     log_in_as(@user)
     patch game_state_url(@gs2), params: { state: 99, wordIndex: 99, finalWord: "99" }
-    assert_response :success
-    assert_template 'games/show'
+    assert_redirected_to game_path(@game)
     @gs2.reload
     assert_equal 1, @gs2.state
     assert_equal "99", @gs2.finalWord

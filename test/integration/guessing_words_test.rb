@@ -130,6 +130,8 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     assert_template 'games/_show4'
     @gs2.reload
     patch game_state_path(@gs2, params: { lie: "1:1:2:green" })
+    assert_redirected_to game_path(@game)
+    follow_redirect!
     assert_template 'games/_show5'
     assert_select "p", "Waiting for #{ @user2.username } to finish picking a lie."
 
@@ -138,6 +140,8 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     assert_template 'games/_show4'
     @gs1.reload
     patch game_state_path(@gs1, params: { lie: "0:0:2:green" })
+    assert_redirected_to game_path(@game)
+    follow_redirect!
     assert_template 'games/_show2'
     expected = [%w/l yellow/, %w/e yellow/, %w/m grey/, %w/o grey/, %w/n yellow/]
     i = 0
