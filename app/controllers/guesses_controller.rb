@@ -67,6 +67,11 @@ class GuessesController < ApplicationController
     render 'games/show'
   end
 
+  def is_valid_word
+    word = params[:word]
+    head @words.include?(word) ? :ok : :not_found
+  end
+
   private
 
   def admin_or_own_state

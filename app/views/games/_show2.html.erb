@@ -108,3 +108,281 @@
     <button class="keyboard-button" type="button">Enter</button>
   </div>
 </div>
+
+<script type="text/javascript">
+  console.log("QQQ: Hey we've got scripting in _show2!");
+  const COLORS = ['grey', 'yellow', 'green'];
+  const NEUTRAL_COLOR = 'white';
+  let submitButton = null;
+
+  function Model(view) {
+      this.view = view;
+  }
+  Model.prototype = {
+      initialize() {
+          this.initState();
+      },
+      initState() {
+          this.currentGuess = [];
+          this.guessCount = 0;
+          this.nextLetterPosition = 0;
+      },
+      deleteLetter() {
+          if (this.currentGuess === 0) {
+              return;
+          }
+          this.view.deleteLetter(this.guessCount, this.nextLetterPosition - 1);
+          this.currentGuess.pop();
+          this.nextLetterPosition -= 1;
+          if (this.nextLetterPosition === 4) {
+              if (this.isInvalidWord) {
+                  this.isInvalidWord = false;
+                  this.view.changeInvalidWordState(this.guessCount, false);
+                  submitButton.disabled = true;
+              }
+          }
+      },
+      insertLetter(pressedKey) {
+          const rowNum = this.guessCount;
+          const colNum = this.nextLetterPosition;
+          this.view.insertLetter(pressedKey, rowNum, colNum);
+          this.currentGuess.push(pressedKey);
+          this.nextLetterPosition += 1;
+          if (this.nextLetterPosition === 5) {
+              const guessString = this.currentGuess.join('');
+              $.ajax({
+                  url: `/is_valid_word?word=${this.currentGuess}`,
+                  type: 'GET', // NEEDED?
+                  success: (result) => {
+                      $.ajax({
+                          url: `/is_duplicate_guess?word=${this.currentGuess}&id=<% game_state.id %>`,
+                          success(result) {
+                              submitButton.disabled = false;
+                          },
+                          failure(result) {
+                              this.isInvalidWord = true;
+                              this.view.changeInvalidWordState(this.guessCount, true, '');
+                          }
+                      });
+                  },
+                  failure: (result) => {
+                      this.isInvalidWord = true;
+                      this.view.changeInvalidWordState(this.guessCount, true, guessString);
+                  }
+              });
+          }
+      },
+  };
+  function View() {
+      this.board = document.getElementById("game-board");
+      this.dupWord = document.getElementById("dupWord");
+      for (const elem of document.getElementsByClassName("keyboard-button")) {
+          elem.style.backgroundColor = NEUTRAL_COLOR;
+      }
+      this.model = null;
+      this.wordIsInvalid = false;
+      this.gameFinished = false;
+  }
+  View.prototype = {
+      setModel(model) {
+          this.model = model;
+      },
+      handleLetterBoxClick(e) {
+          if (this.gameFinished) {
+              e.stopPropagation();
+              e.preventDefault();
+              return;
+          }
+          const target = e.target;
+          if (!target.classList.contains('filled-box')) {
+              return;
+          }
+          if (target.classList.contains('show-lie')) {
+              target.classList.remove('show-lie');
+              target.classList.add('show-perceived-truth');
+          } else if (target.classList.contains('show-perceived-truth')) {
+              target.classList.remove('show-perceived-truth');
+          } else {
+              // We avoid constraints on number of marked letters
+              // due to complexity and individual preferences
+              target.classList.add('show-lie');
+          }
+          e.preventDefault();
+      },
+      changeInvalidWordState(rowNum, wordIsInvalid, guessString) {
+          if (this.wordIsInvalid !== wordIsInvalid) {
+              if (!this.wordIsInvalid) {
+                  this.markCurrentWordInvalid(rowNum);
+                  if (guessString) {
+                      this.dupWord.querySelector('#dupWordContents').textContent = guessString;
+                      this.dupWord.classList.remove('hidden');
+                      this.dupWord.classList.add('show');
+                  }
+              } else {
+                  this.markCurrentWordValid(rowNum);
+                  this.dupWord.classList.remove('show');
+                  this.dupWord.classList.add('hidden');
+              }
+              this.wordIsInvalid = wordIsInvalid;
+          }
+      },
+
+      showInvalidWordPrompt(promptID) {
+          const elt = document.getElementById(promptID);
+          if (elt) {
+              elt.classList.remove('hidden')
+              elt.classList.add('show');
+          }
+      },
+
+      clearInvalidWordPrompt(promptID="") {
+          const elts = promptID ? [document.getElementById(promptID)] : Array.from(document.querySelectorAll('div.wordProblemPrompt.show'));
+          for (const elt of elts) {
+              if (elt) {
+                  elt.classList.remove('show')
+                  elt.classList.add('hidden');
+              }
+          }
+      },
+
+      markCurrentWordInvalid(rowNum) {
+          const row = this.board.querySelectorAll(".letter-row-container").item(rowNum).querySelector(".letter-row");
+          for (let i = 0; i < 5; i++) {
+              const box = row.childNodes[i];
+              box.classList.add('invalid');
+          }
+      },
+
+      markCurrentWordValid(rowNum) {
+          const row = this.board.querySelectorAll(".letter-row-container").item(rowNum).querySelector(".letter-row");
+          for (let i = 0; i < 5; i++) {
+              const box = row.childNodes[i];
+              box.classList.remove('invalid');
+          }
+      },
+
+      deleteLetter(rowNum, colNum) {
+          let row = document.getElementsByClassName("letter-row")[rowNum];
+          let box = row.children[colNum];
+          box.textContent = "";
+          box.classList.remove("filled-box", "show-lie", "show-perceived-truth");
+      },
+
+      insertLetter(pressedKey, rowNum, colNum) {
+          pressedKey = pressedKey.toLowerCase();
+
+          let row = document.getElementsByClassName("letter-row")[rowNum];
+          let box = row.children[colNum];
+          box.textContent = pressedKey;
+          box.classList.add("filled-box");
+      },
+
+      shadeKeyboard(letter, color, guessIt, numHitsForEachScore) {
+          for (const elem of document.getElementsByClassName("keyboard-button")) {
+              if (elem.textContent === letter) {
+                  if (guessIt) {
+                      elem.style.backgroundColor = color;
+                  } else if (numHitsForEachScore[2]) {
+                      //TODO: Gradient these
+                      elem.style.backgroundColor = "var(--green)";
+                  } else if (numHitsForEachScore[1]) {
+                      elem.style.backgroundColor = "var(--yellow)";
+                  } else if (numHitsForEachScore[0]) {
+                      elem.style.backgroundColor = "#bdd5ea";
+                  }
+                  break;
+              }
+          }
+      },
+
+      shadeKeyboard(letter, color, guessIt, numHitsForEachScore) {
+          for (const elem of document.getElementsByClassName("keyboard-button")) {
+              if (elem.textContent === letter) {
+                  if (guessIt) {
+                      elem.style.backgroundColor = color;
+                  } else if (numHitsForEachScore[2]) {
+                      //TODO: Gradient these
+                      elem.style.backgroundColor = "var(--green)";
+                  } else if (numHitsForEachScore[1]) {
+                      elem.style.backgroundColor = "var(--yellow)";
+                  } else if (numHitsForEachScore[0]) {
+                      elem.style.backgroundColor = "#bdd5ea";
+                  }
+                  break;
+              }
+          }
+      },
+
+      keyHandler(e) {
+          // console.log('>> keyup');
+          const pressedKey = String(e.key);
+          if (pressedKey === "Backspace" || pressedKey === "Del") {
+              if (this.model.nextLetterPosition !== 0) {
+                  this.model.deleteLetter();
+                  console.log(`lirdle: ignoring backspace at position 0`)
+              }
+          } else if (pressedKey.toLowerCase() === "enter") {
+              // console.log(`pressed enter, currentTarget: ${e.currentTarget}, target: ${e.target}`);
+              e.stopPropagation();
+              e.cancelBubble = true;
+              if (this.wordIsInvalid) {
+                  // Otherwise do nothing -- there's a line that we're on an invalid word
+                  return;
+              } else if (this.model.nextLetterPosition < 5) {
+                  console.log(`lirdle: ignoring return before full word is typed`);
+                  return;
+              }
+              this.model.checkGuess();
+          } else if (pressedKey.match(/^[a-z]$/i)) {
+              if (this.model.nextLetterPosition < 5) {
+                  this.model.insertLetter(pressedKey.toLowerCase());
+              }
+              // Otherwise do nothing -- there's a line that we're on
+              // an invalid word
+          } else {
+              console.log(`Lirdle: ignoring key event ${pressedKey}`);
+          }
+      },
+      sanitize(txt) {
+          return txt.trim()
+              .replace('&', '&amp;')
+              .replace('<', '&lt;')
+              .replace(/\r?\n/, '<br />');
+      },
+      showOnOff(onNode, offNode) {
+          onNode.classList.add('show');
+          onNode.classList.remove('hidden');
+          offNode.classList.add('hidden');
+          offNode.classList.remove('show');
+      },
+  };
+  $(document).ready(() => {
+      submitButton = document.querySelector('form input[type="submit"]');
+      submitButton.disabled = true;
+      const view = new View();
+      const model = new Model(view);
+      model.initialize();
+      const keyboard = document.getElementById("keyboard-cont");
+      document.addEventListener("keyup", (e) => {
+          view.keyHandler(e);
+      });
+      keyboard.addEventListener("click", (e) => {
+          if (e.target.nodeName === "BUTTON") {
+              const command = e.target.textContent;
+              if (command) {
+                  e.key = command;
+                  view.keyHandler(e);
+              } else {
+                  console.log(`Clicked button has no textContent`);
+              }
+          }
+          console.log(`Ignoring click on non-button ${ e.target.nodeName }`);
+      });
+      keyboard.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+      });
+  });
+  const keyboard = document.getElementById("keyboard-cont");
+  document.addEventListener("keyup", keyHandler);
+</script>

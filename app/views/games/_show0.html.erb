@@ -24,13 +24,13 @@
 
   <div class="row">
     <div class="col-md-4 col-md-offset-2">
-      <%= form_with(model: game_state, remote: true) do |f| %>
+      <%= form_with(model: game_state, local: true) do |f| %>
         <%= hidden_field_tag :finalWord, currentWord %>
         <%= f.submit thisWordLabel, class: "btn btn-primary" %>
       <% end %>
     </div>
     <div class="col-md-4 col-md-offset-2">
-      <%= form_with(model: game_state, remote: true) do |f| %>
+      <%= form_with(model: game_state, local: true) do |f| %>
         <%= hidden_field_tag :wordIndex, wordIndex + 1 %>
         <%= f.submit nextWordLabel, class: "btn btn-primary" %>
       <% end %>
@@ -40,7 +40,7 @@
 <h2>Your opponent's word is <strong><%= currentWord %></strong></h2>
   <div class="row">
     <div class="col-md-6 col-md-offset-3">
-      <%= form_with(model: game_state, remote: true) do |f| %>
+      <%= form_with(model: game_state, local: true) do |f| %>
         <%= hidden_field_tag :finalWord, currentWord %>
         <%= f.submit "OK", class: "btn btn-primary" %>
         <br>

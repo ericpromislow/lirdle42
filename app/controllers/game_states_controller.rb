@@ -95,13 +95,26 @@ class GameStatesController < ApplicationController
     end
     respond_to do |format|
       if @game_state.update(gp)
-        format.html { render 'games/show' }
-        format.json { render :show, status: :ok, location: @game }
+        format.html {
+          render 'games/show' }
+        format.json {
+          render :show, status: :ok, location: @game }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @game_state.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def is_duplicate_guess
+    gs = GameState.find(params[:id])
+    word = params[:word]
+    if !word || !gs
+      head :bad_query
+      return
+    end
+    guesses = self.
+    head @words.include?(word) ? :ok : :not_found
   end
 
 private

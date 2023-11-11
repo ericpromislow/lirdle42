@@ -9,5 +9,8 @@ Next:
 
 - Turn the list of names to links => create_invitation(from:ID, to:ID)
 
+- Don't allow a back button, particularly when selecting a word
+
 Done:
 - Stop redirecting to the user's page -- it's not important
+

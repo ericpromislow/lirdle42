@@ -30,6 +30,9 @@ Rails.application.routes.draw do
   resources :game_states, only: [:update]
   resources :guesses, only: [:create]
 
+  get '/is_valid_word', to: 'guesses/is_valid_word'
+  get '/is_duplicate_guess', to: 'game_states/is_duplicate_guess'
+
 
   # Serve websocket cable requests in-process
   mount ActionCable.server => '/cable'

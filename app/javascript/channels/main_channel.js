@@ -7,7 +7,10 @@ let globalInvitationMessage = null;
 consumer.subscriptions.create("MainChannel", {
   async connected() {
     console.log(`QQQ: connected!`);
-    fetch('/waiting_users');
+    if (location.pathname == '/') {
+      // TODO: We really need to figure this out...
+      fetch('/waiting_users');
+    }
     console.log(`QQQ: fetch done`);
     // Called when the subscription is ready for use on the server
   },
@@ -20,7 +23,7 @@ consumer.subscriptions.create("MainChannel", {
   received(data) {
     // Called when there's incoming data on the websocket for this channel
     globalMessage = data.message;
-    console.log(`QQQ: received msg ${ globalMessage.type }`, globalMessage);
+    console.log(`QQQ: received msg ${ data.type }`, globalMessage);
     if (data.chatroom === 'main' && data.type === 'waitingUsers' && globalMessage) {
       // repopulateWaitingList(globalMessage);
     } else if (data.type === 'invitation') {
