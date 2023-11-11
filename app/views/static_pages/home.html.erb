@@ -36,6 +36,10 @@
           <span id="got-an-invitation-sender"></span> would like to play a game of Lirdle!
         </div>
         <div class="modal-footer">
+          <%#= form_with(id: "accept-invitation", model: Invitation.last, remote: true) do |f| %>
+            <%#= f.button("Let's play!", class: "btn btn-secondary", remote: "true") %>
+            <%#= f.button("Cancel",      class: "btn btn-secondary", remote: "true") %>
+          <%# end %>
           <button id="got-an-invitation-ok" type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
           <button id="got-an-invitation-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
         </div>

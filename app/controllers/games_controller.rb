@@ -38,7 +38,7 @@ class GamesController < ApplicationController
     @game = Game.create()
     if !@game.save
       format.html { render :new, status: :unprocessable_entity }
-      format.json { render json: @game.errors, status: :unprocessable_entity }
+      format.json { render json: { errors: @game.errors, status: :unprocessable_entity } }
       return
     end
     targetWords = getTargetWords
@@ -54,10 +54,10 @@ class GamesController < ApplicationController
         format.html {
           redirect_to game_url(@game), notice: "Game was successfully created." }
         format.json {
-          render :show, status: :created, location: @game }
+          render json: { status: :created, location: @game } }
       else
         format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @game.errors, status: :unprocessable_entity }
+        format.json { render json: { errors: @game.errors, status: :unprocessable_entity } }
       end
     end
   end

@@ -73,7 +73,7 @@ class GuessesController < ApplicationController
     return if @user.admin?
     return if @game_state.playerID == @user.id
 
-    $stderr.puts("QQQ: guesses: admin_or_own_state: This isn't your part of the game!!")
+    # $stderr.puts("QQQ: guesses: admin_or_own_state: This isn't your part of the game!!")
     flash[:danger] = "Ummm that's cheating"
     redirect_to request.referrer || root_url
   end

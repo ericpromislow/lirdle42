@@ -17,7 +17,6 @@ class GameStatesController < ApplicationController
 
   # PATCH/PUT /games/1 or /games/1.json
   def update
-    # debugger
     @game = @game_state.game
     if !@game
       flash[:danger] = "No game found"
