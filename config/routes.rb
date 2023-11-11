@@ -27,7 +27,7 @@ Rails.application.routes.draw do
   resources :messages
 
   resources :games
-  resources :game_states, only: [:update]
+  resources :game_states, only: [:show, :update]
   resources :guesses, only: [:create]
 
   get '/is_valid_word', to: 'guesses#is_valid_word'

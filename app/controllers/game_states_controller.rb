@@ -15,6 +15,11 @@ class GameStatesController < ApplicationController
   # 6: I won, game over
   # 7: I lost, game over
 
+  def show
+    @game = @game_state.game
+    redirect_to game_path(@game)
+  end
+
   # PATCH/PUT /games/1 or /games/1.json
   def update
     @game = @game_state.game
