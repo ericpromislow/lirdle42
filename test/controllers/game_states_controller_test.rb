@@ -61,11 +61,13 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
 
   test "found-duplicate-guess" do
     log_in_as(@user)
-    post guesses_url(@gs1, { game_state_id: @gs1.id, word: "fjord" })
+    @gs1.update_attribute(:finalWord, "motel")
+    @gs2.update_attribute(:finalWord, "clump")
+    post guesses_url({ game_state_id: @gs1.id, word: "fjord" })
     assert_response :ok
-    get is_duplicate_guess_path({ game_state_id: @gs1.id, word: "nymph"})
+    get is_duplicate_guess_path({ id: @gs1.id, word: "nymph"})
     assert_response :ok
-    get is_duplicate_guess_path({ game_state_id: @gs1.id, word: "fjord"})
-    assert_response :not_acceptable
+    get is_duplicate_guess_path({ id: @gs1.id, word: "fjord"})
+    assert_response :bad_request
   end
 end
