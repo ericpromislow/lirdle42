@@ -108,7 +108,7 @@ class InvitationsController < ApplicationController
                                              message: { id: invitation_id, to: from_id, game_id: params[:game_id]
                                              } }
     else
-      puts "Ignoring reason #{ params[:reason] }"
+      puts "Ignoring reason #{ params[:reason] }" if !params[:reason].blank?
     end
     head :ok
 
