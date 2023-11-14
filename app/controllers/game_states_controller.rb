@@ -115,11 +115,12 @@ class GameStatesController < ApplicationController
     gs = GameState.find(params[:id])
     word = params[:word]
     if !word || !gs
+      Rails.logger.info("is_duplicate_guess: word: #{word}, gs: #{gs&.id}")
       head :bad_query
       return
     end
-    guesses = self.
-    head @words.include?(word) ? :ok : :not_found
+    previous_words = gs.guesses.map(&:word)
+    head previous_words.include?(word) ? :ok : :bad_query
   end
 
 private

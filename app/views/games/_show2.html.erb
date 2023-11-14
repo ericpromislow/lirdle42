@@ -151,21 +151,25 @@
           if (this.nextLetterPosition === 5) {
               const guessString = this.currentGuess.join('');
               $.ajax({
-                  url: `/is_valid_word?word=${this.currentGuess}`,
+                  url: `/is_valid_word?word=${guessString}`,
                   type: 'GET', // NEEDED?
                   success: (result) => {
+                    console.log(`QQQ: is_valid_word(${guessString}) succeeded => ${ result }`,  result);
                       $.ajax({
-                          url: `/is_duplicate_guess?word=${this.currentGuess}&id=<% game_state.id %>`,
-                          success(result) {
+                          url: `/is_duplicate_guess?word=${guessString}&id=<% game_state.id %>`,
+                          success(result2) {
+                            console.log(`QQQ: is_duplicate_guess(${guessString}) succeeded => ${ result2 }`,  result2);
                               submitButton.disabled = false;
                           },
-                          failure(result) {
+                          failure(result2) {
+                            console.log(`QQQ: is_duplicate_guess(${guessString}) failed => ${ result2 }`,  result2);
                               this.isInvalidWord = true;
                               this.view.changeInvalidWordState(this.guessCount, true, '');
                           }
                       });
                   },
                   failure: (result) => {
+                    console.log(`QQQ: is_valid_word(${guessString}) failed => ${ result }`,  result);
                       this.isInvalidWord = true;
                       this.view.changeInvalidWordState(this.guessCount, true, guessString);
                   }

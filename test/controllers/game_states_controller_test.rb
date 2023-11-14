@@ -58,4 +58,14 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
     assert_not_equal 99, @gs1.wordIndex
     assert_not_equal "99", @gs1.finalWord
   end
+
+  test "found-duplicate-guess" do
+    log_in_as(@user)
+    post guesses_url(@gs1, { game_state_id: @gs1.id, word: "fjord" })
+    assert_response :ok
+    get is_duplicate_guess_path({ game_state_id: @gs1.id, word: "nymph"})
+    assert_response :ok
+    get is_duplicate_guess_path({ game_state_id: @gs1.id, word: "fjord"})
+    assert_response :not_acceptable
+  end
 end
