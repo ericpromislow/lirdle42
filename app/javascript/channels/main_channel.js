@@ -21,6 +21,14 @@ consumer.subscriptions.create("MainChannel", {
   },
 
   received(data) {
+    try {
+      return this.received_aux(data);
+    } catch(ex) {
+      console.error(`Error ${ ex } processing  received data`);
+      console.error(ex);
+    }
+  },
+  received_aux(data) {
     // Called when there's incoming data on the websocket for this channel
     globalMessage = data.message;
     console.log(`QQQ: received msg ${ data.type }`, globalMessage);

@@ -361,6 +361,7 @@
       submitButton.disabled = true;
       const view = new View();
       const model = new Model(view);
+      view.setModel(model);
       model.initialize();
       const keyboard = document.getElementById("keyboard-cont");
       document.addEventListener("keyup", (e) => {
@@ -383,6 +384,4 @@
           e.preventDefault();
       });
   });
-  const keyboard = document.getElementById("keyboard-cont");
-  document.addEventListener("keyup", keyHandler);
 </script>
