@@ -76,7 +76,7 @@ class GuessesController < ApplicationController
 
   def admin_or_own_state
     return if @user.admin?
-    return if @game_state.playerID == @user.id
+    return if @game_state.user == @user
 
     # $stderr.puts("QQQ: guesses: admin_or_own_state: This isn't your part of the game!!")
     flash[:danger] = "Ummm that's cheating"

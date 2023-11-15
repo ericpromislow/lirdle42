@@ -53,10 +53,8 @@ class GamesController < ApplicationController
     tw1 = targetWords.sample(6)
     tw_for_a = tw1[0..2].join(':')
     tw_for_b = tw1[3..5].join(':')
-    gameStateA = GameState.create(game: @game, state: 0, user: userA, candidateWords: tw_for_a, wordIndex: 0)
-    gameStateB = GameState.create(game: @game, state: 0, user: userB, candidateWords: tw_for_b, wordIndex: 0)
-    # gameStateA.save!
-    # gameStateB.save!
+    @game.game_states.create(state: 0, user: userA, candidateWords: tw_for_a, wordIndex: 0)
+    @game.game_states.create(state: 0, user: userB, candidateWords: tw_for_b, wordIndex: 0)
     respond_to do |format|
       if @game.save
         format.html {
