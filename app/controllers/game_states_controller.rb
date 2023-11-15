@@ -129,7 +129,7 @@ private
     if params[:lie]
       game = @game_state.game
       users = game.game_states.map(&:user)
-      return if users.include?(@user.id)
+      return if users.include?(@user)
     end
 
     # $stderr.puts("QQQ: game_states_controller: admin_or_own_state: This isn't your part of the game!!")

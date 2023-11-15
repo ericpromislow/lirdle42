@@ -33,8 +33,11 @@ private # should be protected?
       else
         @other_state, @game_state = game.game_states
       end
+    elsif @game_state.user == gs1.user
+      @other_state = gs2
     else
-      @other_state = gs1.user == @user ? gs2 : gs1
+      @other_state = gs1
+      # @other_state = gs2.user == @user ? gs2 : gs1
     end
     # Game states are more complicated because lies work on the other player's game-state
   end
