@@ -5,10 +5,10 @@ private # should be protected?
 
   def admin_or_in_game
     return if @user.admin?
-    return if @game.playerA == @user || @user == @game.playerB
+    return if @game.game_states.map(&:user).include?(@user)
 
     flash[:danger] = "You're not playing this game"
-    redirect_to request.referrer || root_url
+    redirect_to root_url
   end
 
   def logged_in_user
@@ -20,24 +20,21 @@ private # should be protected?
   end
 
   def set_game_variables(game)
-    gameStateA = GameState.find(game.gameStateA)
-    gameStateB = GameState.find(game.gameStateB)
+    gs1, gs2 = game.game_states
 
-    if game.playerA == @user
-      @other_player = User.find(gameStateB.playerID)
+    if gs1.user == @user
+      @other_player = gs2.user
     else
-      @other_player = User.find(gameStateA.playerID)
+      @other_player = gs1.user
     end
     if !@game_state
-      if game.playerA == @user
-        @game_state = gameStateA
-        @other_state = gameStateB
+      if gs1.user == @user
+        @game_state, @other_state = game.game_states
       else
-        @game_state = gameStateB
-        @other_state = gameStateA
+        @other_state, @game_state = game.game_states
       end
     else
-      @other_state = @game_state == gameStateA ? gameStateB : gameStateA
+      @other_state = gs1.user == @user ? gs2 : gs1
     end
     # Game states are more complicated because lies work on the other player's game-state
   end

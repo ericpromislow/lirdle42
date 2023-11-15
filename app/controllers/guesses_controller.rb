@@ -21,8 +21,8 @@ class GuessesController < ApplicationController
       flash[:danger] = "Invalid request: invalid game-state"
       redirect_to root_url
       return
-    elsif gs.playerID != @user.id
-      Rails.logger.info("GuessesController#create - current user: #{ @user.id }, game-state belongs to #{ gs.playerID }")
+    elsif gs.user != @user
+      Rails.logger.info("GuessesController#create - current user: #{ @user.id }, game-state belongs to #{ gs.user.id }")
       flash[:danger] = "Invalid request: unexpected user"
       redirect_to root_url
       return

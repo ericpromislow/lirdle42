@@ -1,5 +1,5 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-game1:
-  gameStateA: 0
-  gameStateB: 1
+game1: {}
+
+#game2: {}

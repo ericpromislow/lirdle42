@@ -7,15 +7,12 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
     @user2 = users(:user2)
     @game = games(:game1)
     @gs1 = game_states(:gs1)
-    @gs1.playerID = @user.id
     @gs2 = game_states(:gs2)
-    @gs2.playerID = @archer.id
-    @game.gameStateA = @gs1.id
-    @game.gameStateB = @gs2.id
     @gs1.game = @gs2.game = @game
+    @gs1.user = @user
+    @gs2.user = @archer
     @gs1.save!
     @gs2.save!
-    @game.save!
   end
 
   test "non-logged-in-user can't update a game state" do

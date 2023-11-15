@@ -32,9 +32,17 @@ class GamesController < ApplicationController
     gp = create_params
     if ![gp[:playerA], gp[:playerB]].include?(@user.id.to_s) && !@user.admin
       flash[:danger] = "Can't create a game for others"
-      redirect_to request.referrer || root_url
+      redirect_to root_url
       return
     end
+    userA = User.find(gp[:playerA])
+    userB = User.find(gp[:playerB])
+    if !userA || !userB
+      flash[:danger] = "Can't create a game for non-existent players"
+      redirect_to root_url
+      return
+    end
+
     @game = Game.create()
     if !@game.save
       format.html { render :new, status: :unprocessable_entity }
@@ -45,12 +53,12 @@ class GamesController < ApplicationController
     tw1 = targetWords.sample(6)
     tw_for_a = tw1[0..2].join(':')
     tw_for_b = tw1[3..5].join(':')
-    gameStateA = GameState.create(game: @game, state: 0, playerID: gp[:playerA], candidateWords: tw_for_a, wordIndex: 0)
-    gameStateB = GameState.create(game: @game, state: 0, playerID: gp[:playerB], candidateWords: tw_for_b, wordIndex: 0)
-    gameStateA.save!
-    gameStateB.save!
+    gameStateA = GameState.create(game: @game, state: 0, user: userA, candidateWords: tw_for_a, wordIndex: 0)
+    gameStateB = GameState.create(game: @game, state: 0, user: userB, candidateWords: tw_for_b, wordIndex: 0)
+    # gameStateA.save!
+    # gameStateB.save!
     respond_to do |format|
-      if @game.update_columns(gameStateA: gameStateA.id, gameStateB: gameStateB.id)
+      if @game.save
         format.html {
           redirect_to game_url(@game), notice: "Game was successfully created." }
         format.json {

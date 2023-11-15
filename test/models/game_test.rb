@@ -7,14 +7,15 @@ class GameTest < ActiveSupport::TestCase
   end
   test "the models make sense" do
     game = Game.create()
-    gs1 = GameState.create(game: game, playerID: @user1.id, finalWord: "knell")
-    gs2 = GameState.create(game: game, playerID: @user2.id, finalWord: "baton")
-    game.update_columns(gameStateA: gs1, gameStateB: gs2)
+    game.game_states.create(user: @user1, finalWord: "knell")
+    game.game_states.create(user: @user2, finalWord: "baton")
+    gs1 = game.game_states[0]
+    gs2 = game.game_states[1]
     assert_equal 0, gs1.guesses.size
     assert_equal 0, gs2.guesses.size
-    gs1.guesses << Guess.create(word: "fanta", score: "00100", liePosition: 0, lieColor: 2, marks:"BBBTL", guessNumber: 0)
-    gs1.guesses << Guess.create(word: "vouch", score: "00000", liePosition: 0, lieColor: 2, marks:"BBBTL", guessNumber: 1)
-    gs2.guesses << Guess.create(word: "aging", score: "10010", liePosition: 0, lieColor: 0, marks:"BBBTL", guessNumber: 0)
+    gs1.guesses.create(word: "fanta", score: "00100", liePosition: 0, lieColor: 2, marks:"BBBTL", guessNumber: 0)
+    gs1.guesses.create(word: "vouch", score: "00000", liePosition: 0, lieColor: 2, marks:"BBBTL", guessNumber: 1)
+    gs2.guesses.create(word: "aging", score: "10010", liePosition: 0, lieColor: 0, marks:"BBBTL", guessNumber: 0)
     gs1.reload
     gs2.reload
     assert_equal 2, gs1.guesses.size

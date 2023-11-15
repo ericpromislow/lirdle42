@@ -2,20 +2,19 @@ require "test_helper"
 
 class GuessingWords02Test < ActionDispatch::IntegrationTest
   def setup
+    @game = games(:game1)
     @user1 = users(:user1)
     @user2 = users(:user2)
-    @game = Game.create
-    @gs1 = GameState.create(game: @game, playerID: @user1.id, finalWord: "block", candidateWords: "block:molar:psalm", state: 2)
-    @gs2 = GameState.create(game: @game, playerID: @user2.id, finalWord: "madam", candidateWords: "fetus:madam:frown", state: 2)
-    @game.update_columns(gameStateA: @gs1.id, gameStateB: @gs2.id)
+    @gs1 = @game.game_states.create(user: @user1, finalWord: "block", candidateWords: "knell:molar:psalm", state: 2)
+    @gs2 = @game.game_states.create(user: @user2, finalWord: "madam", candidateWords: "fetus:madam:frown", state: 2)
     # target block
-    @gs1.guesses << Guess.create(word: "space", score: "00020", liePosition: 4, lieColor: 1, guessNumber: 0)
-    @gs1.guesses << Guess.create(word: "relic", score: "00101", liePosition: 2, lieColor: 0, guessNumber: 1)
-    @gs1.guesses << Guess.create(word: "deuce", score: "00020", liePosition: 2, lieColor: 2, guessNumber: 2)
+    @gs1.guesses.create(word: "space", score: "00020", liePosition: 4, lieColor: 1, guessNumber: 0)
+    @gs1.guesses.create(word: "relic", score: "00101", liePosition: 2, lieColor: 0, guessNumber: 1)
+    @gs1.guesses.create(word: "deuce", score: "00020", liePosition: 2, lieColor: 2, guessNumber: 2)
     # target madam
-    @gs2.guesses << Guess.create(word: "triad", score: "00021", liePosition: 0, lieColor: 2, guessNumber: 0)
-    @gs2.guesses << Guess.create(word: "tonal", score: "00020", liePosition: 4, lieColor: 2, guessNumber: 1)
-    @gs2.guesses << Guess.create(word: "tidal", score: "00200", liePosition: 3, lieColor: 0, guessNumber: 2)
+    @gs2.guesses.create(word: "triad", score: "00021", liePosition: 0, lieColor: 2, guessNumber: 0)
+    @gs2.guesses.create(word: "tonal", score: "00020", liePosition: 4, lieColor: 2, guessNumber: 1)
+    @gs2.guesses.create(word: "tidal", score: "00200", liePosition: 3, lieColor: 0, guessNumber: 2)
   end
 
   def convertWordsAndGuesses(words, scores)

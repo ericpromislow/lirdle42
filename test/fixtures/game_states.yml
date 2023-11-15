@@ -2,14 +2,16 @@
 
 gs1:
   state: 0
-  playerID: 1
+  user_id: 1
+  game_id: 1
   candidateWords: "windy:tress:spent"
   finalWord:
   wordIndex: 0  
 
 gs2:
   state: 0
-  playerID: 2
+  user_id: 2
+  game_id: 1
   candidateWords: "bough:edict:eater"
   finalWord:
   wordIndex: 0

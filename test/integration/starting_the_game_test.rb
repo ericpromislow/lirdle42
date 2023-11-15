@@ -10,8 +10,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     post games_path, params: { playerA: @user1.id, playerB: @user2.id}
     assert :success
     newGame = Game.last
-    gs1 = GameState.find(newGame.gameStateA)
-    gs2 = GameState.find(newGame.gameStateB)
+    gs1, gs2 = newGame.game_states
     gs1.update_attribute(:candidateWords, "knell:molar:psalm")
     gs2.update_attribute(:candidateWords, "fetus:baton:frown")
     get game_path(newGame)
@@ -73,8 +72,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     log_in_as(@user1)
     post games_path, params: { playerA: @user1.id, playerB: @user2.id}
     newGame = Game.last
-    gs1 = GameState.find(newGame.gameStateA)
-    gs2 = GameState.find(newGame.gameStateB)
+    gs1, gs2 = newGame.game_states
     gs1.update_attribute(:candidateWords, "knell:molar:psalm")
     gs2.update_attribute(:candidateWords, "fetus:baton:frown")
     patch game_state_path(gs1, { finalWord: 'molar' })

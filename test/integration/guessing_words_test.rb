@@ -2,12 +2,16 @@ require "test_helper"
 
 class GuessingWordsTest < ActionDispatch::IntegrationTest
   def setup
+    @user = users(:user1)
+    @archer = users(:archer)
+    @user2 = users(:user2)
+    @game = games(:game1)
     @user1 = users(:user1)
     @user2 = users(:user2)
-    @game = Game.create
-    @gs1 = GameState.create(game: @game, playerID: @user1.id, finalWord: "knell", candidateWords: "knell:molar:psalm", state: 2)
-    @gs2 = GameState.create(game: @game, playerID: @user2.id, finalWord: "baton", candidateWords: "fetus:baton:frown", state: 2)
-    @game.update_columns(gameStateA: @gs1.id, gameStateB: @gs2.id)
+    @gs1 = @game.game_states.create(user: @user1, finalWord: "knell", candidateWords: "knell:molar:psalm", state: 2)
+    @gs2 = @game.game_states.create(user: @user2, finalWord: "baton", candidateWords: "fetus:baton:frown", state: 2)
+    # @gs1.save!
+    # @gs2.save!
   end
   test "see the guess-words markup" do
     log_in_as(@user1)

@@ -18,6 +18,7 @@ class User < ApplicationRecord
   has_many :messages
   has_one :chatroom
   has_many :invitations
+  has_one :game_state
 
 
   def activate

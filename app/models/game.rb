@@ -17,4 +17,8 @@ class Game < ApplicationRecord
     gsB = GameState.find(self.gameStateB)
     gsA.playerID == playerID ? gsB : gsA
   end
+
+  def get_other_state(gs)
+
+  end
 end

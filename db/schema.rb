@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_09_175821) do
+ActiveRecord::Schema.define(version: 2023_11_15_021616) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.integer "record_id", null: false
-    t.integer "blob_id", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(version: 2023_11_09_175821) do
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
-    t.integer "blob_id", null: false
+    t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
@@ -49,20 +49,19 @@ ActiveRecord::Schema.define(version: 2023_11_09_175821) do
   end
 
   create_table "game_states", force: :cascade do |t|
-    t.integer "state"
-    t.integer "playerID"
+    t.integer "state", default: 0
     t.string "candidateWords"
     t.string "finalWord"
     t.integer "wordIndex"
     t.integer "game_id"
+    t.integer "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["game_id"], name: "index_game_states_on_game_id"
+    t.index ["user_id"], name: "index_game_states_on_user_id"
   end
 
   create_table "games", force: :cascade do |t|
-    t.integer "gameStateA"
-    t.integer "gameStateB"
     t.integer "chatroom_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -124,7 +123,9 @@ ActiveRecord::Schema.define(version: 2023_11_09_175821) do
     t.string "reset_digest"
     t.datetime "reset_sent_at"
     t.boolean "waiting_for_game", default: false
+    t.integer "game_state_id"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["game_state_id"], name: "index_users_on_game_state_id"
     t.index ["username"], name: "index_users_on_username", unique: true
     t.index ["waiting_for_game"], name: "index_users_on_waiting_for_game"
   end
@@ -132,8 +133,10 @@ ActiveRecord::Schema.define(version: 2023_11_09_175821) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "game_states", "games"
+  add_foreign_key "game_states", "users"
   add_foreign_key "games", "chatrooms"
   add_foreign_key "guesses", "game_states"
   add_foreign_key "messages", "chatrooms"
   add_foreign_key "messages", "users"
+  add_foreign_key "users", "game_states"
 end

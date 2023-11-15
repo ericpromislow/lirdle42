@@ -7,15 +7,12 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     @user2 = users(:user2)
     @game = games(:game1)
     @gs1 = game_states(:gs1)
-    @gs1.playerID = @user.id
     @gs2 = game_states(:gs2)
-    @gs2.playerID = @archer.id
-    @game.gameStateA = @gs1.id
-    @game.gameStateB = @gs2.id
     @gs1.game = @gs2.game = @game
+    @gs1.user = @user
+    @gs2.user = @archer
     @gs1.save!
     @gs2.save!
-    @game.save!
   end
   test "need to be logged-in as admin to get index" do
     get games_url
@@ -50,18 +47,17 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     end
     newGame = Game.last
     assert_redirected_to game_url(newGame)
-    gameStateA = GameState.find(newGame.gameStateA)
-    gameStateB = GameState.find(newGame.gameStateB)
+    gs1, gs2 = newGame.game_states
 
-    assert gameStateA.candidateWords.size == 17
-    assert_match /\A\w{5}:\w{5}:\w{5}\z/, gameStateA.candidateWords
-    assert_equal 0, gameStateA.wordIndex
-    assert_equal 0, gameStateA.state
+    assert gs1.candidateWords.size == 17
+    assert_match /\A\w{5}:\w{5}:\w{5}\z/, gs1.candidateWords
+    assert_equal 0, gs1.wordIndex
+    assert_equal 0, gs1.state
 
-    assert gameStateB.candidateWords.size == 17
-    assert_match /\A\w{5}:\w{5}:\w{5}\z/, gameStateB.candidateWords
-    assert_equal 0, gameStateB.wordIndex
-    assert_equal 0, gameStateB.state
+    assert gs2.candidateWords.size == 17
+    assert_match /\A\w{5}:\w{5}:\w{5}\z/, gs2.candidateWords
+    assert_equal 0, gs2.wordIndex
+    assert_equal 0, gs2.state
   end
 
   test "non-logged-in-user can't see game" do

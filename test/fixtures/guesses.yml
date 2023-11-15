@@ -8,7 +8,7 @@ one:
   marks: MyString
   isCorrect: false
   guessNumber: 0
-  game_state: 0
+  game_state_id: 1
 
 two:
   word: MyString
@@ -18,4 +18,4 @@ two:
   marks: MyString
   isCorrect: false
   guessNumber: 0
-  game_state: 1
+  game_state_id: 2

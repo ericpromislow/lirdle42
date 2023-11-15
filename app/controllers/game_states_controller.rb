@@ -29,8 +29,8 @@ class GameStatesController < ApplicationController
       return
     end
     set_game_variables(@game)
-    if !@user.admin && @game_state.playerID != @user.id
-      if params[:lie] && @other_state.playerID == @user.id
+    if !@user.admin && @game_state.user != @user
+      if params[:lie] && @other_state.user == @user
         # Do nothing
       else
         flash[:danger] = "You can't change someone else's game state"
@@ -125,12 +125,11 @@ class GameStatesController < ApplicationController
 private
   def admin_or_own_state
     return if @user.admin?
-    return if @game_state.playerID == @user.id
+    return if @game_state.user == @user
     if params[:lie]
       game = @game_state.game
-      gsA = GameState.find(game.gameStateA)
-      gsB = GameState.find(game.gameStateB)
-      return if [gsA.playerID, gsB.playerID].include?(@user.id)
+      users = game.game_states.map(&:user)
+      return if users.include?(@user.id)
     end
 
     # $stderr.puts("QQQ: game_states_controller: admin_or_own_state: This isn't your part of the game!!")
