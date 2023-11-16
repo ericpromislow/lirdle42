@@ -57,14 +57,21 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     log_in_as(@user1)
     post guesses_path, params: {game_state_id: @gs1.id }
     assert_template 'games/_show2'
-    flash[:danger] = "Invalid request: no guess supplied"
+    assert_select 'div.alert-danger', "Invalid request: no guess supplied"
   end
 
   test "guess with invalid word fails" do
     log_in_as(@user1)
     post guesses_path, params: {game_state_id: @gs1.id, word:"splibish" }
     assert_template 'games/_show2'
-    flash[:danger] = "Not a valid word: splibish"
+    assert_select 'div.alert-danger', "Not a valid word: splibish"
+  end
+
+  test "guess with too-short word fails" do
+    log_in_as(@user1)
+    post guesses_path, params: {game_state_id: @gs1.id, word:"bake" }
+    assert_template 'games/_show2'
+    assert_select 'div.alert-danger', "Not a valid word: bake"
   end
 
   test "guess with duplicate word fails" do
@@ -75,7 +82,7 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     @gs1.update_attribute(:state, 2)
     post guesses_path, params: {game_state_id: @gs1.id, word:"weedy" }
     assert_template 'games/_show2'
-    flash[:danger] = %Q/You already tried "splibish"/
+    assert_select 'div.alert-danger', %Q/You already tried "weedy"/
   end
 
   test "guess with acceptable word moves to next template" do
