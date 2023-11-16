@@ -114,6 +114,7 @@
   const COLORS = ['grey', 'yellow', 'green'];
   const NEUTRAL_COLOR = 'white';
   let submitButton = null;
+  let wordField = null;
 
   function Model(view) {
       this.view = view;
@@ -121,6 +122,10 @@
   Model.prototype = {
       initialize() {
           this.initState();
+      },
+      setGameStateID(gameStateID) {
+        console.log(`QQQ: Setting gameStateID=${ gameStateID }`);
+        this.gameStateID = gameStateID;
       },
       initState() {
           this.currentGuess = [];
@@ -148,18 +153,28 @@
           this.view.insertLetter(pressedKey, rowNum, colNum);
           this.currentGuess.push(pressedKey);
           this.nextLetterPosition += 1;
+          const gameStateID = this.gameStateID;
           if (this.nextLetterPosition === 5) {
               const guessString = this.currentGuess.join('');
               $.ajax({
                   url: `/is_valid_word?word=${guessString}`,
                   type: 'GET', // NEEDED?
                   success: (result) => {
-                    console.log(`QQQ: is_valid_word(${guessString}) succeeded => ${ result }`,  result);
+                      console.log(`QQQ: is_valid_word(${guessString}) succeeded => ${ result }`,  result);
+                      if (!result.status) {
+                        console.log(`QQQ:Not a valid word`);
+                        submitButton.disabled = true;
+                        return;
+                      }
+                      console.log(`QQQ: It's valid, verify it's not a duplicate`);
                       $.ajax({
-                          url: `/is_duplicate_guess?word=${guessString}&id=<% game_state.id %>`,
+                          url: `/is_duplicate_guess?word=${guessString}&id=${ gameStateID }`,
                           success(result2) {
                             console.log(`QQQ: is_duplicate_guess(${guessString}) succeeded => ${ result2 }`,  result2);
-                              submitButton.disabled = false;
+                            submitButton.disabled = result2.status;
+                            if (!result2.status) {
+                              wordField.value = guessString;
+                            }
                           },
                           failure(result2) {
                             console.log(`QQQ: is_duplicate_guess(${guessString}) failed => ${ result2 }`,  result2);
@@ -363,10 +378,12 @@
   $(document).ready(() => {
       submitButton = document.querySelector('form input[type="submit"]');
       submitButton.disabled = true;
+      wordField = document.querySelector('form input#word');
       const view = new View();
       const model = new Model(view);
       view.setModel(model);
       model.initialize();
+      model.setGameStateID(<%= game_state.id %>);
       const keyboard = document.getElementById("keyboard-cont");
       document.addEventListener("keyup", (e) => {
           view.keyHandler(e);

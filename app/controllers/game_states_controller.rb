@@ -119,7 +119,7 @@ class GameStatesController < ApplicationController
       return
     end
     previous_words = @game_state.guesses.map(&:word)
-    head previous_words.include?(word) ?  :bad_request : :ok
+    render json: { status: previous_words.include?(word) }
   end
 
 private

@@ -11,6 +11,8 @@ Next:
 
 - Don't allow a back button, particularly when selecting a word
 
+- Send every change to the server: current-word, and marks on each selected letter
+
 Done:
 - Stop redirecting to the user's page -- it's not important
 

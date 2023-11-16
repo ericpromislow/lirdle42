@@ -69,7 +69,7 @@ class GuessesController < ApplicationController
 
   def is_valid_word
     word = params[:word]
-    head @words.include?(word) ? :ok : :not_found
+    render json: { status: @words.include?(word) }
   end
 
   private

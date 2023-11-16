@@ -62,27 +62,38 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
 
   test "guess with invalid word fails" do
     log_in_as(@user1)
-    post guesses_path, params: {game_state_id: @gs1.id, word:"splibish" }
+    w = "splibish"
+    get is_valid_word_path(w)
+    assert_equal false, JSON.parse(response.body)['status']
+    post guesses_path, params: {game_state_id: @gs1.id, word:w }
     assert_template 'games/_show2'
     assert_select 'div.alert-danger', "Not a valid word: splibish"
   end
 
   test "guess with too-short word fails" do
     log_in_as(@user1)
-    post guesses_path, params: {game_state_id: @gs1.id, word:"bake" }
+    w = 'bake'
+    get is_valid_word_path(w)
+    assert_equal false, JSON.parse(response.body)['status']
+    post guesses_path, params: {game_state_id: @gs1.id, word:w }
     assert_template 'games/_show2'
     assert_select 'div.alert-danger', "Not a valid word: bake"
   end
 
   test "guess with duplicate word fails" do
     log_in_as(@user1)
-    post guesses_path, params: {game_state_id: @gs1.id, word:"weedy" }
+    w = 'weedy'
+    get is_duplicate_guess_path(id: @gs1, word: w)
+    assert_equal false, JSON.parse(response.body)['status']
+    post guesses_path, params: {game_state_id: @gs1.id, word:w }
     # Move back to state-2
     @gs1.reload
     @gs1.update_attribute(:state, 2)
-    post guesses_path, params: {game_state_id: @gs1.id, word:"weedy" }
+    get is_duplicate_guess_path(id: @gs1, word: w)
+    assert_equal true, JSON.parse(response.body)['status']
+    post guesses_path, params: {game_state_id: @gs1.id, word:w }
     assert_template 'games/_show2'
-    assert_select 'div.alert-danger', %Q/You already tried "weedy"/
+    assert_select 'div.alert-danger', %Q/You already tried "#{ w }"/
   end
 
   test "guess with acceptable word moves to next template" do
