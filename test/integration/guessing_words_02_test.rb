@@ -25,10 +25,10 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
     end
   end
 
-  def verify_expected_board(words, scores, boxSize, expected_filled_count, total_count)
+  def verify_expected_board(words, scores, boxSize, expected_filled_count, total_count, current_guess='')
     words_and_scores = convertWordsAndGuesses(words, scores).flatten(1)
     assert_equal expected_filled_count, words_and_scores.size
-    assert_select 'div.letter-box.filled-box', count: expected_filled_count
+    assert_select 'div.letter-box.filled-box', count: expected_filled_count + current_guess.size
     assert_select 'div.letter-box', count: total_count
     count = 0
     assert_select 'div.letter-box.filled-box' do |elements|
@@ -42,6 +42,19 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
       end
     end
     assert_equal expected_filled_count, count
+  end
+
+  test "partial guesses come back uncolored" do
+    log_in_as(@user1)
+    patch game_state_path(@gs1, current_guess: "ab")
+    log_in_as(@user2)
+    patch game_state_path(@gs2, current_guess: "xy")
+
+    log_in_as(@user1)
+    get game_path(@game)
+    assert_template 'games/_show2'
+    debugger
+    verify_expected_board(%w/space relic deuce/, %w/bbbgy bbbby bbggb/, "small1", 15, 30, 'ab')
   end
 
   test "After 3 guesses with lies back in state 2 see 3 rows of text and 3 blank rows" do
