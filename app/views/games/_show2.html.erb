@@ -49,20 +49,24 @@
         </div>
       <% end %>
       <% next_guess_posn = guesses.size %>
-      <% if game_state.current_guess.size > 0
-        next_guess_posn += 1 %>
+      <% if !game_state.pending_guess.blank?
+        next_guess_posn += 1
+        pending_letters = game_state.pending_guess.split('')
+        pending_letters += [''] * (5 - pending_letters.size)
+      %>
         <div class="letter-row-container">
           <div class="letter-row">
-            <% game_state.current_guess.split(//).each do |c| %>
-              <div class=""<%= letterBoxClassListArrayBase.join(' ') %>"><%= c %></div>
-            <% end %>
-            <% (game_state.current_guess.size ... 5).to_a.each do  %>
+            <% pending_letters.each do |c|
+            if !c.blank? %>
+              <div class="<%= letterBoxClassListArrayBase.join(' ') %>"><%= c %></div>
+            <% else %>
               <div class="letter-box <%= letterBoxSizeClassName %>"></div>
             <% end %>
+          <% end %>
           </div>
         </div>
       <% end %>
-      <% (next_guess_posn...num_rows).to_a.each do |row_num| %>
+      <% (next_guess_posn...num_rows).to_a.each do  %>
         <div class="letter-row-container">
           <div class="letter-row">
             <% 5.times do  %>

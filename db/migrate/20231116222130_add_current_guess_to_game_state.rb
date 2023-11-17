@@ -1,5 +1,5 @@
 class AddCurrentGuessToGameState < ActiveRecord::Migration[6.1]
   def change
-    add_column :game_states, :current_guess, :string
+    add_column :game_states, :pending_guess, :string
   end
 end

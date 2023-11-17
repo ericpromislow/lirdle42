@@ -57,7 +57,7 @@ ActiveRecord::Schema.define(version: 2023_11_16_222130) do
     t.integer "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "current_guess"
+    t.string "pending_guess"
     t.index ["game_id"], name: "index_game_states_on_game_id"
     t.index ["user_id"], name: "index_game_states_on_user_id"
   end

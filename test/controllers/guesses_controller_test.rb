@@ -33,24 +33,28 @@ class GuessesControllerTest < ActionDispatch::IntegrationTest
   test "succeeds on a valid word" do
     log_in_as(@user)
     get is_valid_word_path(word: 'motel')
-    assert_response :success
+    assert_response :ok
+    assert_equal true, JSON.parse(response.body)['status']
   end
 
   test "rejects an invalid word" do
     log_in_as(@user)
     get is_valid_word_path(word: 'fqxtk')
-    assert_response :not_found
+    assert_response :ok
+    assert_equal false, JSON.parse(response.body)['status']
   end
 
   test "rejects a word that's too short" do
     log_in_as(@user)
     get is_valid_word_path(word: 'fork')
-    assert_response :not_found
+    assert_response :ok
+    assert_equal false, JSON.parse(response.body)['status']
   end
 
   test "rejects a word that's too long" do
     log_in_as(@user)
     get is_valid_word_path(word: 'motels')
-    assert_response :not_found
+    assert_response :ok
+    assert_equal false, JSON.parse(response.body)['status']
   end
 end

@@ -64,7 +64,9 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
     assert_response :ok
     get is_duplicate_guess_path({ id: @gs1.id, word: "nymph"})
     assert_response :ok
+    assert_equal false, JSON.parse(response.body)['status']
     get is_duplicate_guess_path({ id: @gs1.id, word: "fjord"})
-    assert_response :bad_request
+    assert_response :ok
+    assert_equal true, JSON.parse(response.body)['status']
   end
 end

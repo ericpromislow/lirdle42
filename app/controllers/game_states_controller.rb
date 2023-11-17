@@ -155,6 +155,6 @@ private
   end
 
   def update_params
-    params.permit(:state, :wordIndex, :finalWord, :current_guess)
+    params.permit(:state, :wordIndex, :finalWord, :pending_guess)
   end
 end
