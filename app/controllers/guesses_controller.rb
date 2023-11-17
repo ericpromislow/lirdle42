@@ -64,7 +64,8 @@ class GuessesController < ApplicationController
     end
     gs.save
     @game_state.reload
-    render 'games/show'
+    # Do a redirect to get the game page back, because we submitted a form to the guesses controller
+    redirect_to game_path(game)
   end
 
   def is_valid_word

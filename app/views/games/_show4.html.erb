@@ -43,26 +43,64 @@
 </div>
 
 <%= form_with(model: game_state, remote: true) do |f| %>
-<%= %w/grey yellow green/.each_with_index do |other_color, row_num| %>
-<div class="row">
-  <div class="col-md-12">
-    <div class="letter-row-container">
-        <% 5.times do |col_num| %>
-          <div class="letter-row col-md-2">
-            <% letter_color = colors[scores[col_num]]
-            if letter_color != other_color %>
-              <div class="letter-box filled-box background-<%= other_color %>">
+  <%= hidden_field_tag :lie, "" %>
+  <%= hidden_field_tag :game_state_id, game_state.id %>
+  <%= %w/grey yellow green/.each_with_index do |other_color, row_num| %>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="letter-row-container">
+          <% 5.times do |col_num| %>
+            <div class="letter-row col-md-2">
+              <% letter_color = colors[scores[col_num]]
+              if letter_color != other_color %>
+                <div class="letter-box filled-box background-<%= other_color %>">
+                  <span>&nbsp;</span>
+                </div>
+                <%= f.radio_button(:lie, "#{col_num}:#{scores[col_num]}:#{row_num}:#{other_color}") %>
+              <% else %>
                 <span>&nbsp;</span>
-              </div>
-              <%= f.radio_button(:lie, "#{col_num}:#{scores[col_num]}:#{row_num}:#{other_color}") %>
-            <% else %>
-              <span>&nbsp;</span>
-            <% end %>
-          </div>
-        <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
       </div>
     </div>
+  <% end %>
+  <div class="row justify-content-center">
+    <div class="col-md-offset-4 col-md-2">
+    <%= f.submit "Submit Lie", class: "btn btn-primary" %>
+    </div>
   </div>
-</div>
 <% end %>
-<% end %>
+<script type="text/javascript">
+  console.log("QQQ: Hey we've got scripting in _show4!");
+  var submitButton = null;
+  var lieField = null;
+
+  function radioButtonChanged(event) {
+    debugger;
+    if (!submitButton) {
+      return;
+    }
+    lieField.value = event.target.value;
+    submitButton.disabled = false;
+  }
+
+  $(document).ready(() => {
+    try {
+      submitButton = document.querySelector('form input[type="submit"]');
+      if (!submitButton) {
+        debugger;
+      }
+      submitButton.disabled = true;
+      lieField = document.querySelector('form input#lie');
+      const buttons = document.querySelectorAll('input[name="game_state[lie]"]');
+      buttons.forEach((button) => {
+        button.addEventListener('change', radioButtonChanged);
+      });
+    } catch(ex) {
+      console.log(`Problem in startup: ${ ex }`);
+      console.error(ex);
+    }
+  });
+</script>

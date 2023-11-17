@@ -60,6 +60,7 @@ class GameStatesController < ApplicationController
         redirect_to game_path(@game)
         return
       end
+      # Remember the game-states are reversed when lying
       if @game_state.state == 5
         gp[:state] = 2
         @game_state.update_attribute(:state, 2)
@@ -103,7 +104,9 @@ class GameStatesController < ApplicationController
         format.html {
           redirect_to game_path(@game) }
         format.json {
-          render :show, status: :ok, location: @game }
+          # render :show, status: :ok, location: @game }
+          render json: { status: true }
+        }
       else
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @game_state.errors, status: :unprocessable_entity }

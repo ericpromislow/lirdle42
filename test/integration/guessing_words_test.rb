@@ -99,6 +99,8 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
   test "guess with acceptable word moves to next template" do
     log_in_as(@user1)
     post guesses_path, params: {game_state_id: @gs1.id, word:"weedy" }
+    assert_redirected_to game_path(@game)
+    follow_redirect!
     assert_template 'games/_show3'
     assert_select "p", "Waiting for #{ @user2.username } to finish guessing a word."
   end
@@ -106,9 +108,13 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
   test "when both players have made a guess move to state 4" do
     log_in_as(@user1)
     post guesses_path, params: {game_state_id: @gs1.id, word:"paint" }
+    assert_redirected_to game_path(@game)
+    follow_redirect!
     assert_template 'games/_show3'
     log_in_as(@user2)
     post guesses_path, params: {game_state_id: @gs2.id, word:"lemon" }
+    assert_redirected_to game_path(@game)
+    follow_redirect!
     assert_template 'games/_show4'
     log_in_as(@user1)
     get game_path(@game)
@@ -142,9 +148,13 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
   test "when both players have picked a lie in state 4, they end up back in state 2" do
     log_in_as(@user1)
     post guesses_path, params: {game_state_id: @gs1.id, word:"paint" }
+    assert_redirected_to game_path(@game)
+    follow_redirect!
     assert_template 'games/_show3'
     log_in_as(@user2)
     post guesses_path, params: {game_state_id: @gs2.id, word:"lemon" }
+    assert_redirected_to game_path(@game)
+    follow_redirect!
     assert_template 'games/_show4'
 
     log_in_as(@user1)
@@ -154,6 +164,10 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     patch game_state_path(@gs2, params: { lie: "1:1:2:green" })
     assert_redirected_to game_path(@game)
     follow_redirect!
+    @gs1.reload
+    @gs2.reload
+    assert_equal 5, @gs1.state
+    assert_equal 4, @gs2.state
     assert_template 'games/_show5'
     assert_select "p", "Waiting for #{ @user2.username } to finish picking a lie."
 
@@ -164,6 +178,10 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     patch game_state_path(@gs1, params: { lie: "0:0:2:green" })
     assert_redirected_to game_path(@game)
     follow_redirect!
+    @gs1.reload
+    @gs2.reload
+    assert_equal 2, @gs1.state
+    assert_equal 2, @gs2.state
     assert_template 'games/_show2'
     expected = [%w/l yellow/, %w/e yellow/, %w/m grey/, %w/o grey/, %w/n yellow/]
     i = 0

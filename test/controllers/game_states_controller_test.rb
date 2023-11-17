@@ -61,7 +61,7 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
     @gs1.update_attribute(:finalWord, "motel")
     @gs2.update_attribute(:finalWord, "clump")
     post guesses_url({ game_state_id: @gs1.id, word: "fjord" })
-    assert_response :ok
+    assert_redirected_to game_path(@game)
     get is_duplicate_guess_path({ id: @gs1.id, word: "nymph"})
     assert_response :ok
     assert_equal false, JSON.parse(response.body)['status']

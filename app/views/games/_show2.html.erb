@@ -147,12 +147,13 @@
         this.gameStateID = gameStateID;
       },
       initState() {
-          this.currentGuess = [];
-          this.guessCount = 0;
-          this.nextLetterPosition = 0;
+          const pending_guess = "<%= game_state.pending_guess.blank? ? '' : game_state.pending_guess %>";
+          this.currentGuess = pending_guess.split('');
+          this.guessCount = <%= game_state.guesses.size %>;
+          this.nextLetterPosition = pending_guess.length;
       },
       deleteLetter() {
-          if (this.currentGuess === 0) {
+          if (this.currentGuess.length === 0) {
               return;
           }
           this.view.deleteLetter(this.guessCount, this.nextLetterPosition - 1);
@@ -185,7 +186,7 @@
           const gameStateID = this.gameStateID;
           const guessString = this.currentGuess.join('');
           $.ajax({
-            url: `/game_states/${ gameStateID }?pending_guess=${ guessString }`,
+            url: `/game_states/${ gameStateID }.json?pending_guess=${ guessString }`,
             type: 'PATCH',
             failure: (result) => {
               console.log(`QQQ: PATCH /game_state?id=${ gameStateID }&pending_guess=${ guessString } on insert failed => ${ result }`,  result);
@@ -193,7 +194,7 @@
           });
           if (this.nextLetterPosition === 5) {
               $.ajax({
-                  url: `/is_valid_word?word=${guessString}`,
+                  url: `/is_valid_word.json?word=${guessString}`,
                   type: 'GET', // NEEDED?
                   success: (result) => {
                       console.log(`QQQ: is_valid_word(${guessString}) succeeded => ${ result }`,  result);
@@ -204,7 +205,7 @@
                       }
                       console.log(`QQQ: It's valid, verify it's not a duplicate`);
                       $.ajax({
-                          url: `/is_duplicate_guess?word=${guessString}&id=${ gameStateID }`,
+                          url: `/is_duplicate_guess.json?word=${guessString}&id=${ gameStateID }`,
                           success(result2) {
                             console.log(`QQQ: is_duplicate_guess(${guessString}) succeeded => ${ result2 }`,  result2);
                             submitButton.disabled = result2.status;
