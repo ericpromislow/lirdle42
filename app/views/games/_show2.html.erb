@@ -131,10 +131,9 @@
 
 <script type="text/javascript">
   console.log("QQQ: Hey we've got scripting in _show2!");
-  const COLORS = ['grey', 'yellow', 'green'];
-  const NEUTRAL_COLOR = 'white';
-  let submitButton = null;
-  let wordField = null;
+  var NEUTRAL_COLOR = 'white';
+  var submitButton = null;
+  var wordField = null;
 
   function Model(view) {
       this.view = view;
@@ -166,16 +165,33 @@
                   submitButton.disabled = true;
               }
           }
+          const gameStateID = this.gameStateID;
+          const guessString = this.currentGuess.join('');
+          $.ajax({
+            url: `/game_states/${ gameStateID }?pending_guess=${ guessString }`,
+            type: 'PATCH',
+            failure: (result) => {
+              console.log(`QQQ: PATCH /game_state?id=${ gameStateID }&pending_guess=${ guessString } on insert failed => ${ result }`,  result);
+            },
+          });
       },
       insertLetter(pressedKey) {
+        // debugger;
           const rowNum = this.guessCount;
           const colNum = this.nextLetterPosition;
           this.view.insertLetter(pressedKey, rowNum, colNum);
           this.currentGuess.push(pressedKey);
           this.nextLetterPosition += 1;
           const gameStateID = this.gameStateID;
+          const guessString = this.currentGuess.join('');
+          $.ajax({
+            url: `/game_states/${ gameStateID }?pending_guess=${ guessString }`,
+            type: 'PATCH',
+            failure: (result) => {
+              console.log(`QQQ: PATCH /game_state?id=${ gameStateID }&pending_guess=${ guessString } on insert failed => ${ result }`,  result);
+            },
+          });
           if (this.nextLetterPosition === 5) {
-              const guessString = this.currentGuess.join('');
               $.ajax({
                   url: `/is_valid_word?word=${guessString}`,
                   type: 'GET', // NEEDED?
