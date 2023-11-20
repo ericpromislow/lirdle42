@@ -26,26 +26,12 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-md-12">
-    <div class="letter-row-container">
-      <div class="letter-row col-md-2">
-        <% 5.times do |col_num| %>
-          <% letterColor = colors[scores[col_num]]
-            bgColor = "background-#{ letterColor }" %>
-          <div class="letter-box filled-box <%= bgColor %>">
-            <span><%= lastGuessWord[col_num].downcase %></span>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <%= form_with(model: game_state, remote: true) do |f| %>
   <%= hidden_field_tag :lie, "" %>
   <%= hidden_field_tag :game_state_id, game_state.id %>
-  <%= %w/grey yellow green/.each_with_index do |other_color, row_num| %>
+  <% %w/grey yellow green/.each_with_index do |other_color, row_num| %>
   <div class="row">
     <div class="col-md-12">
       <div class="letter-row-container">
@@ -57,8 +43,11 @@
                   <span>&nbsp;</span>
                 </div>
                 <%= f.radio_button(:lie, "#{col_num}:#{scores[col_num]}:#{row_num}:#{other_color}") %>
-              <% else %>
-                <span>&nbsp;</span>
+              <% else
+                bgColor = "background-#{ letter_color }" %>
+                <div class="letter-box filled-box <%= bgColor %>">
+                  <span><%= lastGuessWord[col_num].downcase %></span>
+                </div>
               <% end %>
             </div>
           <% end %>
