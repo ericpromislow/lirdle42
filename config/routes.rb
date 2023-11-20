@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   resources :messages
 
   resources :games
+  # patch '/perturb_guess', to: 'games#perturb_guess' # perturb_guess/game_id?my_gs=gsx_id&their_gs=gsy_id&lie=coords
   resources :game_states, only: [:show, :update]
   resources :guesses, only: [:create]
 

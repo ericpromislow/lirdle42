@@ -160,28 +160,24 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     log_in_as(@user1)
     get game_path(@game)
     assert_template 'games/_show4'
-    @gs2.reload
-    patch game_state_path(@gs2, params: { lie: "1:1:2:green" })
+    patch game_state_path(@gs1, params: { lie: "1:1:2:green" })
     assert_redirected_to game_path(@game)
     follow_redirect!
     @gs1.reload
     @gs2.reload
-    assert_equal 5, @gs1.state
-    assert_equal 4, @gs2.state
+    assert_equal [5, 4], [@gs1.state, @gs2.state]
     assert_template 'games/_show5'
     assert_select "p", "Waiting for #{ @user2.username } to finish picking a lie."
 
     log_in_as(@user2)
     get game_path(@game)
     assert_template 'games/_show4'
-    @gs1.reload
-    patch game_state_path(@gs1, params: { lie: "0:0:2:green" })
+    patch game_state_path(@gs2, params: { lie: "0:0:2:green" })
     assert_redirected_to game_path(@game)
     follow_redirect!
     @gs1.reload
     @gs2.reload
-    assert_equal 2, @gs1.state
-    assert_equal 2, @gs2.state
+    assert_equal [2, 2], [@gs1.state, @gs2.state]
     assert_template 'games/_show2'
     expected = [%w/l yellow/, %w/e yellow/, %w/m grey/, %w/o grey/, %w/n yellow/]
     i = 0

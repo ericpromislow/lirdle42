@@ -30,28 +30,21 @@ class GameStatesController < ApplicationController
     end
     set_game_variables(@game)
     if !@user.admin && @game_state.user != @user
-      if params[:lie] && @other_state.user == @user
-        # Do nothing
-      else
-        flash[:danger] = "You can't change someone else's game state"
-        redirect_to request.referrer || root_url
-        return
-      end
+      flash[:danger] = "You can't change someone else's game state"
+      redirect_to request.referrer || root_url
+      return
     end
     gp = update_params
     theLie = params[:lie]
     splitWords = @game_state.candidateWords.split(':')
     if theLie
-      # Remember here that @game_state is actually the other player's state
-      # @user is the player who applied a lie to the other player's guess -> state
-      # @other_state refers to this player's state
-      # Remember here that `@other_state belongs to the current player
-      if @other_state.state != 4
-        flash[:error] = "Lying with an unexpected game state of #{@other_state.state}"
+      # my @game_state contains the word I picked for the other player, but my guesses, scores, etc.
+      if @game_state.state != 4
+        flash[:error] = "Lying with an unexpected game state of #{@game_state.state}"
         redirect_to game_path(@game)
         return
       end
-      lastGuess = @game_state.guesses[-1]
+      lastGuess = @other_state.guesses[-1]
       scores = lastGuess.score.split(':').map(&:to_i)
       begin
         applyLie(scores, theLie, lastGuess)
@@ -60,18 +53,16 @@ class GameStatesController < ApplicationController
         redirect_to game_path(@game)
         return
       end
-      # Remember the game-states are reversed when lying
-      if @game_state.state == 5
+      if @other_state.state == 5
         gp[:state] = 2
-        @game_state.update_attribute(:state, 2)
+        @other_state.update_attribute(:state, 2)
         # TODO: Send a message to @other_user to refresh the state view
       else
         gp[:state] = 5
       end
-      if @other_state.update(gp)
-        @game_state, @other_state = @other_state, @game_state
-      else
+      if !@game_state.update(gp)
         flash[:error] = "Failed to update the game state"
+        Rails.logger.debug("Error updating game state: #{ gp.errors.full_messages }")
       end
       redirect_to game_path(@game)
       return
