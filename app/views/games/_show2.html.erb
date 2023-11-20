@@ -169,7 +169,7 @@
           const gameStateID = this.gameStateID;
           const guessString = this.currentGuess.join('');
           $.ajax({
-            url: `/game_states/${ gameStateID }?pending_guess=${ guessString }`,
+            url: `/game_states/${ gameStateID }.json?pending_guess=${ guessString }`,
             type: 'PATCH',
             failure: (result) => {
               console.log(`QQQ: PATCH /game_state?id=${ gameStateID }&pending_guess=${ guessString } on insert failed => ${ result }`,  result);

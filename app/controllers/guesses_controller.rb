@@ -54,6 +54,7 @@ class GuessesController < ApplicationController
       return
     end
     guess = build_guess_object(word, gs, @other_state)
+    gs.pending_guess = ''
     gs.guesses << guess
     if @other_state.state == 3
       @other_state.update_attribute(:state, 4)
