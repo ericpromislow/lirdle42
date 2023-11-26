@@ -1,8 +1,14 @@
 class GameState < ApplicationRecord
   before_create :do_before_create
+  # before_destroy :do_before_destroy_guesses, prepend: true
   belongs_to :game
   has_many :guesses, dependent: :destroy
   belongs_to :user
+
+  def delete
+    self.guesses.destroy_all
+    super
+  end
 
 private
   def do_before_create
@@ -12,4 +18,8 @@ private
       raise :abort
     end
   end
+
+  # def do_before_destroy_guesses
+  #   self.guesses.destroy_all
+  # end
 end

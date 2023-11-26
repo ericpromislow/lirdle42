@@ -4,14 +4,15 @@ let myID = null;
 let waitingForReplyTimeout = 0;
 let globalMessage = null;
 let globalInvitationMessage = null;
-consumer.subscriptions.create("MainChannel", {
+let AppCable = consumer.subscriptions.create("MainChannel", {
   async connected() {
     console.log(`QQQ: connected!`);
     if (location.pathname == '/') {
       // TODO: We really need to figure this out...
-      fetch('/waiting_users');
+      $.get('/waiting_users', (data, status) => {
+        console.log(`QQQ: update /waiting_users, data: ${ data }, status: ${ status }`);
+      });
     }
-    console.log(`QQQ: fetch done`);
     // Called when the subscription is ready for use on the server
   },
 
@@ -24,7 +25,7 @@ consumer.subscriptions.create("MainChannel", {
     try {
       return this.received_aux(data);
     } catch(ex) {
-      console.error(`Error ${ ex } processing  received data`);
+      console.error(`Error ${ ex } processing received data`);
       console.error(ex);
     }
   },
@@ -55,12 +56,27 @@ consumer.subscriptions.create("MainChannel", {
       // console.log(`QQQ: got an invitationAccepted for ${data.message.to}, my ID is ${myID}`);
       // console.log(`QQQ: received message ${JSON.stringify(data)}`);
       processInvitationAccepted(data.message);
+    } else if (data.type === 'reloadGame') {
+      console.log(`QQQ: got an reloadGame for ${data.message.to}, my ID is ${myID}`);
+      console.log(`QQQ: received message ${JSON.stringify(data)}`);
+      if (data.message.to != myID) {
+        return;
+      }
+      processReloadGame(data.message);
     } else {
       console.log(`QQQ: received unexpected message ${ JSON.stringify(data) }`);
       console.table(data);
     }
   }
 });
+
+function processReloadGame(message) {
+  if (!('game_id' in message)) {
+    console.log(`!!! processReloadGame: Bad message: ${ JSON.stringify(message) }`);
+    return;
+  }
+  window.location = `/games/${ message.game_id }`;
+}
 
 function processInvitationAccepted(data) {
   console.table(data);
@@ -173,7 +189,7 @@ function processInvitation(message) {
 }
 
 function processInvitationForRecipient(message) {
-  // console.log(`QQQ: Looking at my invitation from ${ message.from }`, message);
+  console.log(`QQQ: Looking at my invitation from ${ message.from }`, message);
   try {
     const modal = $('#got-an-invitation');
     if (!modal) {
@@ -189,7 +205,7 @@ function processInvitationForRecipient(message) {
 }
 
 function processInvitationForSender(message) {
-  // console.log(`QQQ: Looking at my invitation to ${ message.to }`);
+  console.log(`QQQ: Looking at my invitation to ${ message.to }`);
   try {
     const modal = $('#waiting-for-reply');
     if (!modal) {
@@ -198,7 +214,7 @@ function processInvitationForSender(message) {
     }
     document.querySelector('#waiting-for-reply #waiting-for-reply-target').textContent = message.toUsername;
     modal.modal();
-    // console.log(`QQQ: should see the modal now`);
+    console.log(`QQQ: should see the modal now`);
     waitingForReplyTimeout = setTimeout(() => {
       fetch(`/invitations/${ message.id }?from=${ myID }&flash=timed%20out`, { mode: 'cors', cache: 'no-cache',
           credentials: "same-origin", // include, *same-origin, omit
@@ -225,15 +241,20 @@ function processInvitationCancellation(message) {
 
 $(document).ready(async () => {
   try {
-    const myIDBody = await fetch('/who_am_i');
-    const rawText = await myIDBody.text();
-    console.log(`QQQ: /users/who_am_i => ${rawText}`);
-    myID = JSON.parse(rawText).id;
+    $.get('/who_am_i', (data, status) => {
+      console.log(`QQQ: /who_am_i => data: ${ data }, status: ${ status }`);
+      if (status !== 'success') {
+        console.log(`/who_am_i => status ${ status }`);
+        alert("Sorry, problem with the server getting your user ID. Please try later.")
+        return;
+      }
+      myID = data.id;
+    });
   } catch(e) {
     console.log(`Failed to get my userID: ${ e }`);
   }
   $("#waiting-for-reply-cancel").click(async () => {
-    // console.log(`QQQ: Sender clicked cancel`);
+    console.log(`QQQ: Sender clicked cancel`);
     fetch(`/invitations/${ globalMessage.id }?from=${ myID }&flash=cancelled`, { mode: 'cors', cache: 'no-cache',
       credentials: "same-origin", // include, *same-origin, omit
       method: 'DELETE' });
@@ -243,8 +264,8 @@ $(document).ready(async () => {
 
   $("#got-an-invitation-ok").click(async () => {
     // Chrome clears the console on location.href change, so don't write too much there at this point
-    // console.log(`QQQ: Handling got-an-invitation-ok: Recipient clicked OK!`);
-    // console.log(`QQQ: global-message: `, globalInvitationMessage)
+    console.log(`QQQ: Handling got-an-invitation-ok: Recipient clicked OK!`);
+    console.log(`QQQ: global-message: `, globalInvitationMessage)
     $.post('/games.json', { playerA: globalInvitationMessage['to'], playerB: globalInvitationMessage['from']})
         .done((data) => {
           console.log(`QQQ: post games => ${ data }`, data);

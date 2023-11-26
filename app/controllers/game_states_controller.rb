@@ -82,7 +82,7 @@ class GameStatesController < ApplicationController
         if gp[:state] == 1 && @other_state.state == 1
           gp[:state] = 2
           @other_state.update_attribute(:state, 2)
-          # TODO: Send a message to @other_user to regrab the game
+          tell_player_to_reload_game(@game_state.user.id, @other_state.user.id, @game.id)
         end
       elsif @game_state.state == 4
         flash[:error] = "You need to pick a lie"
@@ -146,6 +146,13 @@ private
 
   def set_game_state
     @game_state = GameState.find(params[:id])
+  end
+
+  def tell_player_to_reload_game(from_id, to_id, game_id)
+    ActionCable.server.broadcast 'main', {
+      chatroom: 'main',
+      type: 'reloadGame',
+      message: { game_id: game_id, from: from_id, to: to_id } }
   end
 
   def update_params
