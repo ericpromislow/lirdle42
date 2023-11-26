@@ -121,28 +121,23 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     assert_template 'games/_show4'
     assert_select 'p', %Q/Target Word: knell/
     assert_select 'p', %Q/Their Current Guess: lemon/
-    expected = [%w/l yellow/, %w/e yellow/, %w/m grey/, %w/o grey/, %w/n yellow/]
-    i = 0
-    assert_select 'div.letter-box.filled-box' do |elements|
-      elt = elements[i]
-      assert_includes elt.classes, "background-#{ expected[i][1] }"
-      assert_includes elt.text, expected[i][0]
-      i += 1
-    end
+    expected = [%w/grey/, %w/grey/, %w/m grey/, %w/o grey/, %w/grey/,
+      %w/l yellow/, %w/e yellow/, %w/yellow/, %w/yellow/, %w/n yellow/,
+      %w/green/, %w/green/, %w/green/, %w/green/, %w/green/,
+    ]
+    verify_colored_buttons(expected)
 
     log_in_as(@user2)
     get game_path(@game)
     assert_template 'games/_show4'
     assert_select 'p', %Q/Target Word: baton/
     assert_select 'p', %Q/Their Current Guess: paint/
-    expected = [%w/p grey/, %w/a green/, %w/i grey/, %w/n yellow/, %w/t yellow/]
-    i = 0
-    assert_select 'div.letter-box.filled-box' do |elements|
-      elt = elements[i]
-      assert_equal elt.text.strip, expected[i][0]
-      assert_includes elt.classes, "background-#{ expected[i][1] }"
-      i += 1
-    end
+
+    expected = [%w/p grey/, %w/grey/, %w/i grey/, %w/grey/, %w/grey/,
+                %w/yellow/, %w/yellow/, %w/yellow/, %w/n yellow/, %w/t yellow/,
+                 %w/green/, %w/a green/, %w/green/, %w/green/, %w/green/,
+    ]
+    verify_colored_buttons(expected)
   end
 
   test "when both players have picked a lie in state 4, they end up back in state 2" do
@@ -229,5 +224,20 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
       assert_select 'div.second-row button.keyboard-button', count: 9
       assert_select 'div.third-row button.keyboard-button', count: 9
     end
+  end
+
+  def verify_colored_buttons(expected)
+    i1 = 0
+    assert_select 'form div.row div.letter-row-container div.letter-box.filled-box' do |elements|
+      expected.each_with_index do |exp, i|
+        # debugger
+        elt = elements[i]
+        char, color = exp.size == 2 ? exp : ['', exp[0]]
+        assert_includes elt.classes, "background-#{ color }"
+        assert_equal elt.text.gsub(/[[:space:]]/, ''), char
+        i1 += 1
+      end
+    end
+    assert_equal 15, i1
   end
 end
