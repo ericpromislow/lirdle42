@@ -4,7 +4,7 @@ let myID = null;
 let waitingForReplyTimeout = 0;
 let globalMessage = null;
 let globalInvitationMessage = null;
-let AppCable = consumer.subscriptions.create("MainChannel", {
+consumer.subscriptions.create("MainChannel", {
   async connected() {
     console.log(`QQQ: connected!`);
     if (location.pathname == '/') {

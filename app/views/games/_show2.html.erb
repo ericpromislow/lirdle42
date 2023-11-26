@@ -29,7 +29,8 @@
       <% (0...guesses.size).to_a.each do |row_num| %>
         <%
           guess = guesses[row_num]
-          scores = guess.score.split('').map(&:to_i)
+          scores = guess.score.split(':').map(&:to_i)
+          # debugger
           liePosition = guess.liePosition
           lieColor = guess.lieColor
         %>

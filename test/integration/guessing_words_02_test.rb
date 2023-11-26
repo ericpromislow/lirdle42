@@ -8,13 +8,13 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
     @gs1 = @game.game_states.create(user: @user1, finalWord: "block", candidateWords: "knell:molar:psalm", state: 2)
     @gs2 = @game.game_states.create(user: @user2, finalWord: "madam", candidateWords: "fetus:madam:frown", state: 2)
     # target block
-    @gs1.guesses.create(word: "space", score: "00020", liePosition: 4, lieColor: 1, guessNumber: 0)
-    @gs1.guesses.create(word: "relic", score: "00101", liePosition: 2, lieColor: 0, guessNumber: 1)
-    @gs1.guesses.create(word: "deuce", score: "00020", liePosition: 2, lieColor: 2, guessNumber: 2)
+    @gs1.guesses.create(word: "space", score: "0:0:0:2:0", liePosition: 4, lieColor: 1, guessNumber: 0)
+    @gs1.guesses.create(word: "relic", score: "0:0:1:0:1", liePosition: 2, lieColor: 0, guessNumber: 1)
+    @gs1.guesses.create(word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, guessNumber: 2)
     # target madam
-    @gs2.guesses.create(word: "triad", score: "00021", liePosition: 0, lieColor: 2, guessNumber: 0)
-    @gs2.guesses.create(word: "tonal", score: "00020", liePosition: 4, lieColor: 2, guessNumber: 1)
-    @gs2.guesses.create(word: "tidal", score: "00200", liePosition: 3, lieColor: 0, guessNumber: 2)
+    @gs2.guesses.create(word: "triad", score: "0:0:0:2:1", liePosition: 0, lieColor: 2, guessNumber: 0)
+    @gs2.guesses.create(word: "tonal", score: "0:0:0:2:0", liePosition: 4, lieColor: 2, guessNumber: 1)
+    @gs2.guesses.create(word: "tidal", score: "0:0:2:0:0", liePosition: 3, lieColor: 0, guessNumber: 2)
   end
 
   def convertWordsAndGuesses(words, scores)
@@ -70,18 +70,18 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
 
   test "After 8 guesses verify there are 8 filled things with one blank row" do
     # target block
-    @gs1.guesses << Guess.create(word: "truck", score: "00021", liePosition:4, lieColor: 1, guessNumber: 3)
-    @gs1.guesses << Guess.create(word: "flock", score: "02222", liePosition:3, lieColor: 1, guessNumber: 4)
-    @gs1.guesses << Guess.create(word: "clock", score: "02222", liePosition:2, lieColor: 1, guessNumber: 5)
-    @gs1.guesses << Guess.create(word: "fuzzy", score: "00000", liePosition:1, lieColor: 2, guessNumber: 6) #*
-    @gs1.guesses << Guess.create(word: "madam", score: "00000", liePosition:0, lieColor: 1, guessNumber: 7) #*
+    @gs1.guesses << Guess.create(word: "truck", score: "0:0:0:2:1", liePosition:4, lieColor: 1, guessNumber: 3)
+    @gs1.guesses << Guess.create(word: "flock", score: "0:2:2:2:2", liePosition:3, lieColor: 1, guessNumber: 4)
+    @gs1.guesses << Guess.create(word: "clock", score: "0:2:2:2:2", liePosition:2, lieColor: 1, guessNumber: 5)
+    @gs1.guesses << Guess.create(word: "fuzzy", score: "0:0:0:0:0", liePosition:1, lieColor: 2, guessNumber: 6) #*
+    @gs1.guesses << Guess.create(word: "madam", score: "0:0:0:0:0", liePosition:0, lieColor: 1, guessNumber: 7) #*
 
     # target madam
-    @gs2.guesses << Guess.create(word: "dadas", score: "12020", liePosition:0, lieColor: 2, guessNumber: 3)
-    @gs2.guesses << Guess.create(word: "dadah", score: "12020", liePosition:1, lieColor: 0, guessNumber: 4)
-    @gs2.guesses << Guess.create(word: "radar", score: "02220", liePosition:4, lieColor: 1, guessNumber: 5)
-    @gs2.guesses << Guess.create(word: "fuzzy", score: "00000", liePosition:2, lieColor: 2, guessNumber: 6) #*
-    @gs2.guesses << Guess.create(word: "block", score: "00000", liePosition:3, lieColor: 1, guessNumber: 7) #*
+    @gs2.guesses << Guess.create(word: "dadas", score: "1:2:0:2:0", liePosition:0, lieColor: 2, guessNumber: 3)
+    @gs2.guesses << Guess.create(word: "dadah", score: "1:2:0:2:0", liePosition:1, lieColor: 0, guessNumber: 4)
+    @gs2.guesses << Guess.create(word: "radar", score: "0:2:2:2:0", liePosition:4, lieColor: 1, guessNumber: 5)
+    @gs2.guesses << Guess.create(word: "fuzzy", score: "0:0:0:0:0", liePosition:2, lieColor: 2, guessNumber: 6) #*
+    @gs2.guesses << Guess.create(word: "block", score: "0:0:0:0:0", liePosition:3, lieColor: 1, guessNumber: 7) #*
 
     log_in_as(@user1)
     get game_path(@game)
@@ -100,23 +100,23 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
   end
   test "After 15 guesses verify we have a smaller box" do
     # target block
-    @gs1.guesses << Guess.create(word: "truck", score: "00021", liePosition:4, lieColor: 1, guessNumber: 3)
-    @gs1.guesses << Guess.create(word: "flock", score: "02222", liePosition:3, lieColor: 1, guessNumber: 4)
-    @gs1.guesses << Guess.create(word: "clock", score: "02222", liePosition:2, lieColor: 1, guessNumber: 5)
-    @gs1.guesses << Guess.create(word: "fuzzy", score: "00000", liePosition:1, lieColor: 2, guessNumber: 6) #*
-    @gs1.guesses << Guess.create(word: "madam", score: "00000", liePosition:0, lieColor: 1, guessNumber: 7) #*
+    @gs1.guesses << Guess.create(word: "truck", score: "0:0:0:2:1", liePosition:4, lieColor: 1, guessNumber: 3)
+    @gs1.guesses << Guess.create(word: "flock", score: "0:2:2:2:2", liePosition:3, lieColor: 1, guessNumber: 4)
+    @gs1.guesses << Guess.create(word: "clock", score: "0:2:2:2:2", liePosition:2, lieColor: 1, guessNumber: 5)
+    @gs1.guesses << Guess.create(word: "fuzzy", score: "0:0:0:0:0", liePosition:1, lieColor: 2, guessNumber: 6) #*
+    @gs1.guesses << Guess.create(word: "madam", score: "0:0:0:0:0", liePosition:0, lieColor: 1, guessNumber: 7) #*
     7.times do |i|
-      @gs1.guesses << Guess.create(word: "madam", score: "00000", liePosition:0, lieColor: 1, guessNumber: 8 + i)
+      @gs1.guesses << Guess.create(word: "madam", score: "0:0:0:0:0", liePosition:0, lieColor: 1, guessNumber: 8 + i)
     end
 
     # target madam
-    @gs2.guesses << Guess.create(word: "dadas", score: "12020", liePosition:0, lieColor: 2, guessNumber: 3)
-    @gs2.guesses << Guess.create(word: "dadah", score: "12020", liePosition:1, lieColor: 0, guessNumber: 4)
-    @gs2.guesses << Guess.create(word: "radar", score: "02220", liePosition:4, lieColor: 1, guessNumber: 5)
-    @gs2.guesses << Guess.create(word: "fuzzy", score: "00000", liePosition:2, lieColor: 2, guessNumber: 6) #*
-    @gs2.guesses << Guess.create(word: "block", score: "00000", liePosition:3, lieColor: 1, guessNumber: 7) #*
+    @gs2.guesses << Guess.create(word: "dadas", score: "1:2:0:2:0", liePosition:0, lieColor: 2, guessNumber: 3)
+    @gs2.guesses << Guess.create(word: "dadah", score: "1:2:0:2:0", liePosition:1, lieColor: 0, guessNumber: 4)
+    @gs2.guesses << Guess.create(word: "radar", score: "0:2:2:2:0", liePosition:4, lieColor: 1, guessNumber: 5)
+    @gs2.guesses << Guess.create(word: "fuzzy", score: "0:0:0:0:0", liePosition:2, lieColor: 2, guessNumber: 6) #*
+    @gs2.guesses << Guess.create(word: "block", score: "0:0:0:0:0", liePosition:3, lieColor: 1, guessNumber: 7) #*
     7.times do |i|
-      @gs2.guesses << Guess.create(word: "block", score: "00000", liePosition:3, lieColor: 1, guessNumber: 8 + i)
+      @gs2.guesses << Guess.create(word: "block", score: "0:0:0:0:0", liePosition:3, lieColor: 1, guessNumber: 8 + i)
     end
 
     log_in_as(@user1)
