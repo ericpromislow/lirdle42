@@ -45,4 +45,11 @@ private # should be protected?
   def set_logged_in_user
     @user = current_user
   end
+
+  def tell_player_to_reload_game(from_id, to_id, game_id)
+    ActionCable.server.broadcast 'main', {
+      chatroom: 'main',
+      type: 'reloadGame',
+      message: { game_id: game_id, from: from_id, to: to_id } }
+  end
 end

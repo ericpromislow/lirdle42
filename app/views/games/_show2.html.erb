@@ -388,7 +388,7 @@
                   console.log(`lirdle: ignoring return before full word is typed`);
                   return;
               }
-              this.model.checkGuess();
+              submitButton.click();
           } else if (pressedKey.match(/^[a-z]$/i)) {
               if (this.model.nextLetterPosition < 5) {
                   this.model.insertLetter(pressedKey.toLowerCase());

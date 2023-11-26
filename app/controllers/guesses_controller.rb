@@ -58,7 +58,7 @@ class GuessesController < ApplicationController
     gs.guesses << guess
     if @other_state.state == 3
       @other_state.update_attribute(:state, 4)
-      # TODO: Send a message to the other player to update their view
+      tell_player_to_reload_game(@game_state.user.id, @other_state.user.id, @game.id)
       gs.state = 4
     else
       gs.state = 3
