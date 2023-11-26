@@ -34,7 +34,7 @@ consumer.subscriptions.create("MainChannel", {
     globalMessage = data.message;
     console.log(`QQQ: received msg ${ data.type }`, globalMessage);
     if (data.chatroom === 'main' && data.type === 'waitingUsers' && globalMessage) {
-      // repopulateWaitingList(globalMessage);
+      repopulateWaitingList(globalMessage);
     } else if (data.type === 'invitation') {
       // console.log(`QQQ: got an invitation, my ID is ${ myID }`);
       // console.log(`QQQ: received message ${ JSON.stringify(data) }`);
