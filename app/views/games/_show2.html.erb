@@ -5,6 +5,11 @@
   guesses = game_state.guesses
   colors = %w[grey yellow green]
   num_rows = [guesses.size + 1, 6].max
+  @BG_WHITE = 'bg-white'
+  @BG_YELLOW = 'bg-warning' # Should be --var(yellow)
+  @BG_GREEN = 'bg-success' # Should be --var(green)
+  @BG_BLUE = 'bg-info' # was rgb(189, 213, 234) in lirdle
+  @keyboard_colors = Hash.new(@BG_WHITE)
   case num_rows
   when 0...13
     letterBoxSizeClassName = "small1"
@@ -16,6 +21,25 @@
     letterBoxSizeClassName = "small4"
   end
   letterBoxClassListArrayBase = ['letter-box', 'filled-box', letterBoxSizeClassName]
+
+  def emit_keyboard_button(ch)
+    raw(%Q[<button class="keyboard-button #{ @keyboard_colors[ch] }" type="button">#{ ch }</button>])
+  end
+
+  def set_keyboard_color(ch, colorName)
+    colorNameSym = colorName.to_sym
+    colorMap = { green: @BG_GREEN, yellow: @BG_YELLOW, grey: @BG_BLUE }
+    currentColor = @keyboard_colors[ch]
+    [ @BG_GREEN, @BG_YELLOW, @BG_BLUE ].each do |bestColor|
+      return if currentColor == bestColor
+      if colorMap[colorNameSym] == bestColor
+        @keyboard_colors[ch] = bestColor
+        return
+      end
+    end
+    @keyboard_colors[ch] = @BG_WHITE
+  end
+
 %>
 <div class="row">
   <div class="col-md-12">
@@ -30,7 +54,6 @@
         <%
           guess = guesses[row_num]
           scores = guess.score.split(':').map(&:to_i)
-          # debugger
           liePosition = guess.liePosition
           lieColor = guess.lieColor
         %>
@@ -43,8 +66,10 @@
                 bgColor = "background-#{ letterColor }"
                 letterBoxClassListArray = letterBoxClassListArrayBase + [bgColor]
                 letterBoxClassList = letterBoxClassListArray.join(" ")
+                theLetter = guesses[row_num].word[col_num].downcase
+                set_keyboard_color(theLetter, letterColor)
               %>
-              <div class="<%= letterBoxClassList %>"><%= guesses[row_num].word[col_num].downcase %></div>
+              <div class="<%= letterBoxClassList %>"><%= theLetter %></div>
             <% end %>
           </div>
         </div>
@@ -91,42 +116,25 @@
   </div>
 </div>
 
-<div id="keyboard-cont">
+<div class="row" id="keyboard-cont">
   <div id="dupWord" class="wordProblemPrompt hidden"><span>You already tried "</span><span id="dupWordContents"></span><span>"</span></div>
   <div id="fiveGreenFakeOut" class="wordProblemPrompt hidden"><span>Congratulations on getting a Fake Out! You're close but that's not the right word.</span><br /></div>
   <div class="first-row">
-    <button class="keyboard-button" type="button">q</button>
-    <button class="keyboard-button" type="button">w</button>
-    <button class="keyboard-button" type="button">e</button>
-    <button class="keyboard-button" type="button">r</button>
-    <button class="keyboard-button" type="button">t</button>
-    <button class="keyboard-button" type="button">y</button>
-    <button class="keyboard-button" type="button">u</button>
-    <button class="keyboard-button" type="button">i</button>
-    <button class="keyboard-button" type="button">o</button>
-    <button class="keyboard-button" type="button">p</button>
+    <% 'qwertyuiop'.split('').each do |ch| %>
+      <%= emit_keyboard_button(ch) %>
+    <% end %>
   </div>
   <div class="second-row">
-    <button class="keyboard-button" type="button">a</button>
-    <button class="keyboard-button" type="button">s</button>
-    <button class="keyboard-button" type="button">d</button>
-    <button class="keyboard-button" type="button">f</button>
-    <button class="keyboard-button" type="button">g</button>
-    <button class="keyboard-button" type="button">h</button>
-    <button class="keyboard-button" type="button">j</button>
-    <button class="keyboard-button" type="button">k</button>
-    <button class="keyboard-button" type="button">l</button>
+    <% 'asdfghjkl'.split('').each do |ch| %>
+      <%= emit_keyboard_button(ch) %>
+    <% end %>
   </div>
   <div class="third-row">
-    <button class="keyboard-button" type="button">Del</button>
-    <button class="keyboard-button" type="button">z</button>
-    <button class="keyboard-button" type="button">x</button>
-    <button class="keyboard-button" type="button">c</button>
-    <button class="keyboard-button" type="button">v</button>
-    <button class="keyboard-button" type="button">b</button>
-    <button class="keyboard-button" type="button">n</button>
-    <button class="keyboard-button" type="button">m</button>
-    <button class="keyboard-button" type="button">Enter</button>
+    <%=  emit_keyboard_button("Del") %>
+    <% 'zxcvbnm'.split('').each do |ch| %>
+      <%= emit_keyboard_button(ch) %>
+    <% end %>
+    <%= emit_keyboard_button("Enter") %>
   </div>
 </div>
 
@@ -178,7 +186,6 @@
           });
       },
       insertLetter(pressedKey) {
-        // debugger;
           const rowNum = this.guessCount;
           const colNum = this.nextLetterPosition;
           this.view.insertLetter(pressedKey, rowNum, colNum);
@@ -233,9 +240,6 @@
   function View() {
       this.board = document.getElementById("game-board");
       this.dupWord = document.getElementById("dupWord");
-      for (const elem of document.getElementsByClassName("keyboard-button")) {
-          elem.style.backgroundColor = NEUTRAL_COLOR;
-      }
       this.model = null;
       this.wordIsInvalid = false;
       this.gameFinished = false;
@@ -332,42 +336,6 @@
           let box = row.children[colNum];
           box.textContent = pressedKey;
           box.classList.add("filled-box");
-      },
-
-      shadeKeyboard(letter, color, guessIt, numHitsForEachScore) {
-          for (const elem of document.getElementsByClassName("keyboard-button")) {
-              if (elem.textContent === letter) {
-                  if (guessIt) {
-                      elem.style.backgroundColor = color;
-                  } else if (numHitsForEachScore[2]) {
-                      //TODO: Gradient these
-                      elem.style.backgroundColor = "var(--green)";
-                  } else if (numHitsForEachScore[1]) {
-                      elem.style.backgroundColor = "var(--yellow)";
-                  } else if (numHitsForEachScore[0]) {
-                      elem.style.backgroundColor = "#bdd5ea";
-                  }
-                  break;
-              }
-          }
-      },
-
-      shadeKeyboard(letter, color, guessIt, numHitsForEachScore) {
-          for (const elem of document.getElementsByClassName("keyboard-button")) {
-              if (elem.textContent === letter) {
-                  if (guessIt) {
-                      elem.style.backgroundColor = color;
-                  } else if (numHitsForEachScore[2]) {
-                      //TODO: Gradient these
-                      elem.style.backgroundColor = "var(--green)";
-                  } else if (numHitsForEachScore[1]) {
-                      elem.style.backgroundColor = "var(--yellow)";
-                  } else if (numHitsForEachScore[0]) {
-                      elem.style.backgroundColor = "#bdd5ea";
-                  }
-                  break;
-              }
-          }
       },
 
       keyHandler(e) {

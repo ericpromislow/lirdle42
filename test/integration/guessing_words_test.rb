@@ -1,6 +1,11 @@
 require "test_helper"
 
 class GuessingWordsTest < ActionDispatch::IntegrationTest
+  BG_WHITE = 'bg-white'
+  BG_YELLOW = 'bg-warning' # Should be --var(yellow)
+  BG_GREEN = 'bg-success' # Should be --var(green)
+  BG_BLUE = 'bg-info' # rgb(189, 213, 234)'
+
   def setup
     @user = users(:user1)
     @archer = users(:archer)
@@ -200,9 +205,48 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
       i += 1
     end
     assert_select 'div#keyboard-cont' do
-      assert_select 'div.first-row button.keyboard-button', count: 10
-      assert_select 'div.second-row button.keyboard-button', count: 9
-      assert_select 'div.third-row button.keyboard-button', count: 9
+      assert_select 'div.first-row button.keyboard-button' do |elements|
+        expected = [
+          ['q', BG_WHITE ],
+          ['w', BG_WHITE ],
+          ['e', BG_WHITE ],
+          ['r', BG_WHITE ],
+          ['t', BG_YELLOW ],
+          ['y', BG_WHITE ],
+          ['u', BG_WHITE ],
+          ['i', BG_BLUE ],
+          ['o', BG_WHITE ],
+          ['p', BG_GREEN ],
+        ]
+        verify_keyboard_elements(expected, elements)
+      end
+      assert_select 'div.second-row button.keyboard-button' do |elements|
+        expected = [
+        ['a', BG_GREEN ],
+        ['s', BG_WHITE ],
+        ['d', BG_WHITE ],
+        ['f', BG_WHITE ],
+        ['g', BG_WHITE ],
+        ['h', BG_WHITE ],
+        ['j', BG_WHITE ],
+        ['k', BG_WHITE ],
+        ['l', BG_WHITE ],
+        ]
+        verify_keyboard_elements(expected, elements)
+      end
+      assert_select 'div.third-row button.keyboard-button' do |elements|
+        expected = [
+          ['z', BG_WHITE ],
+          ['x', BG_WHITE ],
+          ['c', BG_WHITE ],
+          ['v', BG_WHITE ],
+          ['b', BG_WHITE ],
+          ['n', BG_YELLOW ],
+          ['m', BG_WHITE ],
+        ]
+        # debugger
+        verify_keyboard_elements(expected, elements[1..-2])
+      end
     end
 
     log_in_as(@user2)
@@ -219,10 +263,50 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
       assert_includes elt.classes, "background-#{ expected[i][1] }"
       i += 1
     end
+    # debugger
     assert_select 'div#keyboard-cont' do
-      assert_select 'div.first-row button.keyboard-button', count: 10
-      assert_select 'div.second-row button.keyboard-button', count: 9
-      assert_select 'div.third-row button.keyboard-button', count: 9
+      assert_select 'div.first-row button.keyboard-button' do |elements|
+        expected = [
+          ['q', BG_WHITE ],
+          ['w', BG_WHITE ],
+          ['e', BG_GREEN ],
+          ['r', BG_WHITE ],
+          ['t', BG_WHITE ],
+          ['y', BG_WHITE ],
+          ['u', BG_WHITE ],
+          ['i', BG_WHITE ],
+          ['o', BG_BLUE ],
+          ['p', BG_WHITE ],
+        ]
+        verify_keyboard_elements(expected, elements)
+      end
+      assert_select 'div.second-row button.keyboard-button' do |elements|
+        expected = [
+          ['a', BG_WHITE ],
+          ['s', BG_WHITE ],
+          ['d', BG_WHITE ],
+          ['f', BG_WHITE ],
+          ['g', BG_WHITE ],
+          ['h', BG_WHITE ],
+          ['j', BG_WHITE ],
+          ['k', BG_WHITE ],
+          ['l', BG_YELLOW ],
+        ]
+        verify_keyboard_elements(expected, elements)
+      end
+      assert_select 'div.third-row button.keyboard-button' do |elements|
+        expected = [
+          ['z', BG_WHITE ],
+          ['x', BG_WHITE ],
+          ['c', BG_WHITE ],
+          ['v', BG_WHITE ],
+          ['b', BG_WHITE ],
+          ['n', BG_YELLOW ],
+          ['m', BG_BLUE ],
+        ]
+        # debugger
+        verify_keyboard_elements(expected, elements[1..-2])
+      end
     end
   end
 
@@ -230,7 +314,6 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     i1 = 0
     assert_select 'form div.row div.letter-row-container div.letter-box.filled-box' do |elements|
       expected.each_with_index do |exp, i|
-        # debugger
         elt = elements[i]
         char, color = exp.size == 2 ? exp : ['', exp[0]]
         assert_includes elt.classes, "background-#{ color }"
@@ -239,5 +322,14 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
       end
     end
     assert_equal 15, i1
+  end
+
+  def verify_keyboard_elements(expected, elements)
+    assert_equal expected.size, elements.size
+    expected.each_with_index do |expected, i|
+      elt = elements[i]
+      assert_equal expected[0], elt.text.strip
+      assert_includes elt.classes, expected[1]
+    end
   end
 end
