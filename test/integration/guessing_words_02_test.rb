@@ -5,8 +5,8 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
     @game = games(:game1)
     @user1 = users(:user1)
     @user2 = users(:user2)
-    @gs1 = @game.game_states.create(user: @user1, finalWord: "block", candidateWords: "knell:molar:psalm", state: 2)
-    @gs2 = @game.game_states.create(user: @user2, finalWord: "madam", candidateWords: "fetus:madam:frown", state: 2)
+    @gs1 = @game.game_states.create(user: @user1, finalWord: "madam", candidateWords: "fetus:madam:frown", state: 2)
+    @gs2 = @game.game_states.create(user: @user2, finalWord: "block", candidateWords: "knell:molar:psalm", state: 2)
     # target block
     @gs1.guesses.create(word: "space", score: "0:0:0:2:0", liePosition: 4, lieColor: 1, guessNumber: 0)
     @gs1.guesses.create(word: "relic", score: "0:0:1:0:1", liePosition: 2, lieColor: 0, guessNumber: 1)
@@ -66,6 +66,48 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
     get game_path(@game)
     assert_template 'games/_show2'
     verify_expected_board(%w/triad tonal tidal/, %w/gbbgy bbbgg bbgbb/, "small1", 15, 30)
+  end
+
+  test 'When players are looking at the lie board, they see previous guesses and lies' do
+    log_in_as(@user1)
+    get game_path(@game)
+    # target word: block
+    post guesses_path, params: {game_state_id: @gs1.id, word:"boxer" }
+    assert_redirected_to game_path(@game)
+    follow_redirect!
+    assert_template 'games/_show3'
+
+    # Once both players have posted a guess, they should see the lie screen
+    log_in_as(@user2)
+    get game_path(@game)
+    # target word: madam
+    post guesses_path, params: {game_state_id: @gs2.id, word:"dairy" }
+    assert_redirected_to game_path(@game)
+    follow_redirect!
+    assert_template 'games/_show4'
+
+    @colors = %w/grey yellow green/
+    # user2 sees user1's guess: 'boxer' guessing 'block'
+    actual_scores = [2, 1, 0, 0, 0]
+    expected = [
+      %w/nbsp nbsp x e r/,
+      %w/nbsp o nbsp nbsp nbsp/,
+      %w/b nbsp nbsp nbsp nbsp/,
+    ]
+    verify_radio_buttons(actual_scores, expected)
+
+    # user1 sees user2's guess: 'dairy' targeting 'madam'
+    log_in_as(@user1)
+    get game_path(@game)
+    assert_template 'games/_show4'
+
+    actual_scores = [1, 2, 0, 0, 0]
+    expected = [
+      %w/nbsp nbsp i r y/,
+      %w/d nbsp nbsp nbsp nbsp/,
+      %w/nbsp a nbsp nbsp nbsp/,
+    ]
+    verify_radio_buttons(actual_scores, expected)
   end
 
   test "After 8 guesses verify there are 8 filled things with one blank row" do
@@ -134,4 +176,45 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
     verify_expected_board(words, scores, "small2", 15 * 5, 16 * 5)
 
   end
+
+  def verify_radio_buttons(actual_scores, expected)
+    numMatches = 0
+    assert_select 'form div.row div.letter-row-container' do |buttonContainerRows|
+      assert_equal 3, buttonContainerRows.size
+      buttonContainerRows.each_with_index do |buttonContainerRow, row_num|
+        assert_select(buttonContainerRow, 'div.letter-row') do |buttonContainers|
+          assert_equal 5, buttonContainers.size
+          buttonContainers.each_with_index do |buttonContainer, i|
+            expectedCharacter = expected[row_num][i]
+            if expectedCharacter == 'nbsp'
+              assert_select(buttonContainer, %Q<div.letter-box.filled-box.background-#{ @colors[row_num] }>) do
+                numMatches += 1
+                assert_select 'span' do |spanElt|
+                  numMatches += 1
+                  assert_equal 0, spanElt[0].text.gsub(/[[:space:]]/, '').size
+                end
+              end
+              assert_select(buttonContainer, %Q<input[type="radio"][name="game_state[lie]"]>) do |radioButton|
+                rbVal = radioButton[0].attribute('value').text
+                if "#{ i }:#{ actual_scores[i] }:#{ row_num }:#{ @colors[row_num] }" != rbVal
+                  debugger
+                end
+                assert_equal "#{ i }:#{ actual_scores[i] }:#{ row_num }:#{ @colors[row_num] }", rbVal
+              end
+            else
+              assert_select(buttonContainer, %Q<div.letter-box.filled-box.background-#{ @colors[row_num] }>) do
+                numMatches += 1
+                assert_select 'span' do |spanElt|
+                  numMatches += 1
+                  assert_equal expectedCharacter, spanElt[0].text
+                end
+              end
+              assert_select(buttonContainer, %Q<input[type="radio"][name="game_state[lie]"]>, count: 0)
+            end
+          end
+        end
+      end
+    end
+  end
+
 end
