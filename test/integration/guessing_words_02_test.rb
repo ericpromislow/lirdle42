@@ -14,7 +14,9 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
     # target madam
     @gs2.guesses.create(word: "triad", score: "0:0:0:2:1", liePosition: 0, lieColor: 2, guessNumber: 0)
     @gs2.guesses.create(word: "tonal", score: "0:0:0:2:0", liePosition: 4, lieColor: 2, guessNumber: 1)
-    @gs2.guesses.create(word: "tidal", score: "0:0:2:0:0", liePosition: 3, lieColor: 0, guessNumber: 2)
+    @gs2.guesses.create(word: "tidal", score: "0:0:2:2:0", liePosition: 3, lieColor: 0, guessNumber: 2)
+
+    @colors = %w/grey yellow green/
   end
 
   def convertWordsAndGuesses(words, scores)
@@ -86,7 +88,6 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_template 'games/_show4'
 
-    @colors = %w/grey yellow green/
     # user2 sees user1's guess: 'boxer' guessing 'block'
     actual_scores = [2, 1, 0, 0, 0]
     expected = [
@@ -95,6 +96,16 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
       %w/b nbsp nbsp nbsp nbsp/,
     ]
     verify_radio_buttons(actual_scores, expected)
+    #TODO: verify different text when there are no previous guesses
+    expected = [
+      { word: "space", score: "0:0:0:2:1", liePosition: 4, actualColor: 0 },
+      { word: "relic", score: "0:0:0:0:1", liePosition: 2, actualColor: 1 },
+      { word: "deuce", score: "0:0:2:2:0", liePosition: 2, actualColor: 0 },
+    ]
+    verify_previous_perturbed_guesses(@user1.username, expected)
+    # @gs1.guesses.create(word: "space", score: "0:0:0:2:0", liePosition: 4, lieColor: 1, guessNumber: 0)
+    # @gs1.guesses.create(word: "relic", score: "0:0:1:0:1", liePosition: 2, lieColor: 0, guessNumber: 1)
+    # @gs1.guesses.create(word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, guessNumber: 2)
 
     # user1 sees user2's guess: 'dairy' targeting 'madam'
     log_in_as(@user1)
@@ -108,6 +119,18 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
       %w/nbsp a nbsp nbsp nbsp/,
     ]
     verify_radio_buttons(actual_scores, expected)
+    # targeting madam
+    expected = [
+      { word: "triad", score: "2:0:0:2:1", liePosition: 0, actualColor: 0 },
+      { word: "tonal", score: "0:0:0:2:2", liePosition: 4, actualColor: 0 },
+      { word: "tidal", score: "0:0:2:0:0", liePosition: 3, actualColor: 2 },
+    ]
+    verify_previous_perturbed_guesses(@user2.username, expected)
+    #
+    # @gs2.guesses.create(word: "triad", score: "0:0:0:2:1", liePosition: 0, lieColor: 2, guessNumber: 0)
+    # @gs2.guesses.create(word: "tonal", score: "0:0:0:2:0", liePosition: 4, lieColor: 2, guessNumber: 1)
+    # @gs2.guesses.create(word: "tidal", score: "0:0:2:0:0", liePosition: 3, lieColor: 0, guessNumber: 2)
+
   end
 
   test "After 8 guesses verify there are 8 filled things with one blank row" do
@@ -196,9 +219,9 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
               end
               assert_select(buttonContainer, %Q<input[type="radio"][name="game_state[lie]"]>) do |radioButton|
                 rbVal = radioButton[0].attribute('value').text
-                if "#{ i }:#{ actual_scores[i] }:#{ row_num }:#{ @colors[row_num] }" != rbVal
-                  debugger
-                end
+                # if "#{ i }:#{ actual_scores[i] }:#{ row_num }:#{ @colors[row_num] }" != rbVal
+                #   debugger
+                # end
                 assert_equal "#{ i }:#{ actual_scores[i] }:#{ row_num }:#{ @colors[row_num] }", rbVal
               end
             else
@@ -217,4 +240,46 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
     end
   end
 
+  def verify_previous_perturbed_guesses(username, guesses)
+    if guesses.size == 0
+      assert_select 'div.previous-guesses h2', count: 0
+      return
+    end
+    guessPieces = []
+    guesses.each do | guess |
+      word, score, liePosition, actualColor = [ guess[:word], guess[:score], guess[:liePosition], guess[:actualColor] ]
+      scores = score.split(':')
+      word.split('').zip(scores).each_with_index do | pair, col_num |
+        # debugger
+        theLetter, visibleColor = pair
+        guessPieces << {
+          letter: theLetter,
+          classes: [ "background-#{ @colors[visibleColor.to_i] }" ]
+        }
+        if liePosition == col_num
+          guessPieces[-1][:classes] << "actual#{ @colors[actualColor]}"
+        end
+      end
+    end
+    assert_select 'div.previous-guesses' do |previousGuesses|
+      assert_select 'h2', %Q<Previous guesses with lies for #{ username }:>
+      #
+      # { word: "space", score: "0:0:0:2:1", liePosition: 4, actualColor: 0 },
+      #   { word: "relic", score: "0:0:0:0:1", liePosition: 2, actualColor: 1 },
+      #   { word: "deuce", score: "0:0:2:2:0", liePosition: 2, actualColor: 0 },
+      assert_select 'div#game-board div.letter-row-container div.letter-row div.letter-box.filled-box' do | elements |
+        assert_equal guessPieces.size, elements.size
+        guessPieces.zip(elements).each_with_index do | pair, i|
+          guessPiece, elt = pair
+          assert_equal elt.text.strip, guessPiece[:letter]
+          guessPiece[:classes].each do | cls |
+            # if !elt.classes.include?(cls)
+            #   debugger
+            # end
+            assert_includes elt.classes, cls
+          end
+        end
+      end
+    end
+  end
 end

@@ -8,6 +8,23 @@
   lastGuessWord = lastGuess.word
   scores = guesses[-1].score.split(':').map(&:to_i)
   colors = %w[grey yellow green]
+  num_rows = [guesses.size + 1, 6].max
+  @BG_WHITE = 'bg-white'
+  @BG_YELLOW = 'bg-warning' # Should be --var(yellow)
+  @BG_GREEN = 'bg-success' # Should be --var(green)
+  @BG_BLUE = 'bg-info' # was rgb(189, 213, 234) in lirdle
+  @keyboard_colors = Hash.new(@BG_WHITE)
+  case num_rows
+  when 0...13
+    letterBoxSizeClassName = "small1"
+  when 13...19
+    letterBoxSizeClassName = "small2"
+  when 19...25
+    letterBoxSizeClassName = "small3"
+  else
+    letterBoxSizeClassName = "small4"
+  end
+  letterBoxClassListArrayBase = ['letter-box', 'filled-box', letterBoxSizeClassName]
 %>
 <div class="row">
   <div class="col-md-12">
@@ -61,6 +78,45 @@
     </div>
   </div>
 <% end %>
+<div class="previous-guesses">
+  <h2>Previous guesses with lies for <%= other_player.username %>:</h2><div class="row">
+  <div class="col-md-12">
+    <div id="game-board">
+      <%# Don't show the last guess -- that's the one above %>
+      <% (0...guesses.size - 1).to_a.each do |row_num| %>
+        <%
+          guess = guesses[row_num]
+          scores = guess.score.split(':').map(&:to_i)
+          liePosition = guess.liePosition
+          lieColor = guess.lieColor
+        %>
+        <div class="letter-row-container">
+          <div class="letter-row">
+            <% 5.times do |col_num| %>
+              <%
+                letterIndex = liePosition == col_num ? lieColor : scores[col_num]
+                letterColor = colors[letterIndex]
+                if liePosition == col_num
+                  bgColor = colors[lieColor]
+                  actualColor = colors[scores[col_num].to_i]
+                else
+                  bgColor = colors[scores[col_num].to_i]
+                  actualColor = nil
+                end
+                letterBoxClassListArray = letterBoxClassListArrayBase + ["background-#{ bgColor }"]
+                letterBoxClassListArray << "actual#{actualColor}" if actualColor
+                letterBoxClassList = letterBoxClassListArray.join(" ")
+                theLetter = guess.word[col_num].downcase
+                set_keyboard_color(theLetter, letterColor)
+              %>
+              <div class="<%= letterBoxClassList %>"><%= theLetter %></div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   console.log("QQQ: Hey we've got scripting in _show4!");
   var submitButton = null;
