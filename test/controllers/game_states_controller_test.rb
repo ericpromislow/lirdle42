@@ -88,7 +88,7 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
     @gs1.reload
     @gs2.reload
     last_guess = @gs2.guesses.last
-    assert_equal [5, 4, "0:2:0:0:1", 1, 2], [@gs1.state, @gs2.state, last_guess.score, last_guess.liePosition, last_guess.lieColor ]
+    assert_equal [5, 4, "0:1:0:0:1", 1, 2], [@gs1.state, @gs2.state, last_guess.score, last_guess.liePosition, last_guess.lieColor ]
 
     log_in_as(@user2)
     # perturb 'fjord' guessing 'clump'
@@ -97,7 +97,7 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
     @gs1.reload
     @gs2.reload
     last_guess = @gs1.guesses.last
-    assert_equal [2, 2, "0:0:1:0:0", 2, 1], [@gs1.state, @gs2.state, last_guess.score, last_guess.liePosition, last_guess.lieColor ]
+    assert_equal [2, 2, "0:0:0:0:0", 2, 1], [@gs1.state, @gs2.state, last_guess.score, last_guess.liePosition, last_guess.lieColor ]
 
   end
 end

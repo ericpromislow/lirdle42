@@ -140,8 +140,7 @@ private
       raise "Invalid lie #{ radioButtonLieValue }"
     end
     desiredColor = buttonParts[2].to_i
-    scores[position] = desiredColor
-    guess.update_columns(liePosition: position, lieColor: desiredColor, score: scores.join(':'))
+    guess.update_columns(liePosition: position, lieColor: desiredColor)
   end
 
   def set_game_state

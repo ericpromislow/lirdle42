@@ -94,8 +94,6 @@
           <div class="letter-row">
             <% 5.times do |col_num| %>
               <%
-                letterIndex = liePosition == col_num ? lieColor : scores[col_num]
-                letterColor = colors[letterIndex]
                 if liePosition == col_num
                   bgColor = colors[lieColor]
                   actualColor = colors[scores[col_num].to_i]
@@ -107,7 +105,6 @@
                 letterBoxClassListArray << "actual#{actualColor}" if actualColor
                 letterBoxClassList = letterBoxClassListArray.join(" ")
                 theLetter = guess.word[col_num].downcase
-                set_keyboard_color(theLetter, letterColor)
               %>
               <div class="<%= letterBoxClassList %>"><%= theLetter %></div>
             <% end %>

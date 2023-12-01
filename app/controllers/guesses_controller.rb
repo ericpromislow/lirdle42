@@ -53,6 +53,7 @@ class GuessesController < ApplicationController
       render 'games/show'
       return
     end
+
     guess = build_guess_object(word, gs, @other_state)
     gs.pending_guess = ''
     gs.guesses << guess
