@@ -53,19 +53,48 @@ class GuessesController < ApplicationController
       render 'games/show'
       return
     end
-
     guess = build_guess_object(word, gs, @other_state)
     gs.pending_guess = ''
     gs.guesses << guess
-    if @other_state.state == 3
-      @other_state.update_attribute(:state, 4)
-      tell_player_to_reload_game(@game_state.user.id, @other_state.user.id, @game.id)
-      gs.state = 4
+    notify_other_player = false
+    if guess.isCorrect
+      # 6: I won, waiting for other player's next result
+      # 7: It's a tie
+      # 8: I won, other player lost
+      # 9: I lost
+      if @other_state.state == 6
+        gs.state = 7
+        @other_state.update_attribute(:state, 7)
+        notify_other_player = true
+      elsif @other_state.state == 3
+        # They already guessed wrong
+        gs.state = 8
+        @other_state.update_attribute(:state, 9)
+        notify_other_player = true
+      else
+        gs.state = 6
+        # The other user will hit either state 7 or 9 when they submit their next guess
+      end
+    elsif @other_state.state == 6
+      # The other user is waiting, so I lost and they won
+      gs.state = 9
+      @other_state.update_attribute(:state, 8)
+      notify_other_player = true
     else
-      gs.state = 3
+      # We both continue
+      if @other_state.state == 3
+        @other_state.update_attribute(:state, 4)
+        notify_other_player = true
+        gs.state = 4
+      else
+        gs.state = 3
+      end
     end
     gs.save
     @game_state.reload
+    if notify_other_player
+      tell_player_to_reload_game(@game_state.user.id, @other_state.user.id, @game.id)
+    end
     # Do a redirect to get the game page back, because we submitted a form to the guesses controller
     redirect_to game_path(game)
   end
@@ -89,7 +118,7 @@ class GuessesController < ApplicationController
   def build_guess_object(word, gs, otherPlayerState)
     targetWord = otherPlayerState.finalWord
     score = calculate_score(word, targetWord)
-    gs = Guess.create(word: word, score: score.join(":"), liePosition: -1, marks: "", isCorrect: is_correct_score(score),
+    gs = Guess.create(word: word, score: score.join(":"), liePosition: -1, marks: "", isCorrect: word == otherPlayerState.finalWord,
                       guessNumber: gs.guesses.size)
     return gs
   end

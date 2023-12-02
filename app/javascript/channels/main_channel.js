@@ -184,7 +184,7 @@ function processInvitation(message) {
     // console.log(`QQQ: Looking at my invitation from ${message.from}`);
     return processInvitationForRecipient(message);
   } else {
-    console.log(`QQQ: Ignore the invitation`, message);
+    console.log(`QQQ: Ignore the invitation, I'm # ${ myID }`, message);
   }
 }
 

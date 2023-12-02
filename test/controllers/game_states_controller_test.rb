@@ -100,4 +100,75 @@ class GameStatesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [2, 2, "0:0:0:0:0", 2, 1], [@gs1.state, @gs2.state, last_guess.score, last_guess.liePosition, last_guess.lieColor ]
 
   end
+
+  test "ties go through states [2,2] => [6,2] => [7,7]" do
+    common_setup
+    # user1 target: clump, user2 target: motel
+    log_in_as(@user)
+    post guesses_url({ game_state_id: @gs1.id, word: "clump" })
+    assert_redirected_to game_path(@game)
+    @gs1.reload
+    @gs2.reload
+    assert_equal [6, 2], [@gs1.state, @gs2.state]
+
+    log_in_as(@user2)
+    post guesses_url({ game_state_id: @gs2.id, word: "motel" })
+    assert_redirected_to game_path(@game)
+    @gs1.reload
+    @gs2.reload
+    assert_equal [7, 7], [@gs1.state, @gs2.state]
+  end
+
+  test "first-winner goes through states [2,2] => [6,2] => [8,9]" do
+    common_setup
+    # user1 target: clump, user2 target: motel
+    log_in_as(@user)
+    post guesses_url({ game_state_id: @gs1.id, word: "clump" })
+    assert_redirected_to game_path(@game)
+    @gs1.reload
+    @gs2.reload
+    assert_equal [6, 2], [@gs1.state, @gs2.state]
+
+    log_in_as(@user2)
+    post guesses_url({ game_state_id: @gs2.id, word: "stick" })
+    assert_redirected_to game_path(@game)
+    @gs1.reload
+    @gs2.reload
+    assert_equal [8,9], [@gs1.state, @gs2.state]
+  end
+
+  test "second-winner goes through states [2,2] => [3,2] => [9,8]" do
+    common_setup
+    # user1 target: clump, user2 target: motel
+    log_in_as(@user)
+    post guesses_url({ game_state_id: @gs1.id, word: "hotel" })
+    assert_redirected_to game_path(@game)
+    @gs1.reload
+    @gs2.reload
+    assert_equal [3, 2], [@gs1.state, @gs2.state]
+
+    log_in_as(@user2)
+    post guesses_url({ game_state_id: @gs2.id, word: "motel" })
+    assert_redirected_to game_path(@game)
+    @gs1.reload
+    @gs2.reload
+    assert_equal [9,8], [@gs1.state, @gs2.state]
+  end
+
+  def common_setup
+    @gs1.update_attribute(:finalWord, "motel")
+    @gs2.update_attribute(:finalWord, "clump")
+    log_in_as(@user)
+    post guesses_url({game_state_id: @gs1.id, word: "fjord"})
+    post guesses_url({game_state_id: @gs1.id, word: "nymph"})
+    post guesses_url({game_state_id: @gs1.id, word: "boxes"})
+    log_in_as(@user2)
+    post guesses_url({game_state_id: @gs2.id, word: "spawn"})
+    post guesses_url({game_state_id: @gs2.id, word: "dirty"})
+    post guesses_url({game_state_id: @gs2.id, word: "fleck"})
+    @gs1.reload
+    @gs2.reload
+    @gs1.update_attribute(:state, 2)
+    @gs2.update_attribute(:state, 2)
+  end
 end

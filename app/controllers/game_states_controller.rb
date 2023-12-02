@@ -12,8 +12,10 @@ class GameStatesController < ApplicationController
   # 3: guessed a valid word, waiting for other to guess
   # 4: pick a lie
   # 5: wait for other to pick a lie
-  # 6: I won, game over
-  # 7: I lost, game over
+  # 6: I won, waiting for other player's next result
+  # 7: It's a tie
+  # 8: I won, other player lost
+  # 9: I lost
 
   def show
     @game = @game_state.game
