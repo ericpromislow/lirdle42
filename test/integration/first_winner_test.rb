@@ -32,15 +32,6 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     assert_select "span#result1", "You got it in 4 guesses!"
     assert_select "button#shareResults", "Copy to Clipboard"
     assert_select "p", "Waiting to see if #{ @user2.username } gets it this turn..."
-
-    log_in_as(@user2)
-    post guesses_path, params: {game_state_id: @gs2.id, word:"madam" }
-    assert_redirected_to game_path(@game)
-    follow_redirect!
-    assert_template 'games/_show7'
-    assert_select "h1", "It's a tie!"
-    assert_select "span#result1", "You both got it in 4 guesses!"
-    assert_select "button#shareResults", "Copy to Clipboard"
     # targeting "block"
     expected = [
       { word: "space", score: "0:0:0:2:0", liePosition: 4, lieColor: 1, actualColor: 0 },
@@ -50,8 +41,10 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     ]
     verify_previous_perturbed_guesses(@user1.username, expected)
 
-    log_in_as(@user1)
-    get game_path(@game)
+    log_in_as(@user2)
+    post guesses_path, params: {game_state_id: @gs2.id, word:"madam" }
+    assert_redirected_to game_path(@game)
+    follow_redirect!
     assert_template 'games/_show7'
     assert_select "h1", "It's a tie!"
     assert_select "span#result1", "You both got it in 4 guesses!"
@@ -63,5 +56,19 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
       { word: "madam", score: "2:2:2:2:2", isCorrect: true },
     ]
     verify_previous_perturbed_guesses(@user2.username, expected)
+
+    log_in_as(@user1)
+    get game_path(@game)
+    assert_template 'games/_show7'
+    assert_select "h1", "It's a tie!"
+    assert_select "span#result1", "You both got it in 4 guesses!"
+    assert_select "button#shareResults", "Copy to Clipboard"
+    expected = [
+      { word: "space", score: "0:0:0:2:0", liePosition: 4, lieColor: 1, actualColor: 0 },
+      { word: "relic", score: "0:0:1:0:1", liePosition: 2, lieColor: 0, actualColor: 1 },
+      { word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, actualColor: 0 },
+      { word: "block", score: "2:2:2:2:2", isCorrect: true },
+    ]
+    verify_previous_perturbed_guesses(@user1.username, expected)
   end
 end
