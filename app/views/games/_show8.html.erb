@@ -1,0 +1,6 @@
+<h1>Congratulations, you won!</h1>
+<p><span id="result1">You got it in <%= pluralize(@game_state.guesses.size, "guess") %>!</span> |
+  <button class="button" type="button" id="shareResults">Copy to Clipboard</button></p>
+<p>
+
+<%= render 'games/final_guesses' %>
