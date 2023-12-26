@@ -156,13 +156,16 @@ function repopulateWaitingList(users) {
       } else {
         const div = document.createElement('div');
         div.classList.add("btn-group");
+        /*
+        invitations_path(from: user.id, to: u.id), method: :post, :remote => true %></li>
+         */
         div.innerHTML = `
           <button type="button btn btn-secondary" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
             ${user.username}<span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            <li><a href="#">Start a Game</a></li>
+            <li><a data-remote="true" rel="nofollow" data-method="post" href="/invitations?from=${ myID }&amp;to=${ user.id }">Start a Game</a></li>
           </ul>
         `;
         li.appendChild(div);
