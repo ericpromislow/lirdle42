@@ -40,35 +40,41 @@
   </div>
 </div>
 
-
-
 <%= form_with(model: game_state, remote: true) do |f| %>
   <%= hidden_field_tag :lie, "" %>
   <%= hidden_field_tag :game_state_id, game_state.id %>
-  <% %w/grey yellow green/.each_with_index do |other_color, row_num| %>
   <div class="row">
     <div class="col-md-12">
       <div class="letter-row-container">
-          <% 5.times do |col_num| %>
-            <div class="letter-row col-md-2">
+        <table class="table table-condensed">
+          <% %w/grey yellow green/.each_with_index do |other_color, row_num| %>
+            <tr>
+            <% 5.times do |col_num| %>
+            <td class="lie-picker">
               <% letter_color = colors[scores[col_num]]
-              if letter_color != other_color %>
-                <div class="letter-box filled-box background-<%= other_color %>">
-                  <span>&nbsp;</span>
-                </div>
-                <%= f.radio_button(:lie, "#{col_num}:#{scores[col_num]}:#{row_num}:#{other_color}") %>
+              if letter_color != other_color
+                value = "#{col_num}:#{scores[col_num]}:#{row_num}:#{other_color}"
+                %>
+                <label for="lie_#{value}">
+                  <div class="letter-box filled-box background-<%= other_color %>">
+                    <span>&nbsp;</span>
+                  </div>
+                </label>
+                <%= f.radio_button(:lie, value) %>
               <% else
                 bgColor = "background-#{ letter_color }" %>
                 <div class="letter-box filled-box <%= bgColor %>">
                   <span><%= lastGuessWord[col_num].downcase %></span>
                 </div>
               <% end %>
-            </div>
+            </td>
+            <% end %>
+            </tr>
           <% end %>
-        </div>
+        </table>
       </div>
     </div>
-  <% end %>
+  </div>
   <div class="row justify-content-center">
     <div class="col-md-offset-4 col-md-2">
     <%= f.submit "Submit Lie", class: "btn btn-primary" %>

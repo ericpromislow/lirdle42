@@ -119,9 +119,23 @@ h1 {
 }
 
 .letter-row-container {
-  display: flex;
+  /* display: flex; */
+  max-width: 8em;
+  table {
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--gray);
+    tr td.lie-picker {
+      border-width: 0px 1px;
+      border-style: solid;
+      border-color: var(--gray);
+      input {
+        border: red solid 1px;
+        float: right;
+      }
+    }
+  }
 }
-
 .letter-row {
   display: flex;
 }
