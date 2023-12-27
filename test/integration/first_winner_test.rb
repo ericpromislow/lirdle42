@@ -39,7 +39,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
       { word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, actualColor: 0 },
       { word: "block", score: "2:2:2:2:2", isCorrect: true },
     ]
-    verify_previous_perturbed_guesses(@user1.username, expected)
+    verify_previous_perturbed_guesses(@user1.username, expected, true)
 
     log_in_as(@user2)
     post guesses_path, params: {game_state_id: @gs2.id, word:"madam" }
@@ -47,7 +47,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_template 'games/_show7'
     assert_select "h1", "It's a tie!"
-    assert_select "span#result1", "You both got it in 4 guesses!"
+    assert_select "span#result-tie", "You both got it in 4 guesses!"
     assert_select "button#shareResults", "Copy to Clipboard"
     expected = [
       { word: "triad", score: "0:0:0:2:1", liePosition: 0, lieColor: 2, actualColor: 0 },
@@ -55,13 +55,13 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
       { word: "tidal", score: "0:0:2:2:0", liePosition: 3, lieColor: 0, actualColor: 2 },
       { word: "madam", score: "2:2:2:2:2", isCorrect: true },
     ]
-    verify_previous_perturbed_guesses(@user2.username, expected)
+    verify_previous_perturbed_guesses(@user2.username, expected, true)
 
     log_in_as(@user1)
     get game_path(@game)
     assert_template 'games/_show7'
     assert_select "h1", "It's a tie!"
-    assert_select "span#result1", "You both got it in 4 guesses!"
+    assert_select "span#result-tie", "You both got it in 4 guesses!"
     assert_select "button#shareResults", "Copy to Clipboard"
     expected = [
       { word: "space", score: "0:0:0:2:0", liePosition: 4, lieColor: 1, actualColor: 0 },
@@ -69,7 +69,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
       { word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, actualColor: 0 },
       { word: "block", score: "2:2:2:2:2", isCorrect: true },
     ]
-    verify_previous_perturbed_guesses(@user1.username, expected)
+    verify_previous_perturbed_guesses(@user1.username, expected, true)
   end
 
   test "user1 with correct word moves to template 6 and user2 is wrong so they go to states 8 and 9 resp" do
@@ -89,7 +89,8 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
       { word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, actualColor: 0 },
       { word: "block", score: "2:2:2:2:2", isCorrect: true },
     ]
-    verify_previous_perturbed_guesses(@user1.username, expected)
+    # puts response.body
+    verify_previous_perturbed_guesses(@user1.username, expected, true)
 
     log_in_as(@user2)
     post guesses_path, params: {game_state_id: @gs2.id, word:"medal" }
@@ -105,7 +106,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
       { word: "tidal", score: "0:0:2:2:0", liePosition: 3, lieColor: 0, actualColor: 2 },
       { word: "medal", score: "2:0:2:2:0", isCorrect: false },
     ]
-    verify_previous_perturbed_guesses(@user2.username, expected)
+    verify_previous_perturbed_guesses(@user2.username, expected, true)
 
     log_in_as(@user1)
     get game_path(@game)
@@ -119,7 +120,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
       { word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, actualColor: 0 },
       { word: "block", score: "2:2:2:2:2", isCorrect: true },
     ]
-    verify_previous_perturbed_guesses(@user1.username, expected)
+    verify_previous_perturbed_guesses(@user1.username, expected, true)
   end
 
   test "user1 still not right, and user2 is correct so they go to states 9 and 8 resp" do
@@ -145,7 +146,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
       { word: "tidal", score: "0:0:2:2:0", liePosition: 3, lieColor: 0, actualColor: 2 },
       { word: "madam", score: "2:2:2:2:2", isCorrect: true },
     ]
-    verify_previous_perturbed_guesses(@user2.username, expected)
+    verify_previous_perturbed_guesses(@user2.username, expected, true)
 
     log_in_as(@user1)
     get game_path(@game)
@@ -159,6 +160,6 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
       { word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, actualColor: 0 },
       { word: "fleck", score: "0:2:0:2:2", isCorrect: false },
     ]
-    verify_previous_perturbed_guesses(@user1.username, expected)
+    verify_previous_perturbed_guesses(@user1.username, expected, true)
   end
 end

@@ -107,7 +107,7 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
       { word: "relic", score: "0:0:1:0:1", liePosition: 2, lieColor: 0, actualColor: 1 },
       { word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, actualColor: 0 },
     ]
-    verify_previous_perturbed_guesses(@user1.username, expected)
+    verify_previous_perturbed_guesses(@user1.username, expected, false)
     # @gs1.guesses.create(word: "space", score: "0:0:0:2:0", liePosition: 4, lieColor: 1, guessNumber: 0)
     # @gs1.guesses.create(word: "relic", score: "0:0:1:0:1", liePosition: 2, lieColor: 0, guessNumber: 1)
     # @gs1.guesses.create(word: "deuce", score: "0:0:0:2:0", liePosition: 2, lieColor: 2, guessNumber: 2)
@@ -130,7 +130,7 @@ class GuessingWords02Test < ActionDispatch::IntegrationTest
       { word: "tonal", score: "0:0:0:2:0", liePosition: 4, lieColor: 2, actualColor: 0 },
       { word: "tidal", score: "0:0:2:2:0", liePosition: 3, lieColor: 0, actualColor: 2 },
     ]
-    verify_previous_perturbed_guesses(@user2.username, expected)
+    verify_previous_perturbed_guesses(@user2.username, expected, false)
 
   end
 
