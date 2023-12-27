@@ -24,19 +24,22 @@
   letterBoxClassListArrayBase = ['letter-box', 'filled-box', letterBoxSizeClassName]
 %>
 <div class="row">
-  <div class="col-md-12">
 <h2>Time to Pick A Lie</h2>
-  </div>
+</div>
+<div class="row">
+<p>Click the circle under one of the colored squares to change the color
+that your opponent will see.
+</p>
 </div>
 
 <div class="row targetWord">
   <div class="col-md-12">
-    <p>Target Word: <%= game_state.finalWord %></p>
+    <p>Target Word: <b><%= game_state.finalWord %></b></p>
   </div>
 </div>
 <div class="row currentGuess">
   <div class="col-md-12">
-    <p>Their Current Guess: <%= lastGuessWord %></p>
+    <p>Their Current Guess: <b><%= lastGuessWord %></b></p>
   </div>
 </div>
 
@@ -81,4 +84,40 @@
     </div>
   </div>
 <% end %>
+<% if guesses.size > 1 %>
 <%= render 'games/previous_guesses' %>
+<% else %>
+This is their first guess.
+<% end %>
+
+<script type="text/javascript">
+  console.log("QQQ: Hey we've got scripting in _show4!");
+  var submitButton = null;
+  var lieField = null;
+
+  function radioButtonChanged(event) {
+    if (!submitButton) {
+      return;
+    }
+    lieField.value = event.target.value;
+    submitButton.disabled = false;
+  }
+
+  $(document).ready(() => {
+    try {
+      submitButton = document.querySelector('form input[type="submit"]');
+      if (!submitButton) {
+        debugger;
+      }
+      submitButton.disabled = true;
+      lieField = document.querySelector('form input#lie');
+      const buttons = document.querySelectorAll('input[name="game_state[lie]"]');
+      buttons.forEach((button) => {
+        button.addEventListener('change', radioButtonChanged);
+      });
+    } catch(ex) {
+      console.log(`Problem in startup: ${ ex }`);
+      console.error(ex);
+    }
+  });
+</script>

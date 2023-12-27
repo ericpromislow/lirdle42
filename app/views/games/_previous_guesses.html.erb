@@ -59,34 +59,3 @@
     </div>
   </div>
 </div>
-<script type="text/javascript">
-  console.log("QQQ: Hey we've got scripting in _show4!");
-  var submitButton = null;
-  var lieField = null;
-
-  function radioButtonChanged(event) {
-    if (!submitButton) {
-      return;
-    }
-    lieField.value = event.target.value;
-    submitButton.disabled = false;
-  }
-
-  $(document).ready(() => {
-    try {
-      submitButton = document.querySelector('form input[type="submit"]');
-      if (!submitButton) {
-        debugger;
-      }
-      submitButton.disabled = true;
-      lieField = document.querySelector('form input#lie');
-      const buttons = document.querySelectorAll('input[name="game_state[lie]"]');
-      buttons.forEach((button) => {
-        button.addEventListener('change', radioButtonChanged);
-      });
-    } catch(ex) {
-      console.log(`Problem in startup: ${ ex }`);
-      console.error(ex);
-    }
-  });
-</script>

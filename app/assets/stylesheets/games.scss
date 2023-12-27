@@ -51,27 +51,29 @@ h1 {
   user-select: none;
 }
 
-#game-board.small1 .letter-row .letter-box {
-  font-size: 2rem;
+#game-board .letter-row .letter-box.small1 {
+  font-size: 3rem;
   font-weight: 600;
-  height: 2.5rem;
-  width: 2.5rem;
+  min-height: 3.5rem;
+  max-height: 3.5rem;
+  min-width: 3.5rem;
+  max-width: 3.5rem;
 }
 
-#game-board.small2 .letter-row .letter-box {
+#game-board .letter-row .letter-box.small2 {
   font-size: 1.5rem;
   font-weight: 500;
   height: 2rem;
   width: 2rem;
 }
 
-#game-board.small3 .letter-row .letter-box {
+#game-board .letter-row .letter-box.small3 {
   font-size: 1rem;
   font-weight: 400;
   height: 1.5rem;
   width: 1.5rem;
 }
-#game-board.small4 .letter-row .letter-box {
+#game-board .letter-row .letter-box.small4 {
   font-size: 0.7rem;
   font-weight: 400;
   height: 1rem;
