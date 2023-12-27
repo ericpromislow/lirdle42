@@ -164,11 +164,24 @@ function repopulateWaitingList(users) {
                   aria-haspopup="true" aria-expanded="false">
             ${user.username}<span class="caret"></span>
           </button>
-          <ul class="dropdown-menu">
-            <li><a data-remote="true" rel="nofollow" data-method="post" href="/invitations?from=${ myID }&amp;to=${ user.id }">Start a Game</a></li>
+          <ul class="dropdown-menu need-a-boost">
+            <li class="needy-dropdown-menuitem"><a data-remote="true" rel="nofollow" data-method="post" href="/invitations?from=${ myID }&amp;to=${ user.id }">Start a Game</a></li>
           </ul>
         `;
         li.appendChild(div);
+        setImmediate(() => {
+          document.querySelector('button.dropdown-toggle')
+            .addEventListener('click', (event) => {
+              const li = event.target.parentElement.querySelector('li.needy-dropdown-menuitem');
+              if (!li) {
+                console.log('No list item?');
+                return;
+              }
+              setImmediate(() => {
+                li.scrollIntoView();
+              });
+            });
+        });
       }
 
       waitingList.appendChild(li);
