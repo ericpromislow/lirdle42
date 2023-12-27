@@ -1,5 +1,12 @@
-<h1>It's a tie!</h1>
-<p><span id="result1">You both got it in <%= pluralize(@game_state.guesses.size, "guess") %>!</span> |
-  <button class="button" type="button" id="shareResults">Copy to Clipboard</button></p>
-
+<div class="row">
+  <div class="col-md-4 col-md-offset-4">
+    <h1>It's a tie!</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-4 col-md-offset-4">
+    <span id="result-tie">You both got it in <%= pluralize(@game_state.guesses.size, "guess") %>!</span> |
+    <button class="button" type="button" id="shareResults">Copy to Clipboard</button>
+  </div>
+</div>
 <%= render 'games/final_guesses' %>

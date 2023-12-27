@@ -21,8 +21,17 @@
 %>
 
 <div class="previous-guesses">
-  <h2>Previous guesses with lies for <%= @user.username %>:</h2><div class="row">
-  <div class="col-md-12">
+  <div class="row">
+    <div class="col-md-12">
+      <% if @game_state.state == 4 %>
+      <h2>Previous guesses with lies for <%= @user.username %>:</h2><div class="row">
+      <% else %>
+      <h2>Your guesses:</h2>
+      <% end %>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
     <div id="game-board">
       <% guesses.each_with_index do |guess, row_num| %>
         <%
@@ -53,6 +62,7 @@
         </div>
       <% end %>
     </div>
+  </div>
   </div>
 </div>
   <!--
