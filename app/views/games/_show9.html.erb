@@ -1,4 +1,12 @@
-<h1>Sorry, you lost to <%= @other_player.username %></h1>
-<h2>Your word was <%= @other_state.finalWord %></h2>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="h1">Sorry, you lost to <%= @other_player.username %></div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="h2">Your word was: <b><%= @other_state.finalWord %></b></div>
+  </div>
+</div>
 
 <%= render 'games/final_guesses' %>

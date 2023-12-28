@@ -97,8 +97,8 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     assert_redirected_to game_path(@game)
     follow_redirect!
     assert_template 'games/_show9'
-    assert_select "h1", "Sorry, you lost to #{ @user1.username }"
-    assert_select "h2", "Your word was #{ @gs1.finalWord }"
+    assert_select "div.h1", "Sorry, you lost to #{ @user1.username }"
+    assert_select "div.h2", "Your word was: #{ @gs1.finalWord }"
     # Targeting madam
     expected = [
       { word: "triad", score: "0:0:0:2:1", liePosition: 0, lieColor: 2, actualColor: 0 },
@@ -151,8 +151,8 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     log_in_as(@user1)
     get game_path(@game)
     assert_template 'games/_show9'
-    assert_select "h1", "Sorry, you lost to #{ @user2.username }"
-    assert_select "h2", "Your word was #{ @gs2.finalWord }"
+    assert_select "div.h1", "Sorry, you lost to #{ @user2.username }"
+    assert_select "div.h2", "Your word was: #{ @gs2.finalWord }"
     # targeting "block"
     expected = [
       { word: "space", score: "0:0:0:2:0", liePosition: 4, lieColor: 1, actualColor: 0 },

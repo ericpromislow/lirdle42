@@ -1,8 +1,20 @@
-Need to timeout stale invitations...
+1. Dealing with stale invitations...
 
-Need to harvest old invitations.
+When about to invite a user, check for existing invitations:
+- delete any existing invitations from the current user to the invitee
+  - send a signal to the invitee that will clear any modals.
+- cancel any invitations from A to other users, and send a signal to clear
+  a modal
+- check any other invitations to that user. If they're more than 10 mins.
+  old, delete and send modal-clearing signals
+- ask about newer invitations...
 
-End-game: Play another, or not and delete the current game.
+Use a cron job to delete any invitations that are > 1 hour old.
+
+2. End-game: Play another, or not and delete the current game.
+
+3. When a user joins, see if they're in the middle of a game. If so,
+   put them there.
 
 Fix copy-to-clipboard.
 

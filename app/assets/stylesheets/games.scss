@@ -189,7 +189,7 @@ h2.collapsible.show span {
   padding: 2px 20px 2px 20px;
 }
 
-div.h2 {
+div.h2.uppercase {
   text-transform: uppercase;
 }
 
@@ -221,10 +221,6 @@ div.summary.hidden{
 }
 div.summary.show {
   visibility: visible;
-}
-
-footer {
-  padding: 0;
 }
 
 div#whats-new {
