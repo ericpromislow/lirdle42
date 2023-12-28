@@ -124,8 +124,10 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     log_in_as(@user1)
     get game_path(@game)
     assert_template 'games/_show4'
-    assert_select 'p', %Q/Target Word: knell/
-    assert_select 'p', %Q/Their Current Guess: lemon/
+    # put response.body
+    assert_select 'p', %r/Click the circle under one of the colored squares to change the color/
+    assert_select 'div.targetWord p', %r/Target word:.*knell/
+    assert_select 'div.currentGuess p', %r/Their current guess:.*lemon/
     expected = [%w/grey/, %w/grey/, %w/m grey/, %w/o grey/, %w/grey/,
       %w/l yellow/, %w/e yellow/, %w/yellow/, %w/yellow/, %w/n yellow/,
       %w/green/, %w/green/, %w/green/, %w/green/, %w/green/,
@@ -135,8 +137,8 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     log_in_as(@user2)
     get game_path(@game)
     assert_template 'games/_show4'
-    assert_select 'p', %Q/Target Word: baton/
-    assert_select 'p', %Q/Their Current Guess: paint/
+    assert_select 'div.targetWord p', %r/Target word:.*baton/
+    assert_select 'div.currentGuess p', %r/Their current guess:.*paint/
 
     expected = [%w/p grey/, %w/grey/, %w/i grey/, %w/grey/, %w/grey/,
                 %w/yellow/, %w/yellow/, %w/yellow/, %w/n yellow/, %w/t yellow/,

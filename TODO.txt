@@ -1,3 +1,11 @@
+Need to timeout stale invitations...
+
+Need to harvest old invitations.
+
+End-game: Play another, or not and delete the current game.
+
+Fix copy-to-clipboard.
+
 Consider using the 'profanity_filter' gem and flagging anything if
 finds for moderator review.
 
@@ -5,14 +13,11 @@ Next:
 
 - When a user is added to the list of waiters, scroll to show them
 
-- Bring in active-channel (not coffeescript), to maintain the list of users in the home page
-
-- Turn the list of names to links => create_invitation(from:ID, to:ID)
-
 - Don't allow a back button, particularly when selecting a word
 
 - Send every change to the server: current-word, and marks on each selected letter
 
 Done:
 - Stop redirecting to the user's page -- it's not important
-
+- Bring in active-channel (not coffeescript), to maintain the list of users in the home page
+- Turn the list of names to links => create_invitation(from:ID, to:ID)
