@@ -1,8 +1,11 @@
 1. Dealing with stale invitations...
 
 When about to invite a user, check for existing invitations:
-- delete any existing invitations from the current user to the invitee
-  - send a signal to the invitee that will clear any modals.
+[x] - delete any existing invitations from the current user to the invitee
+  [x] - send a signal to the invitee that will clear any modals.
+[x] - when entering a static-page, if there's an invite in progress show the modal...
+  [x] - for the recipient
+  [] - for the sender
 - cancel any invitations from A to other users, and send a signal to clear
   a modal
 - check any other invitations to that user. If they're more than 10 mins.
@@ -11,10 +14,12 @@ When about to invite a user, check for existing invitations:
 
 Use a cron job to delete any invitations that are > 1 hour old.
 
-2. End-game: Play another, or not and delete the current game.
+2. End-game: Play another.
 
 3. When a user joins, see if they're in the middle of a game. If so,
    put them there.
+
+   Add helper: game.is_in_progress: game_states.all { |gs| gs.state >= X }
 
 Fix copy-to-clipboard.
 

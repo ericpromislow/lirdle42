@@ -4,6 +4,7 @@ let myID = null;
 let waitingForReplyTimeout = 0;
 let globalMessage = null;
 let globalInvitationMessage = null;
+const handlers = {};
 consumer.subscriptions.create("MainChannel", {
   async connected() {
     console.log(`QQQ: connected!`);
@@ -57,7 +58,7 @@ consumer.subscriptions.create("MainChannel", {
       // console.log(`QQQ: received message ${JSON.stringify(data)}`);
       processInvitationAccepted(data.message);
     } else if (data.type === 'reloadGame') {
-      console.log(`QQQ: got an reloadGame for ${data.message.to}, my ID is ${myID}`);
+      console.log(`QQQ: got a reloadGame for ${data.message.to}, my ID is ${myID}`);
       console.log(`QQQ: received message ${JSON.stringify(data)}`);
       if (data.message.to != myID) {
         return;
@@ -198,6 +199,7 @@ function processInvitation(message) {
     return processInvitationForSender(message);
   } else if (message.to == myID) {
     // console.log(`QQQ: Looking at my invitation from ${message.from}`);
+    handlers.setGotAnInvitationHandlers();
     return processInvitationForRecipient(message);
   } else {
     console.log(`QQQ: Ignore the invitation, I'm # ${ myID }`, message);
@@ -228,6 +230,7 @@ function processInvitationForSender(message) {
       console.log(`Awp: Can't find modal #waiting-for-repl`);
       return;
     }
+    handlers.setWaitingForReplyHandlers();
     document.querySelector('#waiting-for-reply #waiting-for-reply-target').textContent = message.toUsername;
     modal.modal();
     console.log(`QQQ: should see the modal now`);
@@ -248,9 +251,9 @@ function processInvitationForSender(message) {
 }
 
 function processInvitationCancellation(message) {
-  $('#got-an-invitation').toggle();
+  $('#got-an-invitation').hide();
   setImmediate(() => {
-  alert(`${ message.fromUsername } is no longer waiting: ${ message.message }`);
+    console.log(`${ message.fromUsername } is no longer waiting: ${ message.message }`);
   });
   // document.querySelector('#got-an-invitation #got-an-invitation-sender').textContent = `${ message.fromUsername } is no longer waiting: ${ message.message }`;
 }
@@ -269,42 +272,51 @@ $(document).ready(async () => {
   } catch(e) {
     console.log(`Failed to get my userID: ${ e }`);
   }
-  $("#waiting-for-reply-cancel").click(async () => {
-    console.log(`QQQ: Sender clicked cancel`);
-    fetch(`/invitations/${ globalMessage.id }?from=${ myID }&flash=cancelled`, { mode: 'cors', cache: 'no-cache',
-      credentials: "same-origin", // include, *same-origin, omit
-      method: 'DELETE' });
-    clearTimeout(waitingForReplyTimeout);
-    waitingForReplyTimeout = 0;
-  });
+  handlers.setWaitingForReplyHandlers = () => {
+    $("#waiting-for-reply-cancel").click(async () => {
+      // console.log(`QQQ: Sender clicked cancel, globalMessage: #{ globalMessage }`);
+      fetch(`/invitations/${globalMessage.id}?from=${myID}&flash=cancelled`, {
+        mode: 'cors', cache: 'no-cache',
+        credentials: "same-origin", // include, *same-origin, omit
+        method: 'DELETE'
+      });
+      clearTimeout(waitingForReplyTimeout);
+      waitingForReplyTimeout = 0;
+    });
+  };
 
-  $("#got-an-invitation-ok").click(async () => {
-    // Chrome clears the console on location.href change, so don't write too much there at this point
-    console.log(`QQQ: Handling got-an-invitation-ok: Recipient clicked OK!`);
-    console.log(`QQQ: global-message: `, globalInvitationMessage)
-    $.post('/games.json', { playerA: globalInvitationMessage['to'], playerB: globalInvitationMessage['from']})
+  handlers.setGotAnInvitationHandlers = () => {
+    $("#got-an-invitation-ok").click(async () => {
+      // Chrome clears the console on location.href change, so don't write too much there at this point
+      // console.log(`QQQ: Handling got-an-invitation-ok: Recipient clicked OK!`);
+      // console.log(`QQQ: global-message: `, globalInvitationMessage)
+      $.post('/games.json', {playerA: globalInvitationMessage['to'], playerB: globalInvitationMessage['from']})
         .done((data) => {
-          console.log(`QQQ: post games => ${ data }`, data);
+          // console.log(`QQQ: post games => ${data}`, data);
           console.table(data);
           // alert(`QQQ: post games => ${ JSON.stringify(data) }`);
-          const url = `/invitations/${ globalInvitationMessage.id }?originator=${ globalInvitationMessage['from'] }&reason=accepted&game_id=${ data.location.id }`;
+          const url = `/invitations/${globalInvitationMessage.id}?originator=${globalInvitationMessage['from']}&reason=accepted&game_id=${data.location.id}`;
           // alert(`QQQ: post games => game_id=${ data.location.id }, url: ${ url }`);
           $.ajax({
-              url,
-              type: 'DELETE' ,
-              success: (result) => {
-            // console.log(`QQQ: delete worked? ${ result }`);
-          } });
+            url,
+            type: 'DELETE',
+            success: (result) => {
+              // console.log(`QQQ: delete worked? ${ result }`);
+            }
+          });
           // console.log(`QQQ: - setting location.href...`);
-          window.location.href = `/games/${ data.location.id }`;
+          window.location.href = `/games/${data.location.id}`;
           // console.log(`QQQ: + setting location.href...`);
         });
-  });
+    });
 
-  $("#got-an-invitation-cancel").click(async () => {
-    console.log(`QQQ: Recipient clicked Cancel!`);
-    fetch(`/invitations/${ globalMessage.id }?originator=${ myID }&reason=declined`, { mode: 'cors', cache: 'no-cache',
-      credentials: "same-origin", // include, *same-origin, omit
-      method: 'PATCH' });
-  });
+    $("#got-an-invitation-cancel").click(async () => {
+      // console.log(`QQQ: Recipient clicked Cancel!`);
+      fetch(`/invitations/${globalMessage.id}?originator=${myID}&reason=declined`, {
+        mode: 'cors', cache: 'no-cache',
+        credentials: "same-origin", // include, *same-origin, omit
+        method: 'PATCH'
+      });
+    });
+  };
 });
