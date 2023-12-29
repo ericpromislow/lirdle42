@@ -102,6 +102,15 @@
         credentials: "same-origin", // include, *same-origin, omit
         method: 'PATCH' });
     });
+
+    $("#waiting-for-reply-cancel").click(async () => {
+      // console.log(`QQQ: Sender clicked cancel, globalMessage: #{ globalMessage }`);
+      fetch(`/invitations/${ inviteID }?from=${ myID }&flash=cancelled`, {
+        mode: 'cors', cache: 'no-cache',
+        credentials: "same-origin", // include, *same-origin, omit
+        method: 'DELETE'
+      });
+    });
     <%#
        @globalInvitationMessage = { chatroom: 'main', type: 'invitation',
           message: { id: inv.id, from: inv.from, to: inv.to,

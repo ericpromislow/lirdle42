@@ -5,7 +5,7 @@ When about to invite a user, check for existing invitations:
   [x] - send a signal to the invitee that will clear any modals.
 [x] - when entering a static-page, if there's an invite in progress show the modal...
   [x] - for the recipient
-  [] - for the sender
+  [x] - for the sender
 - cancel any invitations from A to other users, and send a signal to clear
   a modal
 - check any other invitations to that user. If they're more than 10 mins.

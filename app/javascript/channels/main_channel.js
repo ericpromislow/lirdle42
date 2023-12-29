@@ -251,10 +251,16 @@ function processInvitationForSender(message) {
 }
 
 function processInvitationCancellation(message) {
-  $('#got-an-invitation').hide();
+  try {
+    $('#got-an-invitation').hide();
+  } catch(ex) {
+    console.log(`Error trying to hide a modal: ${ ex }`);
+  }
   setImmediate(() => {
     console.log(`${ message.fromUsername } is no longer waiting: ${ message.message }`);
   });
+  // For some reason we need to reload with the modal hidden.
+  window.location.reload();
   // document.querySelector('#got-an-invitation #got-an-invitation-sender').textContent = `${ message.fromUsername } is no longer waiting: ${ message.message }`;
 }
 
