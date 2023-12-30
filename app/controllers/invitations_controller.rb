@@ -10,38 +10,34 @@ class InvitationsController < ApplicationController
     to_id = i_params[:to]
     from_user = User.find(from_id) rescue nil
     to_user = User.find(to_id) rescue nil
+    # debugger
     if !from_user || !to_user
       flash[:danger] = 'Incomplete invitation'
     elsif from_user != current_user
       flash[:danger] = "Third-party invitation not supported"
     else
-      Invitation.where(from:from_id).find_each do |inv|
-       # Delete any existing invitations that the current user has sent to others, including
-       # the current ivitee
-
-      ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationCancelled',
-        message: { id: inv.id, from: from_id, to: to_id,
-          toUsername: to_user.username,
-          fromUsername: from_user.username,
-        } }
-      inv.destroy
-     end
-      other_invitations = Invitation.where(to: from_id)
-      oicount = other_invitations.count
+      clear_old_invitations(from_id, to_id, from_user, to_user)
+      oicount = Invitation.where(to: from_id).count
       if oicount > 0
-        flash[:danger] = "There #{ "is".pluralize(oicount) } currently #{ oicount } #{ "invitation".pluralize(oicount) } to #{ from_user.username }"
+        flash[:danger] = "#{ from_user.username } is currently considering an invitation from someone else."
       else
-        invitation = Invitation.new(i_params)
-        if invitation.save
-          ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitation',
-                                                 message: { id: invitation.id, from: from_id, to: to_id,
-                                                            toUsername: to_user.username,
-                                                            fromUsername: from_user.username,
-                                                 } }
-          head :ok
-          return
+        other_invitations = Invitation.where(from: to_id)
+        oicount = other_invitations.count
+        if oicount > 0
+          flash[:danger] = "#{ to_user.username } has already invited someone else."
         else
-          flash[:danger] = "Failed to save the invitation: #{ invitation.errors.full_messages }"
+          invitation = Invitation.new(i_params)
+          if invitation.save
+            ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitation',
+                                                   message: { id: invitation.id, from: from_id, to: to_id,
+                                                              toUsername: to_user.username,
+                                                              fromUsername: from_user.username,
+                                                   } }
+            head :ok
+            return
+          else
+            flash[:danger] = "Failed to save the invitation: #{ invitation.errors.full_messages }"
+          end
         end
       end
     end
@@ -133,6 +129,47 @@ private
     headers["Access-Control-Allow-Methods"] = %w{GET POST PUT DELETE}.join(",")
     headers["Access-Control-Allow-Headers"] = %w{Origin Accept Content-Type X-Requested-With X-CSRF-Token}.join(",")
     #head(:ok) if request.request_method == "DELETE" && ENV['RAILS_ENV'] != 'test'
+  end
+
+  DeadInvitations = 60
+  LiveInvitationInterval = 15
+
+  def clear_old_invitations(from_id, to_id, from_user, to_user)
+    Invitation.where(updated_at: ..DeadInvitations.minutes.ago).find_each do |inv|
+      inv_from_user = User.find(inv.from) rescue nil
+      inv_to_user = User.find(inv.to) rescue nil
+      ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationCancelled',
+        message: { id: inv.id, from: inv.from, to: to_id,
+          toUsername: (inv_to_user.username rescue ''),
+          fromUsername: (inv_from_user.username rescue ''),
+        } }
+      inv.destroy
+    end
+    # Clear anything from the current user (the 'from')
+    Invitation.where(from:from_id).find_each do |inv|
+      # Delete any existing invitations that the current user has sent to others, including
+      # the current invitee
+
+      inv_to_user = User.find(inv.to) rescue nil
+      ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationCancelled',
+        message: { id: inv.id, from: from_id, to: inv.to,
+          toUsername: (inv_to_user.username rescue ''),
+          fromUsername: from_user.username,
+        } }
+      inv.destroy
+    end
+    # Delete older invitations that the target might have received
+    Invitation.where(to:to_id, updated_at: ..LiveInvitationInterval.minutes.ago).find_each do |inv|
+      inv_from_user = User.find(inv.from) rescue nil
+      if inv_from_user
+        ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationCancelled',
+          message: { id: inv.id, from: inv.from, to: to_id,
+            toUsername: to_user.username,
+            fromUsername: inv_from_user.username,
+          } }
+      end
+      inv.destroy
+    end
   end
 
 end
