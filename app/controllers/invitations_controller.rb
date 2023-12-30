@@ -15,16 +15,17 @@ class InvitationsController < ApplicationController
     elsif from_user != current_user
       flash[:danger] = "Third-party invitation not supported"
     else
-      Invitation.where(from:from_id, to:to_id).find_each do |inv|
-        # Delete any existing invitations that involve the same users
+      Invitation.where(from:from_id).find_each do |inv|
+       # Delete any existing invitations that the current user has sent to others, including
+       # the current ivitee
 
-        ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationCancelled',
-          message: { id: inv.id, from: from_id, to: to_id,
-            toUsername: to_user.username,
-            fromUsername: from_user.username,
-          } }
-        inv.destroy
-      end
+      ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationCancelled',
+        message: { id: inv.id, from: from_id, to: to_id,
+          toUsername: to_user.username,
+          fromUsername: from_user.username,
+        } }
+      inv.destroy
+     end
       other_invitations = Invitation.where(to: from_id)
       oicount = other_invitations.count
       if oicount > 0
