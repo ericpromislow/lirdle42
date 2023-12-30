@@ -8,13 +8,15 @@ When about to invite a user, check for existing invitations:
   [x] - for the sender
 [x] - cancel any invitations from A to other users, and send a signal to clear
   a modal
-- check any other invitations to that user. If they're more than 10 mins.
+[x] - check any other invitations to that user. If they're more than 30 mins.
   old, delete and send modal-clearing signals
-- ask about newer invitations...
 
+LATER:
 Use a cron job to delete any invitations that are > 1 hour old.
 
-2. End-game: Play another.
+2. End-game things:
+ [ ] - concede -> A conceded, with words. B conceded, with the words & guesses
+ [ ] - Play another?
 
 3. When a user joins, see if they're in the middle of a game. If so,
    put them there.

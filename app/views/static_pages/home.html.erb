@@ -79,7 +79,7 @@
       console.log(`Awp: Can't find modal #got-an-invitation`);
       return;
     }
-    modal.modal();
+    modal.modal('show');
 
     if (messageIsToInvitee) {
       $("#got-an-invitation-ok").click(async () => {

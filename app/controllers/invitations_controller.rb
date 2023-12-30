@@ -17,26 +17,30 @@ class InvitationsController < ApplicationController
       flash[:danger] = "Third-party invitation not supported"
     else
       clear_old_invitations(from_id, to_id, from_user, to_user)
-      oicount = Invitation.where(to: from_id).count
+      oicount = Invitation.where(to: to_id).count
       if oicount > 0
-        flash[:danger] = "#{ from_user.username } is currently considering an invitation from someone else."
+        flash[:danger] = "#{ to_user.username } is currently considering an invitation from someone else."
       else
-        other_invitations = Invitation.where(from: to_id)
-        oicount = other_invitations.count
+        oicount = Invitation.where(to: from_id).count
         if oicount > 0
-          flash[:danger] = "#{ to_user.username } has already invited someone else."
+          flash[:danger] = "#{ from_user.username } has an invitation to another game."
         else
-          invitation = Invitation.new(i_params)
-          if invitation.save
-            ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitation',
-                                                   message: { id: invitation.id, from: from_id, to: to_id,
-                                                              toUsername: to_user.username,
-                                                              fromUsername: from_user.username,
-                                                   } }
-            head :ok
-            return
+          oicount = Invitation.where(from: to_id).count
+          if oicount > 0
+            flash[:danger] = "#{ to_user.username } has already invited someone else."
           else
-            flash[:danger] = "Failed to save the invitation: #{ invitation.errors.full_messages }"
+            invitation = Invitation.new(i_params)
+            if invitation.save
+              ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitation',
+                                                     message: { id: invitation.id, from: from_id, to: to_id,
+                                                                toUsername: to_user.username,
+                                                                fromUsername: from_user.username,
+                                                     } }
+              head :ok
+              return
+            else
+              flash[:danger] = "Failed to save the invitation: #{ invitation.errors.full_messages }"
+            end
           end
         end
       end

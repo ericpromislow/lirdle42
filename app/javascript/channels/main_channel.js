@@ -93,7 +93,7 @@ function processInvitationEnding(message) {
   }
   clearTimeout(waitingForReplyTimeout);
   const modal = $('#waiting-for-reply');
-  modal.modal('toggle');
+  modal.modal('hide');
 }
 
 function updateMyAddRemoveLabel(status) {
@@ -215,7 +215,7 @@ function processInvitationForRecipient(message) {
       return;
     }
     document.querySelector('#got-an-invitation #got-an-invitation-sender').textContent = message.fromUsername;
-    modal.modal();
+    modal.modal('show');
     // console.log(`QQQ: should see the modal now`);
   } catch(e) {
     console.error(`Failed to show the modal: ${ e }`);
@@ -232,17 +232,17 @@ function processInvitationForSender(message) {
     }
     handlers.setWaitingForReplyHandlers();
     document.querySelector('#waiting-for-reply #waiting-for-reply-target').textContent = message.toUsername;
-    modal.modal();
+    modal.modal('show');
     console.log(`QQQ: should see the modal now`);
     waitingForReplyTimeout = setTimeout(() => {
       fetch(`/invitations/${ message.id }?from=${ myID }&flash=timed%20out`, { mode: 'cors', cache: 'no-cache',
           credentials: "same-origin", // include, *same-origin, omit
           method: 'DELETE' });
-      modal.modal('toggle');
+      modal.modal('hide');
       const timeoutModal = $('#waiting-for-reply-timeout');
       if (timeoutModal) {
-        timeoutModal.modal();
-        setTimeout(() => timeoutModal.modal('toggle'), 2_000);
+        timeoutModal.modal('show');
+        setTimeout(() => timeoutModal.modal('hide'), 2_000);
       }
     }, 120 * 1000);
   } catch(e) {

@@ -20,7 +20,7 @@ class MakingInvitationsTest < ActionDispatch::IntegrationTest
     assert_template "static_pages/home"
     assert_not flash.empty?
     # puts "QQQ: #{ response.body }"
-    assert_select 'div.alert-danger', "user2 is currently considering an invitation from someone else."
+    assert_select 'div.alert-danger', "user2 has an invitation to another game."
   end
 
   test "If A->B, then B->C fails" do
@@ -37,6 +37,6 @@ class MakingInvitationsTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_template "static_pages/home"
     assert_not flash.empty?
-    assert_select 'div.alert-danger', "user2 is currently considering an invitation from someone else."
+    assert_select 'div.alert-danger', "user2 has an invitation to another game."
   end
 end
