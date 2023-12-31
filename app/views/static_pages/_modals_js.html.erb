@@ -1,0 +1,76 @@
+<script type="text/javascript">
+  $(document).ready(() => {
+    <% if @globalInvitationMessage && @globalInvitationMessage[:type] == 'invitation' %>
+    const globalInvitationMessage = "<%= JSON.dump(@globalInvitationMessage) %>";
+    const inviteID = <%= @globalInvitationMessage[:message][:id] %>;
+    const toID = <%= @globalInvitationMessage[:message][:to] %>;
+    const fromID = <%= @globalInvitationMessage[:message][:from] %>;
+    const myID = <%= @user.id %>;
+    const messageIsToInvitee = myID === toID;
+    let modal = null;
+    if (messageIsToInvitee) {
+      document.querySelector('#got-an-invitation #got-an-invitation-sender').textContent = '<%= @globalInvitationMessage[:message][:fromUsername]  %>';
+      modal = $('#got-an-invitation');
+    } else {
+      document.querySelector('#waiting-for-reply #waiting-for-reply-target').textContent = '<%= @globalInvitationMessage[:message][:toUsername] %>';
+      modal = $('#waiting-for-reply');
+    }
+    if (!modal) {
+      console.log(`Awp: Can't find modal #got-an-invitation`);
+      return;
+    }
+    modal.modal('show');
+
+    if (messageIsToInvitee) {
+      $("#got-an-invitation-ok").click(async () => {
+        // Chrome clears the console on location.href change, so don't write too much there at this point
+        // console.log(`QQQ: Handling got-an-invitation-ok: Recipient clicked OK!`);
+        // console.log(`QQQ: global-message: `, globalInvitationMessage)
+        $.post('/games.json', {playerA: fromID, playerB: myID})
+          .done((data) => {
+            // console.log(`QQQ: post games => ${ data }`, data);
+            console.table(data);
+            // alert(`QQQ: post games => ${ JSON.stringify(data) }`);
+            const url = `/invitations/${inviteID}?originator=${fromID}&reason=accepted&game_id=${data.location.id}`;
+            // alert(`QQQ: post games => game_id=${ data.location.id }, url: ${ url }`);
+            $.ajax({
+              url,
+              type: 'DELETE',
+              success: (result) => {
+                // console.log(`QQQ: delete worked? ${ result }`);
+              }
+            });
+            // console.log(`QQQ: - setting location.href...`);
+            window.location.href = `/games/${data.location.id}`;
+            // console.log(`QQQ: + setting location.href...`);
+          });
+      });
+
+      $("#got-an-invitation-cancel").click(async () => {
+        // console.log(`QQQ: Recipient clicked Cancel!`);
+        fetch(`/invitations/${inviteID}?originator=${myID}&reason=declined`, {
+          mode: 'cors', cache: 'no-cache',
+          credentials: "same-origin", // include, *same-origin, omit
+          method: 'PATCH'
+        });
+      });
+    } else {
+      $("#waiting-for-reply-cancel").click(async () => {
+        // console.log(`QQQ: Sender clicked cancel, globalMessage: #{ globalMessage }`);
+        fetch(`/invitations/${inviteID}?from=${myID}&flash=cancelled`, {
+          mode: 'cors', cache: 'no-cache',
+          credentials: "same-origin", // include, *same-origin, omit
+          method: 'DELETE'
+        });
+      });
+    }
+    <%#
+       @globalInvitationMessage = { chatroom: 'main', type: 'invitation',
+          message: { id: inv.id, from: inv.from, to: inv.to,
+            toUsername: user.username,
+            fromUsername: User.find(inv.from).username,
+          } }
+     %>
+    <% end %>
+  });
+</script>

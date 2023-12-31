@@ -1,0 +1,53 @@
+<div class="modal fade" id="waiting-for-reply" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="modalLabel">Hang on...</h4>
+      </div>
+      <div class="modal-body">
+        Waiting for a reply from <span id="waiting-for-reply-target"></span>
+      </div>
+      <div class="modal-footer">
+        <button id="waiting-for-reply-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="got-an-invitation" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="modalLabel">Hey</h4>
+      </div>
+      <div class="modal-body">
+        <span id="got-an-invitation-sender"></span> would like to play a game of Lirdle!
+      </div>
+      <div class="modal-footer">
+        <%#= form_with(id: "accept-invitation", model: Invitation.last, remote: true) do |f| %>
+        <%#= f.button("Let's play!", class: "btn btn-secondary", remote: "true") %>
+        <%#= f.button("Cancel",      class: "btn btn-secondary", remote: "true") %>
+        <%# end %>
+        <button id="got-an-invitation-ok" type="button" class="btn btn-secondary" data-dismiss="modal">OK</button>
+        <button id="got-an-invitation-cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="waiting-for-reply-timeout" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="modalLabel">Timed out</h4>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
