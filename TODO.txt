@@ -15,8 +15,10 @@ LATER:
 Use a cron job to delete any invitations that are > 1 hour old.
 
 2. End-game things:
- [ ] - concede -> A conceded, with words. B conceded, with the words & guesses
+ [x] - concede -> A conceded, with words. B conceded, with the words & guesses
  [ ] - Play another?
+
+2.1 - Can't invite a player who's in a game
 
 3. When a user joins, see if they're in the middle of a game. If so,
    put them there.

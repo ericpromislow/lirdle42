@@ -1,0 +1,10 @@
+<p>Your word was: <%= @other_state.finalWord %></p>
+<%= render 'games/final_guesses' %>
+<p>Their word was: <%= @game_state.finalWord %></p>
+<%
+  @game_state, @other_state = [@other_state, @game_state]
+  @user, @other_player = [@other_player, @user]
+  @yourNameCapitalized = "Their"
+%>
+
+<%= render 'games/final_guesses' %>

@@ -7,6 +7,7 @@
   @BG_GREEN = 'bg-success' # Should be --var(green)
   @BG_BLUE = 'bg-info' # was rgb(189, 213, 234) in lirdle
   @keyboard_colors = Hash.new(@BG_WHITE)
+  yourName = @yourNameCapitalized || 'Your'
   case num_rows
   when 0...13
     letterBoxSizeClassName = "small1"
@@ -26,7 +27,7 @@
       <% if @game_state.state == 4 %>
       <h2>Previous guesses with lies for <%= @user.username %>:</h2><div class="row">
       <% else %>
-      <h2>Your guesses:</h2>
+      <h2><%= yourName %> guesses:</h2>
       <% end %>
     </div>
   </div>

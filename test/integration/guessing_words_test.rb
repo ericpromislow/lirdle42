@@ -110,12 +110,34 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     assert_select "p", "Waiting for #{ @user2.username } to finish guessing a word."
   end
 
+  test "user can concede after game starts and sees the word" do
+    log_in_as(@user1)
+    post guesses_path, params: {game_state_id: @gs1.id, word:"weedy" }
+    assert_redirected_to game_path(@game)
+    follow_redirect!
+    assert_template 'games/_show3'
+    assert_select "p", "Waiting for #{ @user2.username } to finish guessing a word."
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
+    patch game_state_path(@gs1, { concede: true })
+    assert_redirected_to game_path(@game)
+    follow_redirect!
+    assert_template 'games/_show12'
+    assert_select "p", "You gave up."
+    assert_select "p", /Your word was.*baton/
+    log_in_as(@user2)
+    get game_path(@game)
+    assert_template 'games/_show13'
+    assert_select "p", "user1 gave up."
+    assert_select "p", /Your word was.*knell/
+  end
+
   test "when both players have made a guess move to state 4" do
     log_in_as(@user1)
     post guesses_path, params: {game_state_id: @gs1.id, word:"paint" }
     assert_redirected_to game_path(@game)
     follow_redirect!
     assert_template 'games/_show3'
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
     log_in_as(@user2)
     post guesses_path, params: {game_state_id: @gs2.id, word:"lemon" }
     assert_redirected_to game_path(@game)
@@ -133,12 +155,14 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
       %w/green/, %w/green/, %w/green/, %w/green/, %w/green/,
     ]
     verify_colored_buttons(expected)
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
 
     log_in_as(@user2)
     get game_path(@game)
     assert_template 'games/_show4'
     assert_select 'div.targetWord p', %r/Target word:.*baton/
     assert_select 'div.currentGuess p', %r/Their current guess:.*paint/
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
 
     expected = [%w/p grey/, %w/grey/, %w/i grey/, %w/grey/, %w/grey/,
                 %w/yellow/, %w/yellow/, %w/yellow/, %w/n yellow/, %w/t yellow/,
@@ -170,6 +194,7 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     assert_equal [5, 4], [@gs1.state, @gs2.state]
     assert_template 'games/_show5'
     assert_select "p", "Waiting for #{ @user2.username } to finish picking a lie."
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
 
     log_in_as(@user2)
     get game_path(@game)
@@ -189,6 +214,7 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
       assert_includes elt.classes, "background-#{ expected[i][1] }"
       i += 1
     end
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
 
     # puts "QQQ: #{ response.body }"
 

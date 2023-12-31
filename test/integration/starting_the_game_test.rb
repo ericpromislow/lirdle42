@@ -100,6 +100,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     assert_redirected_to game_path(newGame)
     follow_redirect!
     assert_template 'games/_show1'
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
 
     log_in_as(@user2)
     get game_path(newGame)
@@ -147,6 +148,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     assert_redirected_to game_path(newGame)
     follow_redirect!
     assert_template 'games/_show2'
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
     # assert_select "h2", /#{ @user1.username }'s word is/
     # assert_select "h2 strong", "psalm"
     # assert_select "p", "Waiting for #{ @user1.username } to pick your word"
