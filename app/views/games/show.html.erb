@@ -1,6 +1,23 @@
 
-user: <%= @user.username %>
-game: <%= @game.id %>
-@other_player: <%= @other_player.id %>
-
 <%= render "games/show#{@game_state.state}" %>
+
+<% if @game_state.state < 10 %>
+<div class="row">
+  <div class="col-offset-8 col-sm-4">
+    <%= form_with(model: @game_state, local: true) do |f| %>
+      <%= hidden_field_tag :concede, true %>
+      <%= f.submit "Give Up Already", class: "btn btn-secondary concede", data: { confirm: 'Are you sure?' } %>
+    <% end %>
+  </div>
+</div>
+<% end %>
+
+<div class="row">
+  <div class="col-sm-12">
+    <small>
+      user: <%= @user.username %>
+      game: <%= @game.id %>
+      @other_player: <%= @other_player.id %>
+    </small>
+  </div>
+</div>

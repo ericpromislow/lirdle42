@@ -64,6 +64,8 @@ consumer.subscriptions.create("MainChannel", {
         return;
       }
       processReloadGame(data.message);
+    } else if (data.type === 'concessionBeforeStart') {
+      processAcknowledgePreStartConcession(data.message);
     } else {
       console.log(`QQQ: received unexpected message ${ JSON.stringify(data) }`);
       console.table(data);
@@ -94,6 +96,10 @@ function processInvitationEnding(message) {
   clearTimeout(waitingForReplyTimeout);
   const modal = $('#waiting-for-reply');
   modal.modal('hide');
+}
+
+function processAcknowledgePreStartConcession(message) {
+  window.location.href = `/games/${ message.id }`;
 }
 
 function updateMyAddRemoveLabel(status) {
@@ -210,14 +216,11 @@ function processInvitationForRecipient(message) {
   console.log(`QQQ: Looking at my invitation from ${ message.from }`, message);
   try {
     const modal = $('#got-an-invitation');
-    if (!modal) {
-      console.log(`Awp: Can't find modal #got-an-invitation`);
-      return;
-    }
     document.querySelector('#got-an-invitation #got-an-invitation-sender').textContent = message.fromUsername;
     modal.modal('show');
     // console.log(`QQQ: should see the modal now`);
   } catch(e) {
+    alert(`${ message.fromUsername } is trying to invite you, but you need to be at the home page`);
     console.error(`Failed to show the modal: ${ e }`);
   }
 }

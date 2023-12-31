@@ -16,6 +16,10 @@ class GameStatesController < ApplicationController
   # 7: It's a tie
   # 8: I won, other player lost
   # 9: I lost
+  # 10: I conceded before play started
+  # 11: My opponent conceded before play started
+  # 12: I conceded after play started
+  # 13: My opponent conceded after play started
 
   def show
     @game = @game_state.game
@@ -37,6 +41,31 @@ class GameStatesController < ApplicationController
       return
     end
     gp = update_params
+    if gp[:concede]
+      if @game_state.state < 2
+        @game_state.update_attribute(:state, 10)
+        @other_state.update_attribute(:state, 11)
+      else
+        @game_state.update_attribute(:state, 12)
+        @other_state.update_attribute(:state, 13)
+      end
+      ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'concessionBeforeStart',
+        message: { id: @game.id, from: @user.id, to: @other_player.id,
+          fromUsername: @user.username,
+          toUsername: @other_player.username,
+          fromGameState: @game_state.id,
+          toGameState: @other_state.id,
+        } }
+      respond_to do |format|
+        format.html {
+          redirect_to game_path(@game) }
+        format.json {
+          # render :show, status: :ok, location: @game }
+          render json: { status: true }
+        }
+      end
+      return
+    end
     theLie = params[:lie]
     splitWords = @game_state.candidateWords.split(':')
     if theLie
@@ -150,6 +179,6 @@ private
   end
 
   def update_params
-    params.permit(:state, :wordIndex, :finalWord, :pending_guess)
+    params.permit(:concede, :state, :wordIndex, :finalWord, :pending_guess)
   end
 end

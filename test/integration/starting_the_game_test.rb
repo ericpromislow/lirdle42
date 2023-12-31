@@ -28,6 +28,8 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
       assert_match /"knell" sounds good/, btn.attribute('value').value
     end
     assert_select "input[type=submit][value=?]", 'Try the next word'
+    # puts response.body
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
     # Simulate clicking on the next word
     gs1.reload
     patch game_state_path(gs1, { wordIndex: gs1.wordIndex + 1 })
@@ -41,6 +43,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
       assert_equal 'Settle for "molar"', btn.attribute('value').value
     end
     assert_select "input[type=submit][value=?]", "Let's take a chance on door #3"
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
 
 
     # Simulate clicking on door #3
@@ -57,6 +60,7 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     assert_select "input[type=submit]" do |btn|
       assert_equal 'OK', btn.attribute('value').value
     end
+    assert_select "input[type=submit][name=commit][value=?]", 'Give Up Already'
 
     # Click the OK button
     patch game_state_path(gs1, { finalWord: "psalm" })
@@ -68,6 +72,23 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
     assert_select "p", "Waiting for #{ @user2.username } to pick your word"
   end
 
+  test "move to state 10/11 when someone concedes during word-choice" do
+    log_in_as(@user1)
+    post games_path, params: { playerA: @user1.id, playerB: @user2.id}
+    assert :success
+    newGame = Game.last
+    gs1, gs2 = newGame.game_states
+    gs1.update_attribute(:candidateWords, "knell:molar:psalm")
+    gs2.update_attribute(:candidateWords, "fetus:baton:frown")
+    get game_path(newGame)
+    assert_template 'games/_show0'
+
+    patch game_state_path(gs1, { concede: true })
+    follow_redirect!
+    assert_template 'games/_show10'
+    gs2.reload
+    assert_equal 11, gs2.state
+  end
   test "move to state 2 when both players are ready" do
     log_in_as(@user1)
     post games_path, params: { playerA: @user1.id, playerB: @user2.id}
