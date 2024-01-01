@@ -42,8 +42,6 @@ class GameStatesController < ApplicationController
     end
     gp = update_params
     if gp[:concede]
-      @user.update_attribute(:waiting_for_game, true)
-      @other_player.update_attribute(:waiting_for_game, true)
       if @game_state.state < 2
         @game_state.update_attribute(:state, 10)
         @other_state.update_attribute(:state, 11)

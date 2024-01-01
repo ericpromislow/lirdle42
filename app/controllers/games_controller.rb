@@ -42,6 +42,9 @@ class GamesController < ApplicationController
       redirect_to root_url
       return
     end
+    # TODO: Record all old games in a history database
+    userA.game_state&.destroy()
+    userB.game_state&.destroy()
 
     @game = Game.create()
     if !@game.save
@@ -57,8 +60,6 @@ class GamesController < ApplicationController
     @game.game_states.create(state: 0, user: userB, candidateWords: tw_for_b, wordIndex: 0)
 
     if @game.save
-      userA.update_attribute(:waiting_for_game, false)
-      userB.update_attribute(:waiting_for_game, false)
       respond_to do |format|
         format.html {
           redirect_to game_url(@game), notice: "Game was successfully created." }

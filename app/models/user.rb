@@ -46,6 +46,11 @@ class User < ApplicationRecord
     update_attribute(:remember_digest, nil)
   end
 
+  def in_game
+    gp = self.game_state || User.find(self.id).game_state
+    gp&.state && gp.state < 7
+  end
+
   def password_reset_expired?
     (reset_sent_at || 0) < 2.hours.ago
   end

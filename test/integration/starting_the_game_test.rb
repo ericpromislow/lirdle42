@@ -7,8 +7,12 @@ class StartingTheGameTest < ActionDispatch::IntegrationTest
   end
   test "create and start playing the game" do
     log_in_as(@user1)
+    assert !@user1.in_game
+    assert !@user2.in_game
     post games_path, params: { playerA: @user1.id, playerB: @user2.id}
     assert :success
+    assert @user1.in_game
+    assert @user2.in_game
     newGame = Game.last
     gs1, gs2 = newGame.game_states
     gs1.update_attribute(:candidateWords, "knell:molar:psalm")

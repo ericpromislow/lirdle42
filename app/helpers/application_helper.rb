@@ -15,7 +15,7 @@ module ApplicationHelper
 
   def update_waiting_users(cuser=nil)
     users = User.where(waiting_for_game: true).select(:id, :username, :email).order('LOWER(username)')
-    users = users.map do |user|
+    users = users.filter{ |u| cuser&.id == u.id || !u.in_game }.map do |user|
       u = { id: user.id, username: user.username}
       if user.image&.attached?
         u[:image_url] = Rails.application.routes.url_helpers.rails_blob_path(user.image, only_path: true)

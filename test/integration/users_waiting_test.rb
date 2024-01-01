@@ -61,7 +61,6 @@ class UsersWaitingTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_url
     follow_redirect!
     assert_template "static_pages/home"
-    # puts "QQQ: #{ response.body }"
     assert_select 'li', @user.username
 
     patch user_path(@user), params: {

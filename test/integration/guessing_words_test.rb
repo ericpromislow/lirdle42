@@ -39,6 +39,8 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     post guesses_path, params: {}
     assert_redirected_to root_url
     follow_redirect!
+    assert_redirected_to game_url(@game)
+    follow_redirect!
     assert_select 'div.alert-danger', "Invalid request: no game-state"
   end
 
@@ -47,13 +49,15 @@ class GuessingWordsTest < ActionDispatch::IntegrationTest
     post guesses_path, params: {game_state_id: -1}
     assert_redirected_to root_url
     follow_redirect!
+    assert_redirected_to game_url(@game)
+    follow_redirect!
     assert_select 'div.alert-danger', "Invalid request: invalid game-state"
   end
 
   test "guess from wrong user fails" do
     log_in_as(@user1)
     post guesses_path, params: {game_state_id: @gs2.id }
-    assert_redirected_to root_url
+    assert_redirected_to game_url(@game)
     follow_redirect!
     assert_select 'div.alert-danger', "Invalid request: unexpected user"
   end

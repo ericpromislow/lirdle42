@@ -21,15 +21,11 @@ Use a cron job to delete any invitations that are > 1 hour old.
 
 2.1 - [x] Can't invite a player who's in a game
 
-3. When a user joins, see if they're in the middle of a game. If so,
+3. [x] When a user joins, see if they're in the middle of a game. If so,
    put them there.
-
-   Add helper: game.is_in_progress: game_states.all { |gs| gs.state >= X }
 
 Fix copy-to-clipboard.
 
-Consider using the 'profanity_filter' gem and flagging anything if
-finds for moderator review.
 
 Next:
 
@@ -38,6 +34,12 @@ Next:
 - Don't allow a back button, particularly when selecting a word
 
 - Send every change to the server: current-word, and marks on each selected letter
+
+- Maintain a history database of old games, game-states, guesses...
+
+Consider using the 'profanity_filter' gem and flagging anything if
+finds for moderator review.
+
 
 Done:
 - Stop redirecting to the user's page -- it's not important

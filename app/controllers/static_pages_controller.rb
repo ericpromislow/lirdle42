@@ -1,7 +1,7 @@
 class StaticPagesController < ApplicationController
   def home
-    @waiting_users = get_waiting_users
     @user = current_user
+    @waiting_users = get_waiting_users
     if @user
       active_invitations = Invitation.where(to: @user.id)
       if active_invitations.count > 0
@@ -20,7 +20,9 @@ class StaticPagesController < ApplicationController
               toUsername: User.find(inv.to).username,
               fromUsername: @user.username,
             } }
-        end
+         elsif @user.in_game
+           redirect_to game_path(@user.game_state.game)
+         end
       end
     end
   end
@@ -35,6 +37,8 @@ class StaticPagesController < ApplicationController
   end
 private
   def get_waiting_users
-    User.where(waiting_for_game: true).order('LOWER(username)')
+    User.where(waiting_for_game: true).order('LOWER(username)').filter do |user|
+      (current_user && current_user.id == user.id) || !user.in_game
+    end
   end
 end
