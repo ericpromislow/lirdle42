@@ -17,7 +17,7 @@ Use a cron job to delete any invitations that are > 1 hour old.
 2. End-game things:
  [x] - concede -> A conceded, with words. B conceded, with the words & guesses
  [x] - make modals available in all post-concession screens
- [ ] - Play another?
+ [x] - Play another?
 
 2.1 - Can't invite a player who's in a game
 

@@ -1,17 +1,32 @@
-
+<%
+  # These get swapped in the show render partial
+  user_id = @user.id
+   other_player_id = @other_player.id
+%>
 <%= render "games/show#{@game_state.state}" %>
 
 <% if @game_state.state < 7 %>
   <div class="clearfix float-left visible-md visible-lg"></div>
-<div class="row">
-  <div class="col-offset-8 col-sm-3">
-    <%= form_with(model: @game_state, local: true) do |f| %>
-      <%= hidden_field_tag :concede, true %>
-      <%= f.submit "Give Up Already", class: "btn btn-secondary concede", data: { confirm: 'Are you sure?' } %>
-    <% end %>
+    <div class="row">
+      <div class="col-offset-8 col-sm-3">
+        <%= form_with(model: @game_state, local: true) do |f| %>
+          <%= hidden_field_tag :concede, true %>
+          <%= f.submit "Give Up Already", class: "btn btn-secondary concede", data: { confirm: 'Are you sure?' } %>
+        <% end %>
+      </div>
+    </div>
   </div>
-</div>
-</div>
+<% else %>
+  <div class="row">
+    <div class="col-offset-md-4 col-md-3">
+      <button class="btn btn-primary button" type="button" id="invite-rematch">Play Another?</button>
+      <%#= form_with(url: '/invitations.js', remote: true) do |f| %>
+        <%#= hidden_field_tag :from, user_id %>
+        <%#= hidden_field_tag :to, other_player_id %>
+        <%#= f.submit "Play Another?", class: "btn btn-secondary rematch" %>
+      <%# end %>
+    </div>
+  </div>
 <% end %>
 
 <div class="row">
@@ -23,3 +38,18 @@
     </small>
   </div>
 </div>
+
+<% if @game_state.state >= 7 %>
+<script>
+  $(document).ready(() => {
+    const rematchButton = document.querySelector('button#invite-rematch');
+    if (!rematchButton) {
+      alert(`Weird error: rematch button not found.`);
+    } else {
+      rematchButton.addEventListener('click', (event) => {
+        $.post('/invitations.js', {from: <%= user_id %>, to: <%= other_player_id  %>});
+      });
+    }
+  });
+</script>
+<% end %>

@@ -36,7 +36,15 @@ class InvitationsController < ApplicationController
                                                                 toUsername: to_user.username,
                                                                 fromUsername: from_user.username,
                                                      } }
-              head :ok
+              # debugger
+              respond_to do |format|
+                format.html {
+                  head :ok
+                }
+                format.js {
+                  head :ok
+                }
+              end
               return
             else
               flash[:danger] = "Failed to save the invitation: #{ invitation.errors.full_messages }"
@@ -126,7 +134,8 @@ class InvitationsController < ApplicationController
   end
 private
   def invitation_params
-    params.permit(:from, :to)
+    p1 = params.permit(:from, :to, :authenticity_token, :commit)
+    { from: p1[:from], to: p1[:to] }
   end
   def cor
     headers["Access-Control-Allow-Origin"]  = "*"
