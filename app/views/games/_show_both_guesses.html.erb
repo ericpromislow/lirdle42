@@ -11,5 +11,15 @@
       @yourNameCapitalized = "Their"
     %>
     <%= render 'games/final_guesses' %>
+    <%
+      # Restore so other functions can access the correct variables.
+      @game_state, @other_state = [@other_state, @game_state]
+      @user, @other_player = [@other_player, @user]
+    %>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <%= render 'games/copy_to_clipboard' %> Duplicate button?
   </div>
 </div>

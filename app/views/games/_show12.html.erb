@@ -1,3 +1,7 @@
+<%
+  score = @game_state.guesses.size
+  @outcome = "#{ @user.username } surrendered to #{ @other_player.username } after #{ pluralize(score, "guess") }"
+%>
 <p>You gave up.</p>
 <%= render 'games/show_both_guesses' %>
 

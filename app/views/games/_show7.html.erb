@@ -1,3 +1,7 @@
+<%
+  score = @game_state.guesses.size
+  @outcome = "#{ @user.username } tied #{ @other_player.username } #{ score }-#{ score }"
+%>
 <div class="row">
   <div class="col-md-4 col-md-offset-4">
     <h1>It's a tie!</h1>
@@ -5,10 +9,11 @@
 </div>
 <div class="row">
   <div class="col-md-4 col-md-offset-4">
-    <span id="result-tie">You both got it in <%= pluralize(@game_state.guesses.size, "guess") %>!</span> |
-    <button class="button" type="button" id="shareResults">Copy to Clipboard</button>
+    <span id="result-tie">You both got it in <%= pluralize(score, "guess") %>!</span> |
+    <%= render 'games/copy_to_clipboard' %>
   </div>
 </div>
+
 <%= render 'games/show_both_guesses' %>
 <%= render 'static_pages/modals_markup' %>
 <%= render 'static_pages/modals_js' %>

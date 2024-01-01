@@ -1,9 +1,15 @@
 <%
   other_player ||= @other_player
+  @outcome = "#{ @user.username } has guaranteed a tie against #{ @other_player.username } with #{ pluralize(@game_state.guesses.size, "guess")} "
 %>
-<h1>You're a non-loser!</h1>
+<div class="row">
+  <div class="col-md-4 col-md-offset-4">
+    <div class="h1">You're a non-loser!</div>
+  </div>
+</div>
 <p><span id="result1">You got it in <%= pluralize(@game_state.guesses.size, "guess") %>!</span> |
-  <button class="button" type="button" id="shareResults">Copy to Clipboard</button></p>
+  <%= render 'games/copy_to_clipboard' %>
+</p>
 <p>
 Waiting to see if <%= other_player.username %> gets it this turn...
 </p>

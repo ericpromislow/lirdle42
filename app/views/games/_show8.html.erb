@@ -1,6 +1,11 @@
-<h1>Congratulations, you won!</h1>
+<%
+  score = @game_state.guesses.size
+  @outcome = "#{ @user.username } beat #{ @other_player.username } after #{ pluralize(score, "guess") }"
+%>
+<div class="h1">Congratulations, you won!</div>
 <p><span id="result1">You got it in <%= pluralize(@game_state.guesses.size, "guess") %>!</span> |
-  <button class="button" type="button" id="shareResults">Copy to Clipboard</button></p>
+  <%= render 'games/copy_to_clipboard' %>
+</p>
 
 <%= render 'games/show_both_guesses' %>
 <%= render 'static_pages/modals_markup' %>

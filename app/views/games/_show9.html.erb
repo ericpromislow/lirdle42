@@ -1,3 +1,7 @@
+<%
+  score = @game_state.guesses.size
+  @outcome = "#{ @user.username } lost to #{ @other_player.username } after #{ pluralize(score, "guess") }"
+%>
 <div class="row">
   <div class="col-xs-12">
     <div class="h1">Sorry, you lost to <%= @other_player.username %></div>
@@ -8,7 +12,11 @@
     <div class="h2">Your word was: <b><%= @other_state.finalWord %></b></div>
   </div>
 </div>
-
+<div class="row">
+  <div class="col-xs-12">
+    <%= render 'games/copy_to_clipboard' %>
+  </div>
+</div>
 <%= render 'games/show_both_guesses' %>
 <%= render 'static_pages/modals_markup' %>
 <%= render 'static_pages/modals_js' %>
