@@ -19,7 +19,7 @@ Use a cron job to delete any invitations that are > 1 hour old.
  [x] - make modals available in all post-concession screens
  [x] - Play another?
 
-2.1 - Can't invite a player who's in a game
+2.1 - [x] Can't invite a player who's in a game
 
 3. When a user joins, see if they're in the middle of a game. If so,
    put them there.

@@ -58,17 +58,20 @@ class GuessesController < ApplicationController
     gs.guesses << guess
     notify_other_player = false
     if guess.isCorrect
+      @user.update_attribute(:waiting_for_game, true)
       # 6: I won, waiting for other player's next result
       # 7: It's a tie
       # 8: I won, other player lost
       # 9: I lost
       if @other_state.state == 6
         gs.state = 7
+        @other_player.update_attribute(:waiting_for_game, true)
         @other_state.update_attribute(:state, 7)
         notify_other_player = true
       elsif @other_state.state == 3
         # They already guessed wrong
         gs.state = 8
+        @other_player.update_attribute(:waiting_for_game, true)
         @other_state.update_attribute(:state, 9)
         notify_other_player = true
       else
@@ -78,6 +81,8 @@ class GuessesController < ApplicationController
     elsif @other_state.state == 6
       # The other user is waiting, so I lost and they won
       gs.state = 9
+      @user.update_attribute(:waiting_for_game, true)
+      @other_player.update_attribute(:waiting_for_game, true)
       @other_state.update_attribute(:state, 8)
       notify_other_player = true
     else

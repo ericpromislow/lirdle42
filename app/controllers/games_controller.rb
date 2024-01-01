@@ -55,13 +55,18 @@ class GamesController < ApplicationController
     tw_for_b = tw1[3..5].join(':')
     @game.game_states.create(state: 0, user: userA, candidateWords: tw_for_a, wordIndex: 0)
     @game.game_states.create(state: 0, user: userB, candidateWords: tw_for_b, wordIndex: 0)
-    respond_to do |format|
-      if @game.save
+
+    if @game.save
+      userA.update_attribute(:waiting_for_game, false)
+      userB.update_attribute(:waiting_for_game, false)
+      respond_to do |format|
         format.html {
           redirect_to game_url(@game), notice: "Game was successfully created." }
         format.json {
           render json: { status: :created, location: @game } }
-      else
+      end
+    else
+      respond_to do |format|
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: { errors: @game.errors, status: :unprocessable_entity } }
       end
