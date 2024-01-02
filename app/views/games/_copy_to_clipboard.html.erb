@@ -46,57 +46,38 @@
     });
   }
   function getShareText() {
-    <%
-     guesses = @game_state.guesses
-     %>
     const scoreLines = [];
+    let lineParts = [];
     scoreLines.push(`Results from ${ new Date() }:`);
     scoreLines.push('');
     scoreLines.push('<%= @outcome %>');
     scoreLines.push('');
-    scoreLines.push(`Your word: <%=@other_state.finalWord  %> `);
-    scoreLines.push('');
-    scoreLines.push(`Your guesses:`);
-    let lineParts = [];
-    <% guesses.each do |guess| %>
-      lineParts = [ '<%= guess.word %>' ];
-      lineParts.push('...');
-      <% guess.score.split(':').map(&:to_i).each_with_index do |score, posn|
-         if posn == guess.liePosition %>
-           lineParts.push('|');
-           lineParts.push(EMOJI_COLORS[<%= score %>]);
-           lineParts.push(EMOJI_RIGHT_ARROW);
-           lineParts.push(EMOJI_COLORS[<%= guess.lieColor %>]);
-           lineParts.push('|');
-         <% else %>
-           lineParts.push(EMOJI_COLORS[<%= score %>]);
-         <% end %>
-      <% end %>
-      scoreLines.push(lineParts.join(''));
-    <% end %>
-
-    scoreLines.push('');
-    scoreLines.push(`Their word: <%= @game_state.finalWord  %>`);
-    scoreLines.push('');
-    scoreLines.push(`Their guesses:`);
-    scoreLines.push('');
-    <% @other_state.guesses.each do |guess| %>
-      lineParts = [ '<%= guess.word %>' ];
-      lineParts.push('...');
-      <% guess.score.split(':').map(&:to_i).each_with_index do |score, posn|
-         if posn == guess.liePosition %>
-          lineParts.push('|');
-          lineParts.push(EMOJI_COLORS[<%= score %>]);
-          lineParts.push(EMOJI_RIGHT_ARROW);
-          lineParts.push(EMOJI_COLORS[<%= guess.lieColor %>]);
-          lineParts.push('|');
-        <% else %>
-          lineParts.push(EMOJI_COLORS[<%= score %>]);
+    <% [ [@game_state, 'Your', @other_state.finalWord],
+         [@other_state, 'Their', @game_state.finalWord],
+    ].each do | my_state, pronoun, finalWord |
+      guesses = my_state.guesses
+     %>
+      scoreLines.push('<%= pronoun %> word: <%= finalWord  %> ');
+      scoreLines.push('');
+      scoreLines.push('<%= pronoun %> guesses:');
+      <% guesses.each do |guess| %>
+        lineParts = [ '<%= guess.word %>' ];
+        lineParts.push('...');
+        <% guess.score.split(':').map(&:to_i).each_with_index do |score, posn|
+           if posn == guess.liePosition %>
+             lineParts.push('|');
+             lineParts.push(EMOJI_COLORS[<%= score %>]);
+             lineParts.push(EMOJI_RIGHT_ARROW);
+             lineParts.push(EMOJI_COLORS[<%= guess.lieColor %>]);
+             lineParts.push('|');
+           <% else %>
+             lineParts.push(EMOJI_COLORS[<%= score %>]);
+           <% end %>
         <% end %>
-      <% end %>
       scoreLines.push(lineParts.join(''));
+      <% end %>
+      scoreLines.push('');
     <% end %>
-    scoreLines.push('');
     scoreLines.push('lirdle42.com - the word game where you get to lie');
     return scoreLines.join('\n');
   }
