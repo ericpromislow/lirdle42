@@ -1,8 +1,14 @@
-<%
-  Rails.logger.debug("QQQ: In copy-to-clipboard, outcome: #{ @outcome }")
-%>
 <button class="button" type="button" id="shareResults">Copy to Clipboard</button>
+<% if !@rendered_copy_to_clipboard
+  @rendered_copy_to_clipboard = true
+%>
 <script>
+  const EMOJI_BLACK = String.fromCodePoint(0x25fc);
+  const EMOJI_RIGHT_ARROW = String.fromCodePoint(0x2192);
+  const EMOJI_YELLOW = String.fromCodePoint(0x1f7e8);
+  const EMOJI_GREEN = String.fromCodePoint(0x1f7e9);
+  const EMOJI_COLORS = [EMOJI_BLACK, EMOJI_YELLOW, EMOJI_GREEN];
+
   function fallbackCopyTextToClipboard(text) {
     const textArea = document.createElement("textarea");
     textArea.value = text;
@@ -51,12 +57,45 @@
     scoreLines.push(`Your word: <%=@other_state.finalWord  %> `);
     scoreLines.push('');
     scoreLines.push(`Your guesses:`);
-    scoreLines.push(`<%= guesses.map(&:word).join(' ') %>`);
+    let lineParts = [];
+    <% guesses.each do |guess| %>
+      lineParts = [ '<%= guess.word %>' ];
+      lineParts.push('...');
+      <% guess.score.split(':').map(&:to_i).each_with_index do |score, posn|
+         if posn == guess.liePosition %>
+           lineParts.push('|');
+           lineParts.push(EMOJI_COLORS[<%= score %>]);
+           lineParts.push(EMOJI_RIGHT_ARROW);
+           lineParts.push(EMOJI_COLORS[<%= guess.lieColor %>]);
+           lineParts.push('|');
+         <% else %>
+           lineParts.push(EMOJI_COLORS[<%= score %>]);
+         <% end %>
+      <% end %>
+      scoreLines.push(lineParts.join(''));
+    <% end %>
+
     scoreLines.push('');
     scoreLines.push(`Their word: <%= @game_state.finalWord  %>`);
     scoreLines.push('');
     scoreLines.push(`Their guesses:`);
-    scoreLines.push(`<%= @other_state.guesses.map(&:word).join(' ') %>`);
+    scoreLines.push('');
+    <% @other_state.guesses.each do |guess| %>
+      lineParts = [ '<%= guess.word %>' ];
+      lineParts.push('...');
+      <% guess.score.split(':').map(&:to_i).each_with_index do |score, posn|
+         if posn == guess.liePosition %>
+          lineParts.push('|');
+          lineParts.push(EMOJI_COLORS[<%= score %>]);
+          lineParts.push(EMOJI_RIGHT_ARROW);
+          lineParts.push(EMOJI_COLORS[<%= guess.lieColor %>]);
+          lineParts.push('|');
+        <% else %>
+          lineParts.push(EMOJI_COLORS[<%= score %>]);
+        <% end %>
+      <% end %>
+      scoreLines.push(lineParts.join(''));
+    <% end %>
     scoreLines.push('');
     scoreLines.push('lirdle42.com - the word game where you get to lie');
     return scoreLines.join('\n');
@@ -74,3 +113,4 @@
     });
   });
 </script>
+<% end %>

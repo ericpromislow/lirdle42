@@ -28,7 +28,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     assert_redirected_to game_path(@game)
     follow_redirect!
     assert_template 'games/_show6'
-    assert_select "h1", "You're a non-loser!"
+    assert_select "div.h1", "You're a non-loser!"
     assert_select "span#result1", "You got it in 4 guesses!"
     assert_select "button#shareResults", "Copy to Clipboard"
     assert_select "p", "Waiting to see if #{ @user2.username } gets it this turn..."
@@ -46,7 +46,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     assert_redirected_to game_path(@game)
     follow_redirect!
     assert_template 'games/_show7'
-    assert_select "h1", "It's a tie!"
+    assert_select "div.h1", "It's a tie!"
     assert_select "span#result-tie", "You both got it in 4 guesses!"
     assert_select "button#shareResults", "Copy to Clipboard"
     expected = [
@@ -60,7 +60,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     log_in_as(@user1)
     get game_path(@game)
     assert_template 'games/_show7'
-    assert_select "h1", "It's a tie!"
+    assert_select "div.h1", "It's a tie!"
     assert_select "span#result-tie", "You both got it in 4 guesses!"
     assert_select "button#shareResults", "Copy to Clipboard"
     expected = [
@@ -78,7 +78,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     assert_redirected_to game_path(@game)
     follow_redirect!
     assert_template 'games/_show6'
-    assert_select "h1", "You're a non-loser!"
+    assert_select "div.h1", "You're a non-loser!"
     assert_select "span#result1", "You got it in 4 guesses!"
     assert_select "button#shareResults", "Copy to Clipboard"
     assert_select "p", "Waiting to see if #{ @user2.username } gets it this turn..."
@@ -111,7 +111,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     log_in_as(@user1)
     get game_path(@game)
     assert_template 'games/_show8'
-    assert_select "h1", "Congratulations, you won!"
+    assert_select "div.h1", "Congratulations, you won!"
     assert_select "span#result1", "You got it in 4 guesses!"
     assert_select "button#shareResults", "Copy to Clipboard"
     expected = [
@@ -136,7 +136,7 @@ class FirstWinnerTest < ActionDispatch::IntegrationTest
     assert_redirected_to game_path(@game)
     follow_redirect!
     assert_template 'games/_show8'
-    assert_select "h1", "Congratulations, you won!"
+    assert_select "div.h1", "Congratulations, you won!"
     assert_select "span#result1", "You got it in 4 guesses!"
     assert_select "button#shareResults", "Copy to Clipboard"
     # Targeting madam
