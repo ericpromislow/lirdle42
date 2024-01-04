@@ -306,16 +306,20 @@ $(document).ready(async () => {
           // alert(`QQQ: post games => ${ JSON.stringify(data) }`);
           const url = `/invitations/${globalInvitationMessage.id}?originator=${globalInvitationMessage['from']}&reason=accepted&game_id=${data.location.id}`;
           // alert(`QQQ: post games => game_id=${ data.location.id }, url: ${ url }`);
+          // console.log(`QQQ: DELETE ${ url }`);
           $.ajax({
             url,
             type: 'DELETE',
             success: (result) => {
               // console.log(`QQQ: delete worked? ${ result }`);
+              // console.log(`QQQ: - setting location.href...`);
+              window.location.href = `/games/${data.location.id}`;
+              // console.log(`QQQ: + setting location.href...`);
+            },
+            failure: (err) => {
+              console.log(`QQQ: delete failed: ${ err }`);
             }
           });
-          // console.log(`QQQ: - setting location.href...`);
-          window.location.href = `/games/${data.location.id}`;
-          // console.log(`QQQ: + setting location.href...`);
         });
     });
 

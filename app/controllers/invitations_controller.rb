@@ -89,21 +89,24 @@ class InvitationsController < ApplicationController
   end
 
   def destroy
+    # debugger
+    # Rails.logger.debug("QQQ >> destroy invitation")
     cuser = current_user
     if !cuser
-      flash[:danger] = "Not logged in"
+      flash.now[:danger] = "Not logged in"
       head :forbidden
       return
     end
     invitation_id = params[:id]
     invitation = Invitation.find(invitation_id)
     if !invitation
-      flash[:danger] = "Can't find the invitationitation"
+      flash.now[:danger] = "Can't find the invitation"
       head :not_found
       return
     end
+    # Rails.logger.debug("QQQ >> destroy invitation #{ invitation.id }")
     if ![invitation.from, invitation.to].include?(cuser.id)
-      flash[:danger] = 'forbidden'
+      flash.now[:danger] = 'forbidden'
       head :forbidden
       return
     end
@@ -111,9 +114,12 @@ class InvitationsController < ApplicationController
     from_id = invitation.from
     from_user = User.find(from_id)
     to_user = User.find(to_id)
+    Rails.logger.debug("QQQ >> from: #{ from_id}, to: #{to_id}, -destroy")
     invitation.destroy
+    # Rails.logger.debug("QQQ >> +destroy")
     # puts "QQQ: flash: #{ params[:flash] }, reason: #{ params[:reason] }"
     if params[:flash] || params[:reason] == 'cancelled'
+      # Rails.logger.debug("QQQ >> reason is cancelled")
       ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationCancelled',
                                              message: { id: invitation_id, from: from_id, to: to_id,
                                                         toUsername: to_user.username,
@@ -123,6 +129,10 @@ class InvitationsController < ApplicationController
       head :ok
       return
     elsif params[:reason] == 'accepted'
+      # Rails.logger.debug("QQQ >> reason is accepted")
+      # Rails.logger.debug("*** accepting invitation #{ JSON.dump({ chatroom: 'main', type: 'invitationAccepted',
+      #   message: { id: invitation_id, to: from_id, game_id: params[:game_id]
+      #   } })}")
       ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationAccepted',
                                              message: { id: invitation_id, to: from_id, game_id: params[:game_id]
                                              } }
