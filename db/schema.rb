@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_11_16_222130) do
+ActiveRecord::Schema.define(version: 2024_03_06_045846) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -125,6 +125,8 @@ ActiveRecord::Schema.define(version: 2023_11_16_222130) do
     t.datetime "reset_sent_at"
     t.boolean "waiting_for_game", default: false
     t.integer "game_state_id"
+    t.string "invite_digest"
+    t.datetime "invite_sent_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["game_state_id"], name: "index_users_on_game_state_id"
     t.index ["username"], name: "index_users_on_username", unique: true

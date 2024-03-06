@@ -1,39 +1,33 @@
 class ExternalInvitationsController < ApplicationController
-  before_action :cor, only: %i[  destroy update ]
   before_action :logged_in_user
+  before_action :set_logged_in_user, only: %i[ create ]
   skip_before_action :verify_authenticity_token, only: %i[ update destroy ]# if :json_request
 
   def create
-    i_params = invitation_params
-    from_id = i_params[:from]
-    from_user = User.find(from_id) rescue nil
-    if !from_user
-      flash[:danger] = 'Incomplete invitation'
+    id = params[:id]
+    @user = User.find_by(id: id)
+    if @user
+      idn = id.to_i
+      idx = 10 ** (Math.log10(idn).floor + 1) - idn
+      @user.create_invite_digest
+      # x = new_external_invitations_url
+      # puts x
+      url = "#{ root_url }join?code=#{idx}_#{@user.invite_token}"
+      flash[:info] = "Send them '#{url}' - this link expires in 2 hours"
     else
-      clear_old_invitations(from_id, -1, from_user, nil)
-      oicount = Invitation.where(to: from_id).count
-      if oicount > 0
-        flash[:danger] = "#{ from_user.username } has an invitation to another game."
-      else
-        
-        invitation = ExternalInvitation.create(i_params)
+      flash.now[:danger] = "User not found (see logs)"
+      Rails.logger.error("Can't find user id #{ id }")
     end
+    redirect_to root_url
   end
 
   def update
+
   end
 
-  def delete
+  def destroy
+
   end
 private
-  def invitation_params
-    p1 = params.permit(:from, :authenticity_token, :commit) { from: p1[:from] }
-  end
-  def cor
-    headers["Access-Control-Allow-Origin"]  = "*"
-    headers["Access-Control-Allow-Methods"] = %w{GET POST PUT DELETE}.join(",")
-    headers["Access-Control-Allow-Headers"] = %w{Origin Accept Content-Type X-Requested-With X-CSRF-Token}.join(",")
-    #head(:ok) if request.request_method == "DELETE" && ENV['RAILS_ENV'] != 'test'
-  end
 
 end
