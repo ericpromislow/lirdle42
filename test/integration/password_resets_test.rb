@@ -90,6 +90,7 @@ class PasswordResetsTest < ActionDispatch::IntegrationTest
     @user.update_attribute(:reset_sent_at, 3.hours.ago)
     patch(password_reset_path(@user.reset_token),
       params: { email: @user.email,
+            token: @user.reset_token,
             user: { password: 'precious', password_confirmation: "precious" }})
     assert_redirected_to new_password_reset_url
     assert_not flash.empty?
