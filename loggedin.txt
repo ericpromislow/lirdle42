@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lirdle42</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    
+    <meta name="action-cable-url" content="ws:/127.0.0.1:3000/cable" />
+
+    <link rel="stylesheet" media="all" href="/assets/application.debug-2afd80c4c941d65ba449a0a82acce2ddfe42513cc942045bac8e7a49648dbe78.css" data-turbolinks-track="reload" />
+    <script src="/packs/js/application-7ef5aa6d611ae1eb8d74.js" data-turbolinks-track="reload"></script>
+  </head>
+
+  <body>
+    <header class="navbar navbar-fixed-top navbar-inverse">
+  <div class="container">
+    <nav>
+      <ul class="nav navbar-nav navbar-left">
+        <li>
+            <span class="text-light" id="logo">Logged in as joe</span>
+        </li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button"
+                class="navbar-toggle collapsed"
+                data-toggle="collapse"
+                data-target="#bs-example-navbar-collapse-1"
+                aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <ul class="nav navbar-nav navbar-right collapse navbar-collapse"
+          id="bs-example-navbar-collapse-1"
+          >
+        <li><a href="/">Home</a></li>
+        <li><a href="/help">Help</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+            <li><a href="/users">Users</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="/users/1/edit">Profile</a></li>
+              <li class="divider">
+                <li><a rel="nofollow" data-method="delete" href="/logout">Log out</a></li>
+              </li>
+            </ul>
+          </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <div class="containerWrapper">
+      <div class="container">
+        <div>
+  <h1>Lirdle42</h1><br>
+  <h2>
+    This be the home page for Lirdle42
+  </h2>
+
+</div>
+<script type="text/javascript">
+  $(document).ready(() => {
+  });
+</script>
+
+
+      </div>
+    </div>
+  </body>
+</html>

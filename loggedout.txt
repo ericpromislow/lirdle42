@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lirdle42</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <link rel="stylesheet" href="styles/main.css">
+  </head>
+
+  <body>
+    <script src="main.js" type="module"></script>
+    <header class="navbar navbar-fixed-top navbar-inverse">
+  <div class="container">
+    <nav>
+      <ul class="nav navbar-nav navbar-left">
+        <li>
+            <span v-if="loggedin" class="text-light" id="logo">Logged in as joe</span>
+        </li>
+      </ul>
+      <div class="navbar-header">
+        <button type="button"
+                class="navbar-toggle collapsed"
+                data-toggle="collapse"
+                data-target="#bs-example-navbar-collapse-1"
+                aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <ul class="nav navbar-nav navbar-right collapse navbar-collapse"
+          id="bs-example-navbar-collapse-1"
+          >
+        <li><a href="/help">Help</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li v-if="!loggedin"><a href="/login">Log in with your bluesky credentials</a></li>
+        <li v-else><a href="/logout">Log out</a></li>
+        <li><%= link_to "Terms of Service", terms_path %></li>
+        <li><%= link_to "Privacy Policy", privacy_path %></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <div class="containerWrapper">
+      <div class="container">
+        <div>
+  <h1>Lirdle42</h1><br>
+  <h2>
+    This be the home page for Lirdle42
+  </h2>
+  
+  <a v-if="!loggedin" class="btn btn-lg btn-primary" href="/login"></a>
+
+</div>
+<script type="text/javascript">
+  $(document).ready(() => {
+  });
+</script>
+
+
+      </div>
+    </div>
+  </body>
+  <footer class="footer">
+  <small>
+    The Amazing Kondoizer
+    Copyright &copy; SUSE 2024. All rights reserved.
+  </small>
+  <nav>
+    <ul>
+       <li><a href="/about">About</a></li>
+    </ul>
+  </nav>
+</footer>
+</html>

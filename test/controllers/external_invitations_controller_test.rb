@@ -18,9 +18,14 @@ class ExternalInvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_not flash.empty?
     assert_match("Please log in", flash[:danger])
     assert_redirected_to login_url
-
   end
 
+  test "try joining a game" do
+    log_in_as(@user)
+    # url = "#{root_url}join?code=#{@user.id}_mishmash"
+    get edit_external_invitation_url("#{@user.id}_mishmash")
+    assert flash.empty?
+  end
   # test "should get update" do
   #   get external_invitations_update_url
   #   assert_response :success
