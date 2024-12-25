@@ -29,8 +29,42 @@ class ExternalInvitationsController < ApplicationController
       redirect_to root_url
       return
     end
+    # debugger
+    code = code.sub(/^code=/, '')
     id, token = code.split('_', 2)
-    puts "QQQ: invite-controller: edit: id: #{id}, token:#{token}"
+    idn = id.to_i
+    puts "QQQ: invite-controller: edit: id: #{id} idn:#{idn}, (#{idn.class}), token:#{token}"
+    inviter = User.find_by(id: idn)
+    if !inviter
+      puts "QQQ: Can't find user with id #{id}"
+      flash[:danger] = "Invalid user given for this invite (id #{id})"
+      redirect_to root_url
+      return
+    end
+    puts "QQQ: inviter:  #{ inviter.id }"
+    puts "QQQ: invite-controller: inviter's invite_digest: #{ inviter.invite_digest }"
+    puts "QQQ: invite-controller: inviter's invite_token: #{ token }"
+    if !inviter.authenticated?(:invite, token)
+      puts "QQQ: Inviter key is invalid."
+      flash[:danger] = "Invitation from #{inviter.username} isn't valid"
+      redirect_to root_url
+      return
+    end
+    if inviter.invite_sent_at < 2.hours.ago
+      puts "QQQ: Invitation expired"
+      flash[:danger] = "Invitation from #{inviter.username} expired at #{inviter.invite_sent_at}"
+      redirect_to root_url
+      return
+    end
+    # Is our invitee still logged in?
+
+    ### TODO: Add a loggedin table -- just a list of IDs with created_at
+    # Next: grab a temporary name
+    # Create the temporary user
+    # Log them in as temporary -- so they can't invite others
+    # They *can* be invited to play with other people
+    # They have no email address
+    # If they haven't played for an hour they get logged out (and deleted)
     redirect_to root_url
   end
 

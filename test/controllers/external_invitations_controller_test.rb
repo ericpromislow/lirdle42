@@ -22,8 +22,20 @@ class ExternalInvitationsControllerTest < ActionDispatch::IntegrationTest
 
   test "try joining a game" do
     log_in_as(@user)
-    # url = "#{root_url}join?code=#{@user.id}_mishmash"
-    get edit_external_invitation_url("#{@user.id}_mishmash")
+    post external_invitations_url(id: @user.id)
+    assert_redirected_to root_url
+    follow_redirect!
+    puts "QQQ: flash: #{flash[:info]}"
+    flash[:info] =~ /join\?(.*?)'.*this link expires in (.*)/
+    params = $1
+    @user.reload
+    puts "@user stuff: @user's invite_digest: #{@user.invite_digest}"
+    puts "@user stuff: @user's invite_token: #{@user.invite_token}"
+    puts "@user stuff: @user's invite_sent_at: #{ @user.invite_sent_at }"
+    puts "QQQ: params: #{params}"
+    # urlParams = "#{@user.id}_#{@user.invite_digest}"
+    # url = "#{root_url}join?#{urlParams}"
+    get edit_external_invitation_url(params)
     assert flash.empty?
   end
   # test "should get update" do
