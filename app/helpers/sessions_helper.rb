@@ -1,6 +1,9 @@
 module SessionsHelper
+  @@status = {} # map userID => { loggedIn: true, inGame: GAME_ID }
+
   def log_in(user)
     session[:user_id] = user.id
+    @@status[user.id] = { loggedIn: true }
   end
 
   def logged_in?
@@ -20,9 +23,20 @@ module SessionsHelper
   end
 
   def log_out
+    @@status.delete(current_user.id)
     forget(current_user)
     session.delete(:user_id)
     @current_user = nil
+  end
+
+  def join_game(user, gameID)
+    @@status[user.id] ||= { loggedIn: true }
+    @@status[user.id][:inGame] = gameID
+  end
+
+  def leave_game(user, gameID)
+    @@status[user.id] ||= { loggedIn: true }
+    @@status[user.id][:inGame] = nil
   end
 
   def forget(user)
