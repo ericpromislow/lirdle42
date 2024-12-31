@@ -1,4 +1,5 @@
 module ApplicationHelper
+  include SessionsHelper
 
   APPNAME = "lirdle42"
   NUM_FREE_LOGINS = 1_000_000 # After this they have to activate their login
@@ -14,7 +15,11 @@ module ApplicationHelper
   end
 
   def update_waiting_users(cuser=nil)
+    status = SessionsHelper.status
     users = User.where(waiting_for_game: true).select(:id, :username, :email).order('LOWER(username)')
+    users = users.filter do | user |
+      status[user.id] && status[user.id][:loggedIn]
+    end
     users = users.filter{ |u| cuser&.id == u.id || !u.in_game }.map do |user|
       u = { id: user.id, username: user.username}
       if user.image&.attached?

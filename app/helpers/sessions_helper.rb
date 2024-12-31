@@ -1,5 +1,5 @@
 module SessionsHelper
-  @@status = {} # map userID => { loggedIn: true, gameID: GAME_ID }
+  @@status = {} # map userID => { loggedIn: true }
 
   def self.status
     @@status
