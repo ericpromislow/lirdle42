@@ -60,6 +60,8 @@ class GamesController < ApplicationController
     @game.game_states.create(state: 0, user: userB, candidateWords: tw_for_b, wordIndex: 0)
 
     if @game.save
+      join_game(userA, @game.id)
+      join_game(userB, @game.id)
       respond_to do |format|
         format.html {
           redirect_to game_url(@game), notice: "Game was successfully created." }
@@ -76,6 +78,7 @@ class GamesController < ApplicationController
 
   # DELETE /games/1 or /games/1.json
   def destroy
+    @game.game_states.each { |gs| leave_game(gs.user) }
     @game.destroy
 
     respond_to do |format|
