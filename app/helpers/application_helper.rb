@@ -1,7 +1,7 @@
 module ApplicationHelper
 
   APPNAME = "lirdle42"
-  NUM_FREE_LOGINS = 10 # After this they have to activate their login
+  NUM_FREE_LOGINS = 1_000_000 # After this they have to activate their login
 
   # Returns the full title on a per-page basis.
   def full_title(page_title = '')
