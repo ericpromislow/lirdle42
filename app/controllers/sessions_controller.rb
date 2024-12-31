@@ -30,9 +30,11 @@ class SessionsController < ApplicationController
     if current_user
       # False if the same user was active in two windows and then tried to log out from both -- just end the session
       current_user.update_columns(waiting_for_game: false)
+      log_out if logged_in?
       update_waiting_users
+    else
+      log_out if logged_in?
     end
-    log_out if logged_in?
     redirect_to root_url
   end
 end
