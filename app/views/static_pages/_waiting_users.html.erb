@@ -1,5 +1,5 @@
 
-<% if !logged_in? %>
+<% if !logged_in? || current_user.is_temporary %>
   <%= link_to "Sign up", signup_path, class: "btn btn-lg btn-primary" %>
   <% if @waiting_users.size > 0 %>
     <p>Currently <%= pluralize(@waiting_users.size, "person") %> <%= @waiting_users.size == 1 ? 'is' : 'are' %> waiting to play</p>
