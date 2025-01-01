@@ -8,7 +8,8 @@ class ExternalInvitationsControllerTest < ActionDispatch::IntegrationTest
   test "should get create" do
     log_in_as(@user)
     post external_invitations_url(id: @user.id)
-    assert_not flash.empty?
+    assert_nil flash[:danger]
+    assert_not_nil flash[:info]
     assert_match(%r{Send them.*\w/join\?code=\d+_.*this link expires in 2 hours}, flash[:info])
     assert_redirected_to root_url
   end
@@ -20,14 +21,18 @@ class ExternalInvitationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to login_url
   end
 
-  test "try joining a game" do
+  test "try creating an external invitation" do
     log_in_as(@user)
-    post external_invitations_url(id: @user.id)
+    post external_invitations_url(user: {id: @user.id})
     assert_redirected_to root_url
     follow_redirect!
+    assert_not_nil flash[:info]
     puts "QQQ: flash: #{flash[:info]}"
-    flash[:info] =~ /join\?(.*?)'.*this link expires in (.*)/
-    params = $1
+    m = /join\?(.*?)'.*this link expires in (.*)/.match(flash[:info])
+    assert_not_nil m
+    assert_not_empty m[1]
+    # flash[:info] =~ /join\?(.*?)'.*this link expires in (.*)/
+    params = {id: m[1]}
     @user.reload
     puts "@user stuff: @user's invite_digest: #{@user.invite_digest}"
     puts "@user stuff: @user's invite_token: #{@user.invite_token}"

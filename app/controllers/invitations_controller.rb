@@ -98,6 +98,7 @@ class InvitationsController < ApplicationController
       return
     end
     invitation_id = params[:id]
+    Rails.logger.debug("QQQ: Looking to delete invitation #{invitation_id}")
     invitation = Invitation.find(invitation_id)
     if !invitation
       flash.now[:danger] = "Can't find the invitation"
