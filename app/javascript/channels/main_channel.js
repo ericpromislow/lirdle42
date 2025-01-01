@@ -36,39 +36,58 @@ consumer.subscriptions.create("MainChannel", {
     console.log(`QQQ: received msg ${ data.type }`, globalMessage);
     if (data.chatroom === 'main' && data.type === 'waitingUsers' && globalMessage) {
       repopulateWaitingList(globalMessage);
-    } else if (data.type === 'invitation') {
-      // console.log(`QQQ: got an invitation, my ID is ${ myID }`);
-      // console.log(`QQQ: received message ${ JSON.stringify(data) }`);
-      globalInvitationMessage = globalMessage;
-      processInvitation(globalInvitationMessage);
-    } else if (data.type === 'invitationCancelled') {
-      // console.log(`QQQ: got an invitation-cancelled, my ID is ${ myID }`);
-      // console.log(`QQQ: received message ${ JSON.stringify(data) }`);
-      if (myID == globalMessage.to) {
-        processInvitationCancellation(globalMessage);
-      } else {
-        console.log(`QQQ: I'm ${ myID }, ignoring a message for ${ globalMessage.to }`)
-      }
-    } else if (data.type === 'invitationEnding') {
-      // console.log(`QQQ: got an invitation-ending, my ID is ${ myID }`);
-      // console.log(`QQQ: received message ${ JSON.stringify(data) }`);
-      processInvitationEnding(globalMessage);
-    } else if (data.type === 'invitationAccepted') {
-      // console.log(`QQQ: got an invitationAccepted for ${data.message.to}, my ID is ${myID}`);
-      // console.log(`QQQ: received message ${JSON.stringify(data)}`);
-      processInvitationAccepted(data.message);
-    } else if (data.type === 'reloadGame') {
-      console.log(`QQQ: got a reloadGame for ${data.message.to}, my ID is ${myID}`);
-      console.log(`QQQ: received message ${JSON.stringify(data)}`);
-      if (data.message.to != myID) {
-        return;
-      }
-      processReloadGame(data.message);
-    } else if (data.type === 'concessionBeforeStart') {
-      processAcknowledgePreStartConcession(data.message);
     } else {
-      console.log(`QQQ: received unexpected message ${ JSON.stringify(data) }`);
-      console.table(data);
+      switch (data.type) {
+        case 'invitation':
+          // console.log(`QQQ: got an invitation, my ID is ${ myID }`);
+          // console.log(`QQQ: received message ${ JSON.stringify(data) }`);
+          globalInvitationMessage = globalMessage;
+          processInvitation(globalInvitationMessage);
+          break;
+        case 'invitationCancelled':
+          // console.log(`QQQ: got an invitation-cancelled, my ID is ${ myID }`);
+          // console.log(`QQQ: received message ${ JSON.stringify(data) }`);
+          if (myID == globalMessage.to) {
+            processInvitationCancellation(globalMessage);
+          } else {
+            console.log(`QQQ: I'm ${ myID }, ignoring a message for ${ globalMessage.to }`)
+          }
+          break;
+        case 'invitationEnding':
+          // console.log(`QQQ: got an invitation-ending, my ID is ${ myID }`);
+          // console.log(`QQQ: received message ${ JSON.stringify(data) }`);
+          processInvitationEnding(globalMessage);
+          break;
+        case 'invitationAccepted':
+          // console.log(`QQQ: got an invitationAccepted for ${data.message.to}, my ID is ${myID}`);
+          // console.log(`QQQ: received message ${JSON.stringify(data)}`);
+          processInvitationAccepted(data.message);
+          break;
+        case 'reloadGame':
+          console.log(`QQQ: got a reloadGame for ${data.message.to}, my ID is ${myID}`);
+          console.log(`QQQ: received message ${JSON.stringify(data)}`);
+          if (data.message.to != myID) {
+            return;
+          }
+          processReloadGame(data.message);
+          break;
+        case 'concessionBeforeStart':
+          processAcknowledgePreStartConcession(data.message);
+          break;
+        case 'verifyExternalInviterIsOnline':
+          processVerifyExternalInviterIsOnline(data.message);
+          break;
+        case 'waitForExternalInviterOnlineAck':
+          processWaitForExternalInviterOnlineAck(data.message);
+          break;
+        case 'gotExternalInviterOnlineAck':
+          processGotExternalInviterOnlineAck(data.message);
+          break;
+
+        default:
+          console.log(`QQQ: received unexpected message ${ JSON.stringify(data) }`);
+          console.table(data);
+      }
     }
   }
 });
@@ -79,6 +98,49 @@ function processReloadGame(message) {
     return;
   }
   window.location = `/games/${ message.game_id }`;
+}
+
+function processVerifyExternalInviterIsOnline(data) {
+  console.table(data);
+  if (data.to == myID) {
+    // Wait a few seconds so the wait-for-ack dialog box doesn't blink!
+    setTimeout(() => {
+      fetch(`/external_invitations/edit?code=onlineAck&from=${ myID }&to=${ data.from }`);
+    }, 5 * 1000);
+  }
+}
+
+function processWaitForExternalInviterOnlineAck(data) {
+  console.table(data);
+  if (data.from == myID) {
+    // Put up the waiting modal...
+    handlers.setWaitForExternalInviterOnlineAckHandlers();
+    try {
+      const modal = $('#wait-for-external-inviter-online-ack');
+      document.querySelector('#wait-for-external-inviter-online-ack-target').textContent = data.message;
+      modal.modal('show');
+      // console.log(`QQQ: should see the modal now`);
+    } catch(e) {
+      alert(`Trying: ${ data.message }, but can't find the HTML (error message in console)`);
+      console.error(`Failed to show the modal: ${ e }`);
+    }
+  }
+}
+
+function processGotExternalInviterOnlineAck(data) {
+  console.table(data);
+  if (data.from == myID) {
+    // Put up the waiting modal...
+    handlers.setWaitForExternalInviterOnlineAckHandlers();
+    try {
+      const modal = $('#wait-for-external-inviter-online-ack');
+      modal.modal('hide');
+      // console.log(`QQQ: should see the modal now`);
+    } catch(e) {
+      alert(`processGotExternalInviterOnlineAck: but can't find the HTML (error message in console)`);
+      console.error(`Failed to find the modal for hiding: ${ e }`);
+    }
+  }
 }
 
 function processInvitationAccepted(data) {
@@ -330,6 +392,13 @@ $(document).ready(async () => {
         credentials: "same-origin", // include, *same-origin, omit
         method: 'PATCH'
       });
+    });
+  };
+
+  handlers.setWaitForExternalInviterOnlineAckHandlers = () => {
+    $("#wait-for-external-inviter-online-ack-cancel").click(async () => {
+      const modal = $('#wait-for-external-inviter-online-ack');
+      modal.modal('hide');
     });
   };
 });

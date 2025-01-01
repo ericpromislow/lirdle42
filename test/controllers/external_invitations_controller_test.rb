@@ -41,7 +41,9 @@ class ExternalInvitationsControllerTest < ActionDispatch::IntegrationTest
     # urlParams = "#{@user.id}_#{@user.invite_digest}"
     # url = "#{root_url}join?#{urlParams}"
     get edit_external_invitation_url(params)
-    assert flash.empty?
+    assert_redirected_to root_url
+    follow_redirect!
+    assert_empty flash
   end
   # test "should get update" do
   #   get external_invitations_update_url

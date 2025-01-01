@@ -32,6 +32,7 @@ class ExternalInvitationsController < ApplicationController
 
   def edit
     # if logged in do something else
+    flash.clear()
     code = params[:id] || params[:code]
     if code.nil?
       flash[:danger] = "No entry code supplied"
@@ -65,16 +66,6 @@ class ExternalInvitationsController < ApplicationController
       redirect_to root_url
       return
     end
-    # Is our invitee still logged in?
-    status = SessionsHelper.status
-    #@@ debugger
-    if !status.dig(inviter.id, :loggedIn)
-      msg = "#{ inviter.username } isn't logged in"
-      puts "QQQ User #{msg}"
-      flash[:danger] = msg
-      redirect_to root_url
-      return
-    end
     if inviter.in_game
       msg = "#{ inviter.username } is in another game - try later?"
       puts "QQQ User #{msg}"
@@ -82,9 +73,6 @@ class ExternalInvitationsController < ApplicationController
       redirect_to root_url
       return
     end
-    # TODO: !
-    # Clear the invitation details
-
     # Next: grab a temporary name
     username = ExternalInvitationsHelper::AdjectiveNounGenerator.new.generate
 
@@ -93,13 +81,21 @@ class ExternalInvitationsController < ApplicationController
     user = User.create(username: username, email: "#{username}@lirdle42.com", is_temporary: true, password: "temp")
     log_in user
 
-    msg = duplicate_create_invitations(user, inviter)
-    if msg
-      flash[:danger] = msg
-    else
-      # TODO: get the waiting-for-x essage
-    end
+    ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'verifyExternalInviterIsOnline',
+      message: { id: code, from: user.id, to: inviter.id,
+        toUsername: inviter.username,
+        fromUsername: user.username,
+        message: "Verify #{ user.username } is online"
+      } }
+    ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'waitForExternalInviterOnlineAck',
+      message: { id: code, from: user.id, to: inviter.id,
+        toUsername: inviter.username,
+        fromUsername: user.username,
+        message: "Checking to see if #{ user.username } is online..."
+      } }
     redirect_to root_url
+    # TODO: !
+    # Clear the invitation details
   end
 
   def update
