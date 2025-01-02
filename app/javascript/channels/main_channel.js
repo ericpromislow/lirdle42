@@ -105,7 +105,7 @@ function processVerifyExternalInviterIsOnline(data) {
   if (data.to == myID) {
     // Wait a few seconds so the wait-for-ack dialog box doesn't blink!
     setTimeout(() => {
-      fetch(`/external_invitations/edit?code=onlineAck&from=${ myID }&to=${ data.from }`);
+      fetch(`/external_invitations/${data.id}/edit?reason=onlineAck&inviter=${ myID }&invitee=${ data.from }`);
     }, 5 * 1000);
   }
 }
@@ -128,14 +128,39 @@ function processWaitForExternalInviterOnlineAck(data) {
 }
 
 function processGotExternalInviterOnlineAck(data) {
+  console.log(`QQQ: >> processGotExternalInviterOnlineAck`)
   console.table(data);
   if (data.from == myID) {
-    // Put up the waiting modal...
-    handlers.setWaitForExternalInviterOnlineAckHandlers();
     try {
       const modal = $('#wait-for-external-inviter-online-ack');
-      modal.modal('hide');
+    modal.modal('hide');
       // console.log(`QQQ: should see the modal now`);
+      // 'from' is the inviter, 'to' is the invitee, and the invitee created the invite
+      $.post('/games.json', {playerA: data['from'], playerB: data['to']})
+        .done((data1) => {
+          // console.log(`QQQ: post games => ${data}`, data);
+          console.table(data1);
+          // alert(`QQQ: post games => ${ JSON.stringify(data1) }`);
+          const url = `/invitations/${data.id}?originator=${data['from']}&reason=accepted&game_id=${data1.location.id}`;
+          // alert(`QQQ: post games => game_id=${ data.location.id }, url: ${ url }`);
+          // console.log(`QQQ: DELETE ${ url }`);
+          $.ajax({
+            url,
+            type: 'DELETE',
+            success: (result) => {
+              // console.log(`QQQ: delete worked? ${ result }`);
+              // params[:invitation_id], to: params[:invitee_id], from: params[:inviter_id]
+              fetch(`/external_invitations/${data.id}/edit?reason=sendInvitee&game_id=${ data1.location.id }&invitee_id=${ data.to }&inviter_id=${ data.from }`);
+              // console.log(`QQQ: - setting location.href...`);
+              window.location.href = `/games/${data1.location.id}`;
+
+              // console.log(`QQQ: + setting location.href...`);
+            },
+            failure: (err) => {
+              console.log(`QQQ: delete invitation failed: ${ err }`);
+            }
+          });
+        });
     } catch(e) {
       alert(`processGotExternalInviterOnlineAck: but can't find the HTML (error message in console)`);
       console.error(`Failed to find the modal for hiding: ${ e }`);

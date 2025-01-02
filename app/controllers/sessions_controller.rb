@@ -4,6 +4,7 @@ class SessionsController < ApplicationController
   end
 
   def create
+    #@@ debugger
     emailField = params[:session][:email]
     user = (User.find_by(email: emailField.downcase) ||
       User.find_by(username: emailField) ||
@@ -27,13 +28,12 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    #@@ debugger
     if current_user
-      # False if the same user was active in two windows and then tried to log out from both -- just end the session
       current_user.update_columns(waiting_for_game: false)
+      # False if the same user was active in two windows and then tried to log out from both -- just end the session
       log_out if logged_in?
       update_waiting_users
-    else
-      log_out if logged_in?
     end
     redirect_to root_url
   end

@@ -31,6 +31,7 @@ module ApplicationHelper
       end
       u
     end
+    #@@ debugger
     ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'waitingUsers', message: users.to_a, userID: cuser&.id }
   end
 

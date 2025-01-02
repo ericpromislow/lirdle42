@@ -89,7 +89,7 @@ class InvitationsController < ApplicationController
   end
 
   def destroy
-    # debugger
+    #@@ debugger
     # Rails.logger.debug("QQQ >> destroy invitation")
     cuser = current_user
     if !cuser

@@ -29,14 +29,17 @@ class GamesController < ApplicationController
 
   # POST /games or /games.json
   def create
+    #@@ debugger
     gp = create_params
     if ![gp[:playerA], gp[:playerB]].include?(@user.id.to_s) && !@user.admin
       flash[:danger] = "Can't create a game for others"
       redirect_to root_url
       return
     end
+    #@@ debugger
     userA = User.find(gp[:playerA])
     userB = User.find(gp[:playerB])
+    #@@ debugger
     if !userA || !userB
       flash[:danger] = "Can't create a game for non-existent players"
       redirect_to root_url
@@ -45,9 +48,11 @@ class GamesController < ApplicationController
     # TODO: Record all old games in a history database
     userA.game_state&.destroy()
     userB.game_state&.destroy()
+    #@@ debugger
 
     @game = Game.create()
     if !@game.save
+      #@@ debugger
       format.html { render :new, status: :unprocessable_entity }
       format.json { render json: { errors: @game.errors, status: :unprocessable_entity } }
       return
@@ -58,6 +63,7 @@ class GamesController < ApplicationController
     tw_for_b = tw1[3..5].join(':')
     @game.game_states.create(state: 0, user: userA, candidateWords: tw_for_a, wordIndex: 0)
     @game.game_states.create(state: 0, user: userB, candidateWords: tw_for_b, wordIndex: 0)
+    #@@ debugger
 
     if @game.save
       respond_to do |format|
@@ -100,6 +106,8 @@ class GamesController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def create_params
-    params.permit(:playerA, :playerB)
+    # This form gives the error message about format, so let's do it by hand...
+    # params.permit(:playerA, :playerB)
+    { playerA: params[:playerA], playerB: params[:playerB]}
   end
 end

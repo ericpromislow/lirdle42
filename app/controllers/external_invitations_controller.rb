@@ -30,8 +30,48 @@ class ExternalInvitationsController < ApplicationController
     redirect_to root_url
   end
 
+  def handleExternalInviterOnlineAck(params)
+    #@@ debugger
+    #  {"reason"=>"onlineAck", "from"=>"3", "to"=>"44",
+    # "id"=>"3_8HxLg61nAYRELW2HJLamTw"}
+    invitee_id = params[:invitee]
+    inviter_id = params[:inviter]
+    # Create the invitation
+    # And send this message -- the JS handler will request to delete the invitation,
+    # and that will start up the game.
+
+    i_params = { from: inviter_id, to: invitee_id }
+    begin
+      invitation = Invitation.new(i_params)
+      invitation.save!
+      #@@ debugger
+      ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'gotExternalInviterOnlineAck',
+        message: { id: invitation.id, from: inviter_id, to: invitee_id,
+          toUsername: "",
+          fromUsername: "",
+          message: "Acknowledged the inviter is online"
+        } }
+      head :ok
+    rescue ex
+      #@@ debugger
+      msg = ex.to_s
+      flash[:danger] = "Failed to start the game (see console)"
+      console.error(msg)
+      redirect_to root_url
+    end
+  end
+
   def edit
-    # if logged in do something else
+    if params[:reason] == "onlineAck"
+      handleExternalInviterOnlineAck(params)
+      return
+    elsif params[:reason] == 'sendInvitee'
+      debugger
+      ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationAccepted',
+        message: { game_id: params[:game_id], to: params[:invitee_id], from: params[:inviter_id],
+        } }
+      return
+    end
     flash.clear()
     code = params[:id] || params[:code]
     if code.nil?
@@ -39,7 +79,7 @@ class ExternalInvitationsController < ApplicationController
       redirect_to root_url
       return
     end
-    # debugger
+    #@@ debugger
     code = code.sub(/^code=/, '')
     id, token = code.split('_', 2)
     idn = id.to_i
@@ -75,23 +115,23 @@ class ExternalInvitationsController < ApplicationController
     end
     # Next: grab a temporary name
     username = ExternalInvitationsHelper::AdjectiveNounGenerator.new.generate
-
-    # Create the temporary user
-    #@@ debugger
     user = User.create(username: username, email: "#{username}@lirdle42.com", is_temporary: true, password: "temp")
+    if current_user
+      log_out
+    end
     log_in user
 
     ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'verifyExternalInviterIsOnline',
       message: { id: code, from: user.id, to: inviter.id,
         toUsername: inviter.username,
         fromUsername: user.username,
-        message: "Verify #{ user.username } is online"
+        message: "#{ user.username } is checking to see if I'm still online"
       } }
     ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'waitForExternalInviterOnlineAck',
       message: { id: code, from: user.id, to: inviter.id,
         toUsername: inviter.username,
         fromUsername: user.username,
-        message: "Checking to see if #{ user.username } is online..."
+        message: "Checking to see if #{ inviter.username } is online..."
       } }
     redirect_to root_url
     # TODO: !
@@ -99,6 +139,7 @@ class ExternalInvitationsController < ApplicationController
   end
 
   def update
+    #@@ debugger
 
   end
 
