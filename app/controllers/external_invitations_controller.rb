@@ -137,6 +137,7 @@ class ExternalInvitationsController < ApplicationController
         fromUsername: user.username,
         message: "Checking to see if #{ inviter.username } is online..."
       } }
+    flash[:info] = "If the game doesn't start in a few seconds and #{ inviter.username } is online try refreshing."
     redirect_to root_url
     # TODO: !
     # Clear the invitation details

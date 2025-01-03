@@ -151,7 +151,7 @@ function processGotExternalInviterOnlineAck(data) {
               // console.log(`QQQ: delete worked? ${ result }`);
               // params[:invitation_id], to: params[:invitee_id], from: params[:inviter_id]
               fetch(`/external_invitations/${data.id}/edit?reason=sendInvitee&game_id=${ data1.location.id }&invitee_id=${ data.to }&inviter_id=${ data.from }`);
-              // console.log(`QQQ: - setting location.href...`);
+              console.log(`QQQ: - ID ${ myID }: setting location.href to /games/${data1.location.id} ...`);
               window.location.href = `/games/${data1.location.id}`;
 
               // console.log(`QQQ: + setting location.href...`);
@@ -172,6 +172,7 @@ function processInvitationAccepted(data) {
   console.table(data);
   if (data.to == myID) {
     //TODO: Disconnect from this channel
+    console.log(`QQQ: - ID ${ myID }: setting location.href to /games/${data.game_id} ...`);
     window.location.href = `/games/${ data.game_id }`;
   }
 }
