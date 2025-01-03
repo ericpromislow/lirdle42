@@ -36,6 +36,7 @@ module ExternalInvitationsHelper
                   grouchy
                   grumpy
                   happy
+		  helping-friendly
                   hilarious
                   humble
                   impressive
@@ -64,6 +65,7 @@ module ExternalInvitationsHelper
                   responsive
                   rested
                   restless
+		  ring-tailed
                   shiny
                   shy
                   silly

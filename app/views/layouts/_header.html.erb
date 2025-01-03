@@ -32,7 +32,7 @@
             <li><%= link_to "Users", users_path %></li>
           <% end %>
           <% if !current_user.is_temporary %>
-            <li><%= link_to "Invite someone by email", external_invitations_path(user: { id: current_user}), method: :post %></li>
+            <li><%= link_to "Invite someone by email", "javascript:void(0);", onclick: "createExternalInvitation(#{current_user.id})" %></li>
           <% end %>
           <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Account <b class="caret"></b></a>
@@ -56,3 +56,97 @@
     </nav>
   </div>
 </header>
+<% if logged_in? && !current_user.is_temporary%>
+  <script type="text/javascript">
+    function fallbackCopyTextToClipboard_ExternalLink(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Avoid scrolling to bottom
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.position = "fixed";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        const successful = document.execCommand('copy');
+        const msg = successful ? 'successful' : 'unsuccessful';
+        console.log('Fallback: Copying text command was ' + msg);
+      } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+      }
+
+      document.body.removeChild(textArea);
+    }
+
+    function copyTextToClipboard_ExternalLink(text) {
+      if (!navigator.clipboard) {
+        fallbackCopyTextToClipboard_ExternalLink(text);
+        return;
+      }
+      navigator.clipboard.writeText(text).then(function() {
+        console.log('navigator.clipboard.writeText worked');
+      }, function(err) {
+        console.error(`navigator.clipboard.writeText failed: ${ err }`);
+        fallbackCopyTextToClipboard_ExternalLink(text);
+      });
+    }
+
+    function createExternalInvitation(myID) {
+      console.log(`QQQ: Hit createExternalInvitation with ID ${myID}`)
+      $.post('/external_invitations.json', {id: myID}, function(data) {
+          // alert( "1st success" );
+          console.log(`QQQ: >> POST external_invitations.json callback`);
+          // console.table(data);
+          const { id, url } = data;
+          if (id != myID) {
+            console.log(`I'm ID ${ myID }, this is for ${ id }`);
+            alert("Failed to create the link (see console for more info)");
+            console.error(ex);
+            return;
+          }
+          const modal = $('#external-invite-link');
+          if (!modal) {
+            console.log(`Can't find element external-invite-link`);
+            alert("Failed to create the link (see console for more info)");
+            return;
+          }
+          const modalBody = document.querySelector('#external-invite-link .modal-body');
+          if (!modalBody) {
+            console.log(`Can't find querySelector('#external-invite-link .modal-body')`);
+            alert("Failed to create the link (see console for more info)");
+            return;
+          }
+          const target = modalBody.querySelector('#external-invite-link-target')
+          if (!target) {
+            console.log(`Can't find #external-invite-link-target`);
+            alert("Failed to create the link (see console for more info)");
+            return;
+          }
+          const button = modalBody.querySelector('#external-invite-link-copy');
+          if (!button) {
+            console.log(`Can't find #external-invite-link-copy`);
+            alert("Failed to create the link (see console for more info)");
+            return;
+          }
+          target.text = url;
+          target.textContent = url;
+          button.addEventListener('click', () => {
+            copyTextToClipboard_ExternalLink(url);
+          });
+          modal.modal('show');
+
+      }).fail(function(ex) {
+          console.log(`Error trying to create the invitation`);
+          alert("Failed to create the link (see console for more info)");
+          console.error(ex);
+        });
+      $(document).ready(() => {
+
+      });
+    }
+  </script>
+<% end %>

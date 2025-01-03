@@ -16,13 +16,17 @@ class ExternalInvitationsController < ApplicationController
     end
     @user = User.find_by(id: id)
     if @user
-      # idn = id.to_i
-      # idx = 10 ** (Math.log10(idn).floor + 1) - idn
       @user.create_invite_digest
-      # x = new_external_invitations_url
-      # puts x
       url = "#{ root_url }join?code=#{id}_#{@user.invite_token}"
-      flash[:info] = "Send them '#{url}' - this link expires in 2 hours"
+      respond_to do |format|
+        format.html {
+          flash[:info] = "Send them '#{url}' - this link expires in 2 hours"
+        }
+        format.json {
+          render json: { id: id, url: url }
+          return
+        }
+      end
     else
       flash.now[:danger] = "User not found (see logs)"
       Rails.logger.error("Can't find user id #{ id }")
@@ -66,7 +70,7 @@ class ExternalInvitationsController < ApplicationController
       handleExternalInviterOnlineAck(params)
       return
     elsif params[:reason] == 'sendInvitee'
-      debugger
+      # debugger
       ActionCable.server.broadcast 'main', { chatroom: 'main', type: 'invitationAccepted',
         message: { game_id: params[:game_id], to: params[:invitee_id], from: params[:inviter_id],
         } }

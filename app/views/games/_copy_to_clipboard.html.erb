@@ -41,7 +41,7 @@
     navigator.clipboard.writeText(text).then(function() {
       console.log('navigator.clipboard.writeText worked');
     }, function(err) {
-      console.error(`navigator.clipboard.writeText failed: ${ e }`);
+      console.error(`navigator.clipboard.writeText failed: ${ err }`);
       fallbackCopyTextToClipboard(text);
     });
   }
