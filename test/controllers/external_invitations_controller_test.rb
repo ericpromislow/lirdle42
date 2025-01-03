@@ -43,7 +43,8 @@ class ExternalInvitationsControllerTest < ActionDispatch::IntegrationTest
     get edit_external_invitation_url(params)
     assert_redirected_to root_url
     follow_redirect!
-    assert_empty flash
+    assert_not_empty flash
+    assert_match "If the game doesn't start in a few seconds and user1 is online try refreshing.", flash[:info]
   end
   # test "should get update" do
   #   get external_invitations_update_url

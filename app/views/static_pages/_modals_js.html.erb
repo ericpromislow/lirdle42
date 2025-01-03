@@ -71,6 +71,37 @@
             fromUsername: User.find(inv.from).username,
           } }
      %>
+    <% else %>
+    // Check to see if cookies have been accepted  try {
+    const checkCookies = function() {
+      const cookiesOKRaw = localStorage.getItem('cookiesOK');
+      if (cookiesOKRaw) {
+        try {
+          const cookiesOK = JSON.parse(cookiesOKRaw);
+          if (cookiesOK?.accepted) {
+            return;
+          }
+        } catch (ex) {
+          console.log(`QQQ: Can't json-parse ${cookiesOKRaw}`)
+        }
+      }
+      const modal = $("#cookieconsent");
+      if (!modal) {
+        alert("Can't find the cookies consent thing! Pressing 'ok' here means you're ok with this site storing cookies. Otherwise close the window.");
+        return;
+      }
+      const button = document.querySelector('#cookieconsent .modal-footer button');
+      if (!button) {
+        alert("Can't find the cookies-consent button. Pressing 'ok' here means you're ok with this site storing cookies. Otherwise close the window.");
+        return;
+      }
+      button.addEventListener('click', (event) => {
+        localStorage.setItem('cookiesOK', JSON.stringify({ accepted: true }));
+        modal.modal('hide');
+      });
+      modal.modal('show');
+    };
+    checkCookies();
     <% end %>
   });
 </script>
